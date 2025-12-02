@@ -13,7 +13,7 @@ git pull origin dev
 
 # Update version in files
 echo "📝 Updating version to v1.0.0..."
-echo "v1.0.0" > mgraph_ai_service_base/version
+echo "v1.0.0" > mgraph_ai_service_html__graph/version
 
 # Update README.md - handle both macOS and Linux sed
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -28,11 +28,11 @@ fi
 
 # Show what changed
 echo "📋 Changes to be committed:"
-git diff mgraph_ai_service_base/version README.md pyproject.toml
+git diff mgraph_ai_service_html__graph/version README.md pyproject.toml
 
 # Commit changes
 echo "💾 Committing changes..."
-git add mgraph_ai_service_base/version README.md pyproject.toml
+git add mgraph_ai_service_html__graph/version README.md pyproject.toml
 git commit -m "Release v1.0.0"
 
 # Tag the commit
@@ -47,7 +47,7 @@ git push origin v1.0.0
 echo "✅ v1.0.0 released successfully!"
 echo ""
 echo "📝 Next steps - Create a GitHub Release manually:"
-echo "   1. Go to https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base/releases"
+echo "   1. Go to https://github.com/the-cyber-boardroom/MGraph-AI__Service__Html__Graph/releases"
 echo "   2. Click 'Create a new release'"
 echo "   3. Choose tag: v1.0.0"
 echo "   4. Release title: v1.0.0"

@@ -6,7 +6,7 @@ from osbot_fast_api_serverless.fast_api.routes.Routes__Info           import ROU
 #from osbot_local_stack.local_stack.Local_Stack                        import Local_Stack
 from osbot_utils.utils.Env                                            import get_env
 from starlette.testclient                                             import TestClient
-from mgraph_ai_service_base.fast_api.Base__Service__Fast_API          import Base__Service__Fast_API
+from mgraph_ai_service_html__graph.fast_api.Base__Service__Fast_API          import Base__Service__Fast_API
 from tests.unit.Base__Service__Fast_API__Test_Objs                    import setup__base_service__fast_api_test_objs, Service__Fast_API__Test_Objs, TEST_API_KEY__NAME
 
 

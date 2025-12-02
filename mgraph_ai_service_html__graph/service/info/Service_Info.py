@@ -1,7 +1,7 @@
 from osbot_fast_api.utils.Fast_API__Server_Info                               import fast_api__server_info, Fast_API__Server_Info
 from osbot_fast_api_serverless.services.info.schemas.Schema__Server__Versions import Schema__Server__Versions
 from osbot_utils.type_safe.Type_Safe                                          import Type_Safe
-from mgraph_ai_service_base.service.info.schemas.Schema__Service__Status      import Schema__Service__Status, Enum__Service_Environment
+from mgraph_ai_service_html__graph.service.info.schemas.Schema__Service__Status      import Schema__Service__Status, Enum__Service_Environment
 
 
 

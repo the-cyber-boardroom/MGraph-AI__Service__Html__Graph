@@ -32,7 +32,7 @@ on:
         required: false
 
 env:
-  PACKAGE_NAME: 'mgraph_ai_service_base'
+  PACKAGE_NAME: 'mgraph_ai_service_html__graph'
 
 jobs:
   run-tests:
