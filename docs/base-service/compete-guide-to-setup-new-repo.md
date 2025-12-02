@@ -34,11 +34,11 @@ cd MGraph-AI__Service__Graphs
 git checkout -b dev
 
 # Add the template repository as a remote
-git remote add template https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base.git
+git remote add template https://github.com/the-cyber-boardroom/MGraph-AI__Service__Html__Graph.git
 
 # Fetch and merge template
 git fetch template
-git merge template/main --allow-unrelated-histories -m "Initial import from MGraph-AI__Service__Base template"
+git merge template/main --allow-unrelated-histories -m "Initial import from MGraph-AI__Service__Html__Graph template"
 ```
 
 ## Step 3: Rename Service
@@ -51,22 +51,22 @@ git merge template/main --allow-unrelated-histories -m "Initial import from MGra
 ### Option B: Manual rename
 ```bash
 # Rename the main directory
-mv mgraph_ai_service_base mgraph_ai_service_graphs
+mv mgraph_ai_service_html_graph mgraph_ai_service_graphs
 ```
 
 ## Step 4: Global Search and Replace
 
 Open the project in PyCharm (or your preferred IDE) and perform these global search and replace operations:
 
-1. **Replace "MGraph-AI Service Base"** → **"MGraph-AI Service Graphs"**
+1. **Replace "MGraph AI Service Html Graph"** → **"MGraph-AI Service Graphs"**
    - Should find ~10 occurrences
    - These are in documentation and comments
 
-2. **Replace "mgraph_ai_service_base"** → **"mgraph_ai_service_graphs"**
+2. **Replace "mgraph_ai_service_html_graph"** → **"mgraph_ai_service_graphs"**
    - Should find 1-2 occurrences (after rename script)
    - This is the Python package name
 
-3. **Replace "MGraph-AI__Service__Base"** → **"MGraph-AI__Service__Graphs"**
+3. **Replace "MGraph-AI__Service__Html__Graph"** → **"MGraph-AI__Service__Graphs"**
    - Should find ~35 occurrences
    - These are in README, documentation, and GitHub URLs
 
@@ -143,7 +143,7 @@ git add .
 # Commit with descriptive message
 git commit -m "Initialize MGraph-AI Service Graphs from template
 
-- Based on MGraph-AI__Service__Base v0.3.0
+- Based on MGraph-AI__Service__Html__Graph v0.3.0
 - Service name: mgraph_ai_service_graphs
 - Repository: MGraph-AI__Service__Graphs
 - All tests passing"

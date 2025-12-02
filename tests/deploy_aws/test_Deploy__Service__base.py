@@ -1,9 +1,9 @@
 import pytest
-from osbot_utils.utils.Misc                                        import list_set
-from osbot_fast_api_serverless.deploy.Deploy__Serverless__Fast_API import DEFAULT__ERROR_MESSAGE__WHEN_FAST_API_IS_OK
-from mgraph_ai_service_base.config                                 import LAMBDA_DEPENDENCIES__BASE__SERVICE
-from mgraph_ai_service_base.utils.Version                          import version__mgraph_ai_service_base
-from mgraph_ai_service_base.utils.deploy.Deploy__Service           import Deploy__Service
+from osbot_utils.utils.Misc                                              import list_set
+from osbot_fast_api_serverless.deploy.Deploy__Serverless__Fast_API       import DEFAULT__ERROR_MESSAGE__WHEN_FAST_API_IS_OK
+from mgraph_ai_service_html_graph.config                                 import LAMBDA_DEPENDENCIES__HTML_GRAPH__SERVICE
+from mgraph_ai_service_html_graph.utils.Version                          import version__mgraph_ai_service_html_graph
+from mgraph_ai_service_html_graph.utils.deploy.Deploy__Service           import Deploy__Service
 
 
 class test_Deploy__Service__base():     # Base class for deployment tests - override stage in subclasses
@@ -26,7 +26,7 @@ class test_Deploy__Service__base():     # Base class for deployment tests - over
 
     def test_2__upload_dependencies(self):
         upload_results = self.deploy_fast_api.upload_lambda_dependencies_to_s3()
-        assert list_set(upload_results) == LAMBDA_DEPENDENCIES__BASE__SERVICE
+        assert list_set(upload_results) == LAMBDA_DEPENDENCIES__HTML_GRAPH__SERVICE
 
     def test_3__create(self):
         assert self.deploy_fast_api.create() is True
@@ -35,7 +35,7 @@ class test_Deploy__Service__base():     # Base class for deployment tests - over
         assert self.deploy_fast_api.invoke().get('errorMessage') == DEFAULT__ERROR_MESSAGE__WHEN_FAST_API_IS_OK
 
     def test_5__invoke__function_url(self):
-        version = {'version': version__mgraph_ai_service_base}
+        version = {'version': version__mgraph_ai_service_html_graph}
         assert self.deploy_fast_api.invoke__function_url('/info/health') == {'status': 'ok'}
 
     # def test_6__delete(self):

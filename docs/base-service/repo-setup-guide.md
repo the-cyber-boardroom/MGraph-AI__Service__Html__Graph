@@ -1,10 +1,10 @@
-# MGraph-AI Service Base - Setup Guide
+# MGraph AI Service Html Graph - Setup Guide
 
 This guide walks through the complete setup process from initial repository creation to v1.0.0 release.
 
 ## 📋 Prerequisites
 
-- GitHub repository created: `https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base`
+- GitHub repository created: `https://github.com/the-cyber-boardroom/MGraph-AI__Service__Html__Graph`
 - AWS account with appropriate permissions
 - GitHub CLI (`gh`) installed (optional but helpful)
 - AWS CLI configured locally
@@ -26,16 +26,16 @@ In your GitHub repository, go to Settings → Secrets and variables → Actions,
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base.git
-cd MGraph-AI__Service__Base
+git clone https://github.com/the-cyber-boardroom/MGraph-AI__Service__Html__Graph.git
+cd MGraph-AI__Service__Html__Graph
 
 # 2. Create initial commit (empty repo)
 git init
-echo "# MGraph-AI Service Base" > temp.md
+echo "# MGraph AI Service Html Graph" > temp.md
 git add temp.md
 git commit -m "Initial repository creation"
 git branch -M main
-git remote add origin https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base.git
+git remote add origin https://github.com/the-cyber-boardroom/MGraph-AI__Service__Html__Graph.git
 git push -u origin main
 
 # 3. Tag the initial commit with v0.1.0
@@ -53,7 +53,7 @@ rm temp.md
 
 # 7. Commit the scaffold
 git add .
-git commit -m "First commit for MGraph-AI Service Base - v1.0.0 scaffold with FastAPI setup, tests, and CI/CD pipeline"
+git commit -m "First commit for MGraph AI Service Html Graph - v1.0.0 scaffold with FastAPI setup, tests, and CI/CD pipeline"
 
 # 8. Push to dev branch
 git push -u origin dev
@@ -77,7 +77,7 @@ After pushing to dev:
 3. **Verify AWS Lambda**:
    - Log into AWS Console
    - Navigate to Lambda → Functions
-   - Look for `mgraph_ai_service_base-dev`
+   - Look for `mgraph_ai_service_html_graph-dev`
    - Check Function URL is created
 
 ## 🌐 Step 4: Configure CloudFront and DNS
@@ -120,7 +120,7 @@ Pattern: `{stage}.{service-name}.mgraph.ai`
 3. **Test the domain**:
    ```bash
    curl https://dev.base.mgraph.ai/health
-   # Should return: {"status":"healthy","service":"mgraph_ai_service_base"}
+   # Should return: {"status":"healthy","service":"mgraph_ai_service_html_graph"}
    ```
 
 ## 📈 Step 5: Release to Main/QA
@@ -144,7 +144,7 @@ git pull origin dev
 3. **Verify QA deployment**:
    - Check GitHub Actions for "CI Pipeline - MAIN" workflow
    - Version should increment to v0.2.0
-   - Lambda function `mgraph_ai_service_base-qa` should be created
+   - Lambda function `mgraph_ai_service_html_graph-qa` should be created
    - Repeat CloudFront/DNS setup for `qa.base.mgraph.ai`
 
 ## 🚢 Step 6: Deploy to Production
@@ -157,7 +157,7 @@ git pull origin dev
    - Click "Run workflow"
 
 2. **Verify production deployment**:
-   - Lambda function `mgraph_ai_service_base-prod` should be created
+   - Lambda function `mgraph_ai_service_html_graph-prod` should be created
    - Repeat CloudFront/DNS setup for `prod.base.mgraph.ai`
 
 ## 🏷️ Step 7: Release v1.0.0
@@ -173,7 +173,7 @@ git checkout dev
 git pull origin dev
 
 # Update version in files
-echo "v1.0.0" > mgraph_ai_service_base/version
+echo "v1.0.0" > mgraph_ai_service_html_graph/version
 
 # Update README.md
 sed -i '' 's/release-v[0-9]\+\.[0-9]\+\.[0-9]\+/release-v1.0.0/g' README.md
@@ -182,7 +182,7 @@ sed -i '' 's/release-v[0-9]\+\.[0-9]\+\.[0-9]\+/release-v1.0.0/g' README.md
 sed -i '' 's/version     = "v[0-9]\+\.[0-9]\+\.[0-9]\+"/version     = "v1.0.0"/g' pyproject.toml
 
 # Commit changes
-git add mgraph_ai_service_base/version README.md pyproject.toml
+git add mgraph_ai_service_html_graph/version README.md pyproject.toml
 git commit -m "Release v1.0.0"
 
 # Tag the commit
@@ -194,7 +194,7 @@ git push origin v1.0.0
 
 echo "✅ v1.0.0 released!"
 echo "📝 Now create a GitHub Release manually:"
-echo "   1. Go to https://github.com/the-cyber-boardroom/MGraph-AI__Service__Base/releases"
+echo "   1. Go to https://github.com/the-cyber-boardroom/MGraph-AI__Service__Html__Graph/releases"
 echo "   2. Click 'Create a new release'"
 echo "   3. Choose tag: v1.0.0"
 echo "   4. Release title: v1.0.0"
@@ -283,4 +283,4 @@ You now have:
 
 ---
 
-This completes the setup! Your MGraph-AI Service Base is now fully operational across all environments.
+This completes the setup! Your MGraph AI Service Html Graph is now fully operational across all environments.

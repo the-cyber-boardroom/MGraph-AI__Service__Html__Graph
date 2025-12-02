@@ -129,7 +129,7 @@ Our approach uses Git's remote feature elegantly:
 git remote add origin git@github.com:org/MGraph-AI__Service__YourService.git
 
 # Template: The template repository
-git remote add template https://github.com/org/MGraph-AI__Service__Base.git
+git remote add template https://github.com/org/MGraph-AI__Service__Html__Graph.git
 ```
 
 This enables:
@@ -160,7 +160,7 @@ git merge template/feature/rate-limiting
 ```bash
 # Only want the new health check endpoint
 git fetch template
-git checkout template/main -- mgraph_ai_service_base/routes/health.py
+git checkout template/main -- mgraph_ai_service_html_graph/routes/health.py
 git commit -m "feat: adopt improved health check from template"
 ```
 

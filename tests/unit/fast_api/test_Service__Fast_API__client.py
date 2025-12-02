@@ -3,18 +3,17 @@ from fastapi                                                          import Fas
 from osbot_fast_api.api.Fast_API                                      import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.api.schemas.consts.consts__Fast_API               import EXPECTED_ROUTES__SET_COOKIE
 from osbot_fast_api_serverless.fast_api.routes.Routes__Info           import ROUTES_INFO__HEALTH__RETURN_VALUE, ROUTES_PATHS__INFO
-#from osbot_local_stack.local_stack.Local_Stack                        import Local_Stack
 from osbot_utils.utils.Env                                            import get_env
 from starlette.testclient                                             import TestClient
-from mgraph_ai_service_base.fast_api.Base__Service__Fast_API          import Base__Service__Fast_API
-from tests.unit.Base__Service__Fast_API__Test_Objs                    import setup__base_service__fast_api_test_objs, Service__Fast_API__Test_Objs, TEST_API_KEY__NAME
+from mgraph_ai_service_html_graph.fast_api.Html_Graph__Service__Fast_API    import Html_Graph__Service__Fast_API
+from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                    import setup__html_graph_service__fast_api_test_objs, Html_Graph__Service__Fast_API__Test_Objs, TEST_API_KEY__NAME
 
 
 class test_Service__Fast_API__client(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with setup__base_service__fast_api_test_objs() as _:
+        with setup__html_graph_service__fast_api_test_objs() as _:
             cls.service_fast_api_test_objs         = _
             cls.fast_api                           = cls.service_fast_api_test_objs.fast_api
             cls.client                             = cls.service_fast_api_test_objs.fast_api__client
@@ -22,8 +21,8 @@ class test_Service__Fast_API__client(TestCase):
 
     def test__init__(self):
         with self.service_fast_api_test_objs as _:
-            assert type(_)                  is Service__Fast_API__Test_Objs
-            assert type(_.fast_api        ) is Base__Service__Fast_API
+            assert type(_)                  is Html_Graph__Service__Fast_API__Test_Objs
+            assert type(_.fast_api        ) is Html_Graph__Service__Fast_API
             assert type(_.fast_api__app   ) is FastAPI
             assert type(_.fast_api__client) is TestClient
             #assert type(_.local_stack     ) is Local_Stack
