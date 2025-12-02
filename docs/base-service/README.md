@@ -97,8 +97,8 @@ git merge template/main --allow-unrelated-histories -m "Initial template import"
 echo "🔄 Renaming service..."
 
 # Rename directories
-find . -type d -name "*mgraph_ai_service_html__graph*" | while read dir; do
-    newdir=$(echo "$dir" | sed "s/mgraph_ai_service_html__graph/$SERVICE_NAME/g")
+find . -type d -name "*mgraph_ai_service_html_graph*" | while read dir; do
+    newdir=$(echo "$dir" | sed "s/mgraph_ai_service_html_graph/$SERVICE_NAME/g")
     mv "$dir" "$newdir"
 done
 
@@ -110,7 +110,7 @@ find . -type f \( -name "*.py" -o -name "*.md" -o -name "*.yml" -o -name "*.yaml
     fi
     
     # Replace service names
-    sed -i.bak "s/mgraph_ai_service_html__graph/$SERVICE_NAME/g" "$file"        
+    sed -i.bak "s/mgraph_ai_service_html_graph/$SERVICE_NAME/g" "$file"        
     sed -i.bak "s/MGraph-AI__Service__Html__Graph/$REPO_NAME/g" "$file"
     
     # Clean up backup files
@@ -173,16 +173,16 @@ Your repository name determines the service configuration:
 | Repository Name | Service Name (code) | Display Name |
 |----------------|-------------------|--------------|
 | `MGraph-AI__Service__Auth` | `mgraph_ai_service_auth` | MGraph-AI Service Auth |
-| `MGraph-AI__Service__Html__Graph` | `mgraph_ai_service_html__graph` | MGraph AI Service Html Graph |
+| `MGraph-AI__Service__Html__Graph` | `mgraph_ai_service_html_graph` | MGraph AI Service Html Graph |
 | `MGraph-AI__Service__Data-Pipeline` | `mgraph_ai_service_data_pipeline` | MGraph-AI Service Data Pipeline |
 
 ## 📁 Template Structure
 
-The template uses `mgraph_ai_service_html__graph` as the placeholder service name:
+The template uses `mgraph_ai_service_html_graph` as the placeholder service name:
 
 ```
 MGraph-AI__Service__Html__Graph/
-├── mgraph_ai_service_html__graph/     # Will be renamed to your service
+├── mgraph_ai_service_html_graph/     # Will be renamed to your service
 ├── tests/
 ├── docs/
 ├── scripts/
@@ -202,7 +202,7 @@ MGraph-AI__Service__Html__Graph/
 ## 🎯 Best Practices
 
 ### For Template Maintainers:
-- Always use `mgraph_ai_service_html__graph` as the placeholder
+- Always use `mgraph_ai_service_html_graph` as the placeholder
 - Document any new placeholders in the template
 - Tag template versions for easy reference
 - Keep setup script updated

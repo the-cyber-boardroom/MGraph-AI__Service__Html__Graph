@@ -13,7 +13,7 @@ git pull origin dev
 
 # Update version in files
 echo "📝 Updating version to v1.0.0..."
-echo "v1.0.0" > mgraph_ai_service_html__graph/version
+echo "v1.0.0" > mgraph_ai_service_html_graph/version
 
 # Update README.md - handle both macOS and Linux sed
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -28,11 +28,11 @@ fi
 
 # Show what changed
 echo "📋 Changes to be committed:"
-git diff mgraph_ai_service_html__graph/version README.md pyproject.toml
+git diff mgraph_ai_service_html_graph/version README.md pyproject.toml
 
 # Commit changes
 echo "💾 Committing changes..."
-git add mgraph_ai_service_html__graph/version README.md pyproject.toml
+git add mgraph_ai_service_html_graph/version README.md pyproject.toml
 git commit -m "Release v1.0.0"
 
 # Tag the commit

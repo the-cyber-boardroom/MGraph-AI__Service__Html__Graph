@@ -51,7 +51,7 @@ git merge template/main --allow-unrelated-histories -m "Initial import from MGra
 ### Option B: Manual rename
 ```bash
 # Rename the main directory
-mv mgraph_ai_service_html__graph mgraph_ai_service_graphs
+mv mgraph_ai_service_html_graph mgraph_ai_service_graphs
 ```
 
 ## Step 4: Global Search and Replace
@@ -62,7 +62,7 @@ Open the project in PyCharm (or your preferred IDE) and perform these global sea
    - Should find ~10 occurrences
    - These are in documentation and comments
 
-2. **Replace "mgraph_ai_service_html__graph"** → **"mgraph_ai_service_graphs"**
+2. **Replace "mgraph_ai_service_html_graph"** → **"mgraph_ai_service_graphs"**
    - Should find 1-2 occurrences (after rename script)
    - This is the Python package name
 

@@ -64,12 +64,12 @@ git merge template/main --allow-unrelated-histories -m "Initial import from MGra
 print_success "Template merged"
 
 # Step 5: Rename the service directory
-print_step "Renaming service directory from mgraph_ai_service_html__graph to $SERVICE_NAME_UNDERSCORES..."
-if [ -d "mgraph_ai_service_html__graph" ]; then
-    mv mgraph_ai_service_html__graph "$SERVICE_NAME_UNDERSCORES"
+print_step "Renaming service directory from mgraph_ai_service_html_graph to $SERVICE_NAME_UNDERSCORES..."
+if [ -d "mgraph_ai_service_html_graph" ]; then
+    mv mgraph_ai_service_html_graph "$SERVICE_NAME_UNDERSCORES"
     print_success "Service directory renamed"
 else
-    print_error "mgraph_ai_service_html__graph directory not found!"
+    print_error "mgraph_ai_service_html_graph directory not found!"
     exit 1
 fi
 
@@ -103,8 +103,8 @@ replace_in_files() {
 # Replace "MGraph AI Service Html Graph" with the new service title
 replace_in_files "MGraph AI Service Html Graph" "$SERVICE_NAME_TITLE" "service title"
 
-# Replace "mgraph_ai_service_html__graph" with the new package name
-replace_in_files "mgraph_ai_service_html__graph" "$SERVICE_NAME_UNDERSCORES" "Python package name"
+# Replace "mgraph_ai_service_html_graph" with the new package name
+replace_in_files "mgraph_ai_service_html_graph" "$SERVICE_NAME_UNDERSCORES" "Python package name"
 
 # Replace "MGraph-AI__Service__Html__Graph" with the new repository name
 replace_in_files "MGraph-AI__Service__Html__Graph" "$REPO_NAME" "repository name"

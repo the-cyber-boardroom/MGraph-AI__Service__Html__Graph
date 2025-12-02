@@ -160,7 +160,7 @@ git merge template/feature/rate-limiting
 ```bash
 # Only want the new health check endpoint
 git fetch template
-git checkout template/main -- mgraph_ai_service_html__graph/routes/health.py
+git checkout template/main -- mgraph_ai_service_html_graph/routes/health.py
 git commit -m "feat: adopt improved health check from template"
 ```
 

@@ -77,7 +77,7 @@ After pushing to dev:
 3. **Verify AWS Lambda**:
    - Log into AWS Console
    - Navigate to Lambda → Functions
-   - Look for `mgraph_ai_service_html__graph-dev`
+   - Look for `mgraph_ai_service_html_graph-dev`
    - Check Function URL is created
 
 ## 🌐 Step 4: Configure CloudFront and DNS
@@ -120,7 +120,7 @@ Pattern: `{stage}.{service-name}.mgraph.ai`
 3. **Test the domain**:
    ```bash
    curl https://dev.base.mgraph.ai/health
-   # Should return: {"status":"healthy","service":"mgraph_ai_service_html__graph"}
+   # Should return: {"status":"healthy","service":"mgraph_ai_service_html_graph"}
    ```
 
 ## 📈 Step 5: Release to Main/QA
@@ -144,7 +144,7 @@ git pull origin dev
 3. **Verify QA deployment**:
    - Check GitHub Actions for "CI Pipeline - MAIN" workflow
    - Version should increment to v0.2.0
-   - Lambda function `mgraph_ai_service_html__graph-qa` should be created
+   - Lambda function `mgraph_ai_service_html_graph-qa` should be created
    - Repeat CloudFront/DNS setup for `qa.base.mgraph.ai`
 
 ## 🚢 Step 6: Deploy to Production
@@ -157,7 +157,7 @@ git pull origin dev
    - Click "Run workflow"
 
 2. **Verify production deployment**:
-   - Lambda function `mgraph_ai_service_html__graph-prod` should be created
+   - Lambda function `mgraph_ai_service_html_graph-prod` should be created
    - Repeat CloudFront/DNS setup for `prod.base.mgraph.ai`
 
 ## 🏷️ Step 7: Release v1.0.0
@@ -173,7 +173,7 @@ git checkout dev
 git pull origin dev
 
 # Update version in files
-echo "v1.0.0" > mgraph_ai_service_html__graph/version
+echo "v1.0.0" > mgraph_ai_service_html_graph/version
 
 # Update README.md
 sed -i '' 's/release-v[0-9]\+\.[0-9]\+\.[0-9]\+/release-v1.0.0/g' README.md
@@ -182,7 +182,7 @@ sed -i '' 's/release-v[0-9]\+\.[0-9]\+\.[0-9]\+/release-v1.0.0/g' README.md
 sed -i '' 's/version     = "v[0-9]\+\.[0-9]\+\.[0-9]\+"/version     = "v1.0.0"/g' pyproject.toml
 
 # Commit changes
-git add mgraph_ai_service_html__graph/version README.md pyproject.toml
+git add mgraph_ai_service_html_graph/version README.md pyproject.toml
 git commit -m "Release v1.0.0"
 
 # Tag the commit

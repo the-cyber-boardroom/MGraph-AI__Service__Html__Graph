@@ -3,9 +3,9 @@ import os
 if os.getenv('AWS_REGION'):  # only execute if we are not running inside an AWS Lambda function
 
     from osbot_aws.aws.lambda_.boto3__lambda import load_dependencies       # using the lightweight file (which only has the boto3 calls required to load_dependencies)
-    from mgraph_ai_service_html__graph.config       import LAMBDA_DEPENDENCIES__BASE__SERVICE
+    from mgraph_ai_service_html_graph.config       import LAMBDA_DEPENDENCIES__HTML_GRAPH__SERVICE
 
-    load_dependencies(LAMBDA_DEPENDENCIES__BASE__SERVICE)
+    load_dependencies(LAMBDA_DEPENDENCIES__HTML_GRAPH__SERVICE)
 
     def clear_osbot_modules():                            # todo: add this to load_dependencies method, since after it runs we don't need the osbot_aws.aws.lambda_.boto3__lambda
         import sys
@@ -21,8 +21,8 @@ app     = None
 
 try:
 
-    from mgraph_ai_service_html__graph.fast_api.Base__Service__Fast_API import Base__Service__Fast_API
-    with Base__Service__Fast_API() as _:
+    from mgraph_ai_service_html_graph.fast_api.Html_Graph__Service__Fast_API import Html_Graph__Service__Fast_API
+    with Html_Graph__Service__Fast_API() as _:
         _.setup()
         handler = _.handler()
         app     = _.app()
