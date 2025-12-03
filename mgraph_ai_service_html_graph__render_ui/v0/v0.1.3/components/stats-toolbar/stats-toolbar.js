@@ -250,8 +250,20 @@ class StatsToolbar extends HTMLElement {
         const banner = this.querySelector('#error-banner');
         this.querySelector('#error-title').textContent = title;
         this.querySelector('#error-detail').textContent = detail;
-        this.querySelector('#error-hint').textContent = hint;
+        // Hint may contain error details - show as code if it looks like an error
+        const hintEl = this.querySelector('#error-hint');
+        if (hint.startsWith('Error:')) {
+            hintEl.innerHTML = `<code style="font-size: 0.85em; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; word-break: break-all;">${this.escapeHtml(hint)}</code>`;
+        } else {
+            hintEl.textContent = hint;
+        }
         banner.classList.add('show');
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     hideError() {
@@ -259,13 +271,24 @@ class StatsToolbar extends HTMLElement {
     }
 
     clearStats() {
+        // Reset to zero/null values
         this.stats = {
             total_nodes: 0, total_edges: 0, element_nodes: 0,
             value_nodes: 0, tag_nodes: 0, text_nodes: 0, attr_nodes: 0
         };
         this.timing = { api_ms: 0, server_ms: 0, render_ms: 0, dot_size: 0 };
-        this.setStats(this.stats);
-        this.setTiming(this.timing);
+
+        // Display dashes to indicate "loading"
+        this.querySelector('#stat-nodes').textContent = '-';
+        this.querySelector('#stat-edges').textContent = '-';
+        this.querySelector('#stat-elements').textContent = '-';
+        this.querySelector('#stat-attrs').textContent = '-';
+        this.querySelector('#stat-text').textContent = '-';
+        this.querySelector('#timing-api').textContent = '-';
+        this.querySelector('#timing-server').textContent = '-';
+        this.querySelector('#timing-render').textContent = '-';
+        this.querySelector('#timing-dot-size').textContent = '-';
+
         this.hideError();
     }
 

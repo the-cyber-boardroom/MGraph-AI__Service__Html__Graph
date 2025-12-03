@@ -179,6 +179,7 @@ class Playground {
         this.isRendering = true;
         this.statsToolbar.setRenderingState(true);
         this.statsToolbar.hideError();
+        this.statsToolbar.clearStats();  // Clear previous stats immediately
         this.graphCanvas.showLoading();
 
         try {
@@ -209,7 +210,7 @@ class Playground {
 
     /**
      * Render using DOT/Graphviz
-     * v0.1.4: Shows stats immediately, handles viz.js errors gracefully
+     * v0.1.4: Shows stats immediately, handles viz.js errors gracefully with actual error message
      */
     async renderDot(html, config) {
         // Build request
@@ -233,12 +234,12 @@ class Playground {
             this.statsToolbar.setStats(response.stats);
         }
 
-        // Update timing info
+        // Update timing info immediately (render_ms will be updated after)
         this.statsToolbar.setTiming({
             api_ms: apiMs,
             server_ms: response.processing_ms || 0,
             dot_size: response.dot_size_bytes || response.dot.length,
-            render_ms: 0  // Will be updated after viz.js
+            render_ms: 0
         });
 
         // Now attempt viz.js rendering
@@ -246,6 +247,13 @@ class Playground {
             const renderStartTime = performance.now();
 
             try {
+
+                this.statsToolbar.setTiming({
+                    api_ms: apiMs,
+                    server_ms: response.processing_ms || 0,
+                    dot_size: response.dot_size_bytes || response.dot.length,
+                });
+
                 await this.dotRenderer.renderDot(response.dot);
 
                 const renderEndTime = performance.now();
@@ -258,44 +266,98 @@ class Playground {
                     dot_size: response.dot_size_bytes || response.dot.length,
                     render_ms: renderMs
                 });
+                const svg = this.graphCanvas.canvasArea.querySelector('svg');
+                if(parseFloat(svg.getAttribute('height')) < 300) {              // handle case of small diagrams that were not displaying ok
+                    this.graphCanvas.zoom(0.3) }
+
+                // Enable panning on the rendered SVG
+                this.enablePanning();
 
             } catch (vizError) {
                 console.error('viz.js rendering error:', vizError);
 
-                // Check if it's a memory error
+                // Get the actual error message
                 const errorMsg = vizError.message || String(vizError);
+
+                // Check if it's a memory/WASM error
                 const isMemoryError = errorMsg.includes('memory') ||
                                      errorMsg.includes('out of bounds') ||
-                                     errorMsg.includes('allocation');
+                                     errorMsg.includes('allocation') ||
+                                     errorMsg.includes('RuntimeError') ||
+                                     errorMsg.includes('WASM');
 
-                if (isMemoryError) {
-                    this.statsToolbar.showError(
-                        'Graph too large for browser rendering',
-                        `The graph has ${response.stats.total_nodes.toLocaleString()} nodes and ${response.stats.total_edges.toLocaleString()} edges, which exceeds browser memory limits.`,
-                        '💡 Tip: Try using "Structure Only" or "Minimal" preset, or hide attribute/text nodes to reduce graph size.'
-                    );
+                // Show error with actual message
+                this.statsToolbar.showError(
+                    isMemoryError ? 'Graph too large for browser rendering' : 'Rendering failed',
+                    `${response.stats.total_nodes.toLocaleString()} nodes, ${response.stats.total_edges.toLocaleString()} edges`,
+                    `Error: ${errorMsg}`
+                );
 
-                    // Show the raw DOT as fallback
-                    this.showDotFallback(response.dot, response.stats);
-                } else {
-                    this.statsToolbar.showError(
-                        'Rendering failed',
-                        errorMsg,
-                        'The DOT code may contain syntax errors or unsupported features.'
-                    );
-                    this.graphCanvas.showError('viz.js error', errorMsg);
-                }
+                // Show the raw DOT as fallback
+                this.showDotFallback(response.dot, response.stats, errorMsg);
             }
         } else if (response.dot) {
             // No dot-renderer available, show raw DOT
-            this.showDotFallback(response.dot, response.stats);
+            this.showDotFallback(response.dot, response.stats, 'viz.js renderer not loaded');
         }
+    }
+
+    /**
+     * Enable panning (drag to move) on the graph canvas
+     */
+    enablePanning() {
+        const canvasArea = this.graphCanvas.canvasArea;
+        const svg = canvasArea.querySelector('svg');
+        if (!svg) return;
+
+        let isPanning = false;
+        let startX, startY;
+        let scrollLeft, scrollTop;
+
+        // Make canvas scrollable
+        canvasArea.style.overflow = 'auto';
+        canvasArea.style.cursor = 'grab';
+
+        canvasArea.addEventListener('mousedown', (e) => {
+            // Only pan with left mouse button and not on interactive elements
+            if (e.button !== 0) return;
+            isPanning = true;
+            canvasArea.style.cursor = 'grabbing';
+            startX = e.pageX - canvasArea.offsetLeft;
+            startY = e.pageY - canvasArea.offsetTop;
+            scrollLeft = canvasArea.scrollLeft;
+            scrollTop = canvasArea.scrollTop;
+            e.preventDefault();
+        });
+
+        canvasArea.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+
+            const x = e.pageX - canvasArea.offsetLeft;
+            const y = e.pageY - canvasArea.offsetTop;
+            
+            const walkX = (x - startX) * 1.5;  // Scroll speed multiplier
+            const walkY = (y - startY) * .5;
+
+            canvasArea.scrollLeft = scrollLeft - walkX;
+            canvasArea.scrollTop = scrollTop - walkY;
+        });
+
+        canvasArea.addEventListener('mouseup', () => {
+            isPanning = false;
+            canvasArea.style.cursor = 'grab';
+        });
+
+        canvasArea.addEventListener('mouseleave', () => {
+            isPanning = false;
+            canvasArea.style.cursor = 'grab';
+        });
     }
 
     /**
      * Show raw DOT code as fallback when viz.js fails
      */
-    showDotFallback(dot, stats) {
+    showDotFallback(dot, stats, errorMessage = '') {
         const truncatedDot = dot.length > 5000
             ? dot.substring(0, 5000) + '\n\n... (truncated, showing first 5KB of ' + this.formatBytes(dot.length) + ')'
             : dot;
@@ -309,6 +371,14 @@ class Playground {
                     <div style="font-size: 0.9em; color: #666;">
                         Graph has ${stats.total_nodes.toLocaleString()} nodes. 
                         Showing raw DOT code below. You can copy this and use it with a local Graphviz installation.
+                    </div>
+                    ${errorMessage ? `
+                    <div style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; font-family: monospace; font-size: 0.8em; color: #666; word-break: break-all;">
+                        <strong>Error:</strong> ${this.escapeHtml(errorMessage)}
+                    </div>
+                    ` : ''}
+                    <div style="margin-top: 8px; font-size: 0.85em; color: #888;">
+                        💡 Tip: Try "Structure Only" or "Minimal" preset, or hide attribute/text nodes to reduce graph size.
                     </div>
                 </div>
                 <div style="margin-bottom: 10px;">
