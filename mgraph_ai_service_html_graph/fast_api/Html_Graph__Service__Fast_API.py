@@ -13,9 +13,13 @@ from mgraph_ai_service_html_graph.utils.Version                     import versi
 ROUTES_PATHS__CONSOLE        = [f'/{UI__CONSOLE__ROUTE__CONSOLE}']
 
 class Html_Graph__Service__Fast_API(Serverless__Fast_API):
-    name        = FAST_API__TITLE
-    version     = version__mgraph_ai_service_html_graph
-    description = FAST_API__DESCRIPTION
+   
+    def setup(self):
+        with self.config as _:
+            _.name           = FAST_API__TITLE
+            _.version        = version__mgraph_ai_service_html_graph
+            _.description    = FAST_API__DESCRIPTION
+        return super().setup()
 
     def setup_routes(self):
         self.add_routes(Routes__Graph       )
