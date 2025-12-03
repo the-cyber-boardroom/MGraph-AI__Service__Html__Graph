@@ -3,7 +3,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.utils.Objects                                                  import base_classes
 from mgraph_db.mgraph.MGraph                                                    import MGraph
 from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__To__Html_MGraph import Html_Dict__To__Html_MGraph
-from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__Path import Html_MGraph__Path
+from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__Path          import Html_MGraph__Path
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__To__Html_Dict import Html_MGraph__To__Html_Dict
 
 
