@@ -5,10 +5,11 @@ from mgraph_ai_service_html_graph.service.html_graph__export                    
 
 TAG__ROUTES_GRAPH = 'graph'
 ROUTES_PATHS__GRAPH = [f'/{TAG__ROUTES_GRAPH}/from/html/to/dot'      ,
-                       f'/{TAG__ROUTES_GRAPH}/from/html/to/visjs'    ,
-                       f'/{TAG__ROUTES_GRAPH}/from/html/to/d3'       ,
-                       f'/{TAG__ROUTES_GRAPH}/from/html/to/cytoscape',
-                       f'/{TAG__ROUTES_GRAPH}/from/html/to/mermaid'  ]
+                       # f'/{TAG__ROUTES_GRAPH}/from/html/to/visjs'    ,
+                       # f'/{TAG__ROUTES_GRAPH}/from/html/to/d3'       ,
+                       # f'/{TAG__ROUTES_GRAPH}/from/html/to/cytoscape',
+                       # f'/{TAG__ROUTES_GRAPH}/from/html/to/mermaid'
+                       ]
 
 
 class Routes__Graph(Fast_API__Routes):                                                            # Routes for graph export operations

@@ -3,9 +3,10 @@ from fastapi                                                              import
 from osbot_fast_api.api.Fast_API                                          import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.api.schemas.consts.consts__Fast_API                   import EXPECTED_ROUTES__SET_COOKIE
 from osbot_fast_api_serverless.fast_api.routes.Routes__Info               import ROUTES_INFO__HEALTH__RETURN_VALUE, ROUTES_PATHS__INFO
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph           import ROUTES_PATHS__GRAPH
 from osbot_utils.utils.Env                                                import get_env
 from starlette.testclient                                                 import TestClient
-from mgraph_ai_service_html_graph.fast_api.Html_Graph__Service__Fast_API  import Html_Graph__Service__Fast_API
+from mgraph_ai_service_html_graph.fast_api.Html_Graph__Service__Fast_API  import Html_Graph__Service__Fast_API, ROUTES_PATHS__CONSOLE
 from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                  import setup__html_graph_service__fast_api_test_objs, Html_Graph__Service__Fast_API__Test_Objs, TEST_API_KEY__NAME
 
 
@@ -55,4 +56,6 @@ class test_Service__Fast_API__client(TestCase):
 
     def test__config_fast_api_routes(self):
         assert self.fast_api.routes_paths() == sorted(ROUTES_PATHS__INFO          +
-                                                      EXPECTED_ROUTES__SET_COOKIE )
+                                                      EXPECTED_ROUTES__SET_COOKIE +
+                                                      ROUTES_PATHS__CONSOLE       +
+                                                      ROUTES_PATHS__GRAPH         )

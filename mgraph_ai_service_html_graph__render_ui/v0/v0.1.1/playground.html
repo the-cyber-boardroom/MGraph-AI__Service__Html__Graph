@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Playground - HTML Graph Visualization</title>
+    
+    <!-- Reference v0.1.0 common styles -->
+    <link rel="stylesheet" href="../v0.1.0/css/common.css">
+    
+    <!-- v0.1.1 specific styles -->
+    <link rel="stylesheet" href="./css/playground.css">
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation -->
+        <top-nav></top-nav>
+
+        <!-- Main Content -->
+        <main class="playground-main">
+            <!-- Left Panel - Input & Config -->
+            <div class="left-panel">
+                <!-- HTML Input Component -->
+                <html-input></html-input>
+
+                <!-- Configuration Panel -->
+                <config-panel></config-panel>
+
+                <!-- Render Button -->
+                <button id="render-button" class="btn btn-primary render-button">
+                    🔄 Render Graph
+                </button>
+
+                <!-- Stats Panel -->
+                <stats-panel></stats-panel>
+            </div>
+
+            <!-- Right Panel - Graph Canvas -->
+            <div class="right-panel">
+                <graph-canvas></graph-canvas>
+                
+                <!-- DOT Renderer (invisible, renders to canvas) -->
+                <dot-renderer></dot-renderer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Reference v0.1.0 API client -->
+    <script src="../v0.1.0/js/services/api-client.js"></script>
+
+    <!-- v0.1.1 Components -->
+    <script src="./components/top-nav/top-nav.js"></script>
+    <script src="./components/html-input/html-input.js"></script>
+    <script src="./components/config-panel/config-panel.js"></script>
+    <script src="./components/stats-panel/stats-panel.js"></script>
+    <script src="./components/graph-canvas/graph-canvas.js"></script>
+
+    <!-- v0.1.2 DOT Renderer -->
+    <script src="../v0.1.2/components/dot-renderer/dot-renderer.js"></script>
+
+    <!-- v0.1.1 Orchestrator -->
+    <script src="./js/playground.js"></script>
+</body>
+</html>

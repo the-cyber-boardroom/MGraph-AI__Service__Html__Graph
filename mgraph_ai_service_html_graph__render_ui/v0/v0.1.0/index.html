@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Visualization - MGraph Service</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>🔗 HTML Graph Visualization</h1>
+            <p>Interactive visualization of HTML document structure as graphs</p>
+            
+            <div class="api-status mt-md">
+                <span id="api-status-dot" class="api-status-dot loading"></span>
+                <span id="api-status-text">Checking...</span>
+            </div>
+        </header>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Render Formats</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Presets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Sample Files</div>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="feature-grid">
+            <!-- Graph Playground -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📊</div>
+                <h3>Graph Playground</h3>
+                <p>
+                    Interactive playground for visualizing HTML structure as graphs. 
+                    Input HTML, configure rendering options, and see the graph rendered 
+                    in real-time using various visualization libraries.
+                </p>
+                <a href="../v0.1.1/playground.html" class="btn btn-primary">
+                    Open Playground →
+                </a>
+            </div>
+
+            <!-- Render Formats -->
+            <div class="feature-card">
+                <div class="feature-card-icon">🎨</div>
+                <h3>Multiple Render Formats</h3>
+                <p>
+                    Choose from multiple rendering engines: DOT (Graphviz via viz-js), 
+                    vis.js for interactive exploration, D3 for force-directed layouts, 
+                    Cytoscape for analysis, and Mermaid for documentation.
+                </p>
+                <a href="../v0.1.1/playground.html" class="btn btn-secondary">
+                    Explore Formats →
+                </a>
+            </div>
+
+            <!-- Sample Files -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📄</div>
+                <h3>Sample HTML Files</h3>
+                <p>
+                    Pre-loaded sample HTML files to demonstrate capabilities: 
+                    simple structures, nested elements, attributes, mixed content, 
+                    and real-world Bootstrap examples.
+                </p>
+                <a href="../v0.1.1/playground.html?sample=simple" class="btn btn-secondary">
+                    View Samples →
+                </a>
+            </div>
+
+            <!-- Configuration -->
+            <div class="feature-card">
+                <div class="feature-card-icon">⚙️</div>
+                <h3>Flexible Configuration</h3>
+                <p>
+                    Customize visualization with presets (Full Detail, Structure Only, Minimal), 
+                    toggle visibility of tag/attribute/text nodes, and choose from multiple 
+                    color schemes.
+                </p>
+                <a href="../v0.1.1/playground.html" class="btn btn-secondary">
+                    Configure →
+                </a>
+            </div>
+
+            <!-- API Documentation -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📚</div>
+                <h3>API Documentation</h3>
+                <p>
+                    Full OpenAPI documentation for the graph rendering endpoints. 
+                    Integrate graph generation into your own applications with 
+                    simple REST API calls.
+                </p>
+                <a href="/docs" class="btn btn-secondary" target="_blank">
+                    View API Docs →
+                </a>
+            </div>
+
+            <!-- About -->
+            <div class="feature-card">
+                <div class="feature-card-icon">ℹ️</div>
+                <h3>About MGraph</h3>
+                <p>
+                    MGraph is a graph-based data structure library that transforms 
+                    HTML documents into traversable graph representations, enabling 
+                    powerful analysis and visualization.
+                </p>
+                <a href="https://github.com/owasp-sbot/MGraph-AI" class="btn btn-secondary" target="_blank">
+                    Learn More →
+                </a>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="version-info">
+            <p>MGraph HTML Graph Render UI v0.1.0 | 
+               <a href="/docs" target="_blank">API Docs</a> | 
+               <a href="https://github.com/owasp-sbot/MGraph-AI" target="_blank">GitHub</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/services/api-client.js"></script>
+    <script src="./js/dashboard.js"></script>
+</body>
+</html>

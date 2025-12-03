@@ -28,7 +28,7 @@ class test_Routes__Graph(TestCase):
 
     def test__routes_paths(self):                                                                 # Test route paths constant
         assert '/graph/from/html/to/dot' in ROUTES_PATHS__GRAPH
-        assert len(ROUTES_PATHS__GRAPH)  == 5                                                     # All planned routes
+        assert len(ROUTES_PATHS__GRAPH)  == 1                                                     # All planned routes
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # from__html__to__dot Tests
@@ -143,3 +143,8 @@ class test_Routes__Graph(TestCase):
         assert result is routes
 
 
+    # def test_prin(self):
+    #     dot_code = "digraph {\n  graph [rankdir=\"TB\", ranksep=0.75, nodesep=0.5, splines=\"ortho\"]\n  node [fontsize=\"10\", shape=\"box\", style=\"rounded\"]\n  edge [arrowsize=\"0.5\", fontsize=\"8\"]\n  \"b1814c53\" [shape=\"box\", style=\"rounded\", shape=\"box\", fillcolor=\"#F5F5F5\", fontcolor=\"#333333\", label=\"<div>\", style=\"filled,rounded\"]\n  \"e8b90005\" [shape=\"box\", style=\"rounded\", shape=\"ellipse\", fillcolor=\"#4A90D9\", fontcolor=\"#FFFFFF\", label=\"<div>\", style=\"filled\"]\n  \"73570cd9\" [shape=\"box\", style=\"rounded\", shape=\"box\", fillcolor=\"#B39DDB\", fontcolor=\"#333333\", label=\"class=\\\"main\\\"\", style=\"filled,rounded\", fontsize=\"9\"]\n  \"7ed0e17d\" [shape=\"box\", style=\"rounded\", shape=\"box\", fillcolor=\"#B39DDB\", fontcolor=\"#333333\", label=\"id=\\\"content\\\"\", style=\"filled,rounded\", fontsize=\"9\"]\n  \"e1bc7778\" [shape=\"box\", style=\"rounded\", shape=\"box\", fillcolor=\"#EEEEEE\", fontcolor=\"#333333\", label=\"<h1>\", style=\"filled,rounded\"]\n  \"912b5858\" [shape=\"box\", style=\"rounded\", shape=\"ellipse\", fillcolor=\"#5CB85C\", fontcolor=\"#FFFFFF\", label=\"<h1>\", style=\"filled\"]\n  \"5519bfc6\" [shape=\"box\", style=\"rounded\", shape=\"note\", fillcolor=\"#FFF9C4\", fontcolor=\"#333333\", label=\"Title\", style=\"filled\"]\n  \"5e6232c8\" [shape=\"box\", style=\"rounded\", shape=\"box\", fillcolor=\"#EEEEEE\", fontcolor=\"#333333\", label=\"<p>\", style=\"filled,rounded\"]\n  \"3f7abf02\" [shape=\"box\", style=\"rounded\", shape=\"ellipse\", fillcolor=\"#5CB85C\", fontcolor=\"#FFFFFF\", label=\"<p>\", style=\"filled\"]\n  \"9cde4045\" [shape=\"box\", style=\"rounded\", shape=\"note\", fillcolor=\"#FFF9C4\", fontcolor=\"#333333\", label=\"Paragraph\", style=\"filled\"]\n  \"b1814c53\" -> \"e8b90005\" [color=\"#888888\", style=\"dashed\"]\n  \"b1814c53\" -> \"73570cd9\" [color=\"#B39DDB\", style=\"dotted\"]\n  \"b1814c53\" -> \"7ed0e17d\" [color=\"#B39DDB\", style=\"dotted\"]\n  \"e1bc7778\" -> \"912b5858\" [color=\"#888888\", style=\"dashed\"]\n  \"e1bc7778\" -> \"5519bfc6\" [color=\"#FFC107\", style=\"solid\"]\n  \"b1814c53\" -> \"e1bc7778\" [color=\"#333333\", style=\"solid\"]\n  \"5e6232c8\" -> \"3f7abf02\" [color=\"#888888\", style=\"dashed\"]\n  \"5e6232c8\" -> \"9cde4045\" [color=\"#FFC107\", style=\"solid\"]\n  \"b1814c53\" -> \"5e6232c8\" [color=\"#333333\", style=\"solid\"]\n}"
+    #
+    #     print()
+    #     print(dot_code)
