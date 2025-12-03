@@ -1,9 +1,8 @@
+import requests
 import pytest
 from unittest                                                                        import TestCase
-
-import requests
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
-
+from osbot_utils.helpers.duration.decorators.capture_duration                        import capture_duration
+from osbot_utils.helpers.duration.decorators.print_duration                          import print_duration
 from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                       import Html__To__Html_Dict
 from osbot_utils.utils.Files                                                         import path_combine, file_exists
 from osbot_utils.utils.Env                                                           import load_dotenv, env_var_set
@@ -67,18 +66,49 @@ class test_Html_MGraph__To__Png(TestCase):
     def test_url_to_png(self):
         url, file_name  = "https://www.google.com/404" , "html-mgraph__google-404.png"
         #url, file_name  = "https://www.google.com/"    , "html-mgraph__google.png"
-        url, file_name  = "https://akeia.ai"          , "html-mgraph__akeia_ai.png"
+        #url, file_name  = "https://akeia.ai"          , "html-mgraph__akeia_ai.png"
         #url, file_name  = "https://text.npr.org/"          , "html-mgraph__text.npr.org.png"
         #url, file_name  = "https://news.bbc.co.uk/404"     , "html-mgraph__bbc-404.png"
         file_name = "layout-tests.png"
         target_file = path_combine(self.target_folder, file_name)
-        html = requests.get(url).text
+        with print_duration(action_name="get html"):
+            html = requests.get(url).text
         #print(html)
 
         kwargs = dict(html        = html,
                       target_file = target_file)
-        with Html_MGraph__To__Png.from_html(**kwargs) as _:
-            _.to_png()
+
+        with print_duration(action_name="created_png"):
+            with Html_MGraph__To__Png.from_html(**kwargs) as _:
+                _.to_png()
+
+    def test_url_to_dot_code(self):
+        url  = "https://www.google.com/404"
+        url  = "https://www.google.com/"
+        url  = "https://akeia.ai"
+        url  = "https://text.npr.org/"
+        #url, file_name  = "https://news.bbc.co.uk/404"     , "html-mgraph__bbc-404.png"
+        url = "https://news.bbc.co.uk"
+        #url = "https://www.theregister.com/"
+        #target_file = path_combine(self.target_folder)
+        with print_duration(action_name="got html"):
+            html = requests.get(url).text
+        #print(html)
+
+        html = HTML__WITH_SOME_TAGS
+
+        with capture_duration(action_name="create dot_code") as duration:
+            with Html_MGraph__To__Png.from_html(html= html) as _:
+                dot_code = _.to_dot_code()
+
+        print(dot_code)
+
+        data_stats = _.html_mgraph.mgraph.data().stats()
+        print()
+        print(f"url     : " + url)
+        print(f"duration: {duration.seconds}")
+        print(f"size    : {len(dot_code)}")
+        print(f"status  : {data_stats}")
 
 
 

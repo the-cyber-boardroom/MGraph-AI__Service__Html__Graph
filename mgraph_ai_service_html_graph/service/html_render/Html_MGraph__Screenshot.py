@@ -1,4 +1,3 @@
-from typing                                                                       import Optional
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 from mgraph_db.mgraph.actions.MGraph__Screenshot                                  import MGraph__Screenshot
 from mgraph_db.mgraph.MGraph                                                      import MGraph
@@ -21,11 +20,13 @@ class Html_MGraph__Screenshot(Type_Safe):                                       
 
         with self.screenshot.export().export_dot() as dot:                                  # Configure DOT exporter with HTML-aware settings
             self.config.configure_dot_export(dot)
-            self.show_attrs(False)
+            #self.show_attrs(False)
             #self.show_text(False)
-            dot.set_graph__layout_engine__fdp()
-            dot.set_graph__splines__line()
-            dot.set_graph__spring_constant(0.5)
+
+            # dot.set_graph__layout_engine__fdp()
+            # dot.set_graph__splines__line()
+            # dot.set_graph__spring_constant(0.7)
+
             #dot.set_graph__overlap__scale()
             # self.structure_only()
             # dot.set_graph__node_sep(2.0)   # More horizontal space

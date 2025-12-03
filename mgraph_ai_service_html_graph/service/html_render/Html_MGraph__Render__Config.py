@@ -1,9 +1,9 @@
-from enum                                                                       import Enum
-from typing                                                                     import Dict, Any, Optional, Callable
-from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from mgraph_db.mgraph.actions.exporters.dot.MGraph__Export__Dot                 import MGraph__Export__Dot
-from mgraph_db.mgraph.domain.Domain__MGraph__Node                               import Domain__MGraph__Node
-from mgraph_db.mgraph.domain.Domain__MGraph__Edge                               import Domain__MGraph__Edge
+from enum                                                                         import Enum
+from typing                                                                       import Dict, Any, Optional, Callable
+from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
+from mgraph_db.mgraph.actions.exporters.dot.MGraph__Export__Dot                   import MGraph__Export__Dot
+from mgraph_db.mgraph.domain.Domain__MGraph__Node                                 import Domain__MGraph__Node
+from mgraph_db.mgraph.domain.Domain__MGraph__Edge                                 import Domain__MGraph__Edge
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors import Html_MGraph__Render__Colors, Enum__Html_Render__Color_Scheme
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Labels import Html_MGraph__Render__Labels
 
