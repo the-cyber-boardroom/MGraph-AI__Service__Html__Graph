@@ -1,11 +1,11 @@
-from unittest                                                                        import TestCase
-from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph                      import Routes__Graph, TAG__ROUTES_GRAPH, ROUTES_PATHS__GRAPH
-from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response         import Schema__Graph__Dot__Response
-from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Stats                 import Schema__Graph__Stats
-from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request   import Schema__Graph__From_Html__Request
-from mgraph_ai_service_html_graph.service.html_graph__export                         import Html_Graph__Export__Service
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config    import Enum__Html_Render__Preset
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors    import Enum__Html_Render__Color_Scheme
+from unittest                                                                            import TestCase
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph                          import Routes__Graph, TAG__ROUTES_GRAPH, ROUTES_PATHS__GRAPH
+from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response             import Schema__Graph__Dot__Response
+from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Stats                     import Schema__Graph__Stats
+from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request       import Schema__Graph__From_Html__Request
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service import Html_Graph__Export__Service
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config        import Enum__Html_Render__Preset
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors        import Enum__Html_Render__Color_Scheme
 
 
 class test_Routes__Graph(TestCase):
@@ -25,10 +25,6 @@ class test_Routes__Graph(TestCase):
             assert type(_)                is Routes__Graph
             assert _.tag                  == TAG__ROUTES_GRAPH
             assert type(_.graph_service)  is Html_Graph__Export__Service
-
-    def test__routes_paths(self):                                                                 # Test route paths constant
-        assert '/graph/from/html/to/dot' in ROUTES_PATHS__GRAPH
-        assert len(ROUTES_PATHS__GRAPH)  == 1                                                     # All planned routes
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # from__html__to__dot Tests

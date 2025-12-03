@@ -59,12 +59,12 @@ class TopNav extends HTMLElement {
                 }
             </style>
             <nav class="top-nav">
-                <a href="../v0.1.0/index.html" class="top-nav-brand">
+                <a href="./index.html" class="top-nav-brand">
                     <span class="top-nav-brand-icon">🔗</span>
                     <span>HTML Graph</span>
                 </a>
                 <div class="top-nav-links">
-                    <a href="../v0.1.0/index.html" class="top-nav-link">Dashboard</a>
+                    <a href="./index.html" class="top-nav-link">Dashboard</a>
                     <a href="./playground.html" class="top-nav-link active">Playground</a>
                     <a href="/docs" class="top-nav-link" target="_blank">API Docs</a>
                 </div>

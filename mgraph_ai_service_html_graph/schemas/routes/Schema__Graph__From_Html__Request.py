@@ -5,7 +5,7 @@ from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Color
 
 
 class Schema__Graph__From_Html__Request(Type_Safe):                                               # Request schema for HTML to graph conversion
-    html            : Safe_Str__Html                                                              # Required: HTML content to convert
+    html            : Safe_Str__Html                  = ''                                        # HTML content to convert | todo: figure out why we get an Pydantic warning/error when we don't use the default value:  ''
     preset          : Enum__Html_Render__Preset       = Enum__Html_Render__Preset.FULL_DETAIL     # Render preset
     show_tag_nodes  : bool                            = True                                      # Show tag value nodes
     show_attr_nodes : bool                            = True                                      # Show attribute value nodes
