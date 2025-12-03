@@ -10,34 +10,8 @@ class test_Html_MGraph(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.simple_html_dict = { 'tag'        : 'div'                                      ,
-                                 'attrs'      : {'class': 'main', 'id': 'content'}         ,
-                                 'child_nodes': []                                         ,
-                                 'text_nodes' : [{'data': 'Hello World', 'position': 0}]   }
-
-        cls.nested_html_dict = { 'tag'        : 'div'                                      ,
-                                 'attrs'      : {'class': 'container'}                     ,
-                                 'child_nodes': [
-                                     { 'tag'        : 'h1'                                 ,
-                                       'attrs'      : {}                                   ,
-                                       'child_nodes': []                                   ,
-                                       'text_nodes' : [{'data': 'Title', 'position': 0}]   ,
-                                       'position'   : 0                                    },
-                                     { 'tag'        : 'p'                                  ,
-                                       'attrs'      : {'class': 'intro'}                   ,
-                                       'child_nodes': []                                   ,
-                                       'text_nodes' : [{'data': 'Intro text', 'position': 0}],
-                                       'position'   : 1                                    },
-                                     { 'tag'        : 'p'                                  ,
-                                       'attrs'      : {}                                   ,
-                                       'child_nodes': []                                   ,
-                                       'text_nodes' : [{'data': 'More text', 'position': 0}],
-                                       'position'   : 2                                    }
-                                 ],
-                                 'text_nodes' : []                                         }
-
-        cls.html_graph_simple = Html_MGraph.from_html_dict(cls.simple_html_dict)
-        cls.html_graph_nested = Html_MGraph.from_html_dict(cls.nested_html_dict)
+        cls.html_graph_simple = Html_MGraph.from_html_dict(SIMPLE_HTML_DICT)
+        cls.html_graph_nested = Html_MGraph.from_html_dict(NESTED_HTML_DICT)
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Initialization Tests
@@ -60,13 +34,13 @@ class test_Html_MGraph(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════════
 
     def test_from_html_dict__returns_html_mgraph(self):                         # Test from_html_dict returns Html_MGraph
-        result = Html_MGraph.from_html_dict(self.simple_html_dict)
+        result = Html_MGraph.from_html_dict(SIMPLE_HTML_DICT)
 
         assert type(result)        is Html_MGraph
         assert type(result.mgraph) is MGraph
 
     def test_from_html_dict__creates_valid_graph(self):                         # Test from_html_dict creates valid graph
-        result = Html_MGraph.from_html_dict(self.simple_html_dict)
+        result = Html_MGraph.from_html_dict(SIMPLE_HTML_DICT)
         stats  = result.stats()
 
         assert stats['element_nodes'] >= 1
@@ -266,3 +240,31 @@ class test_Html_MGraph(TestCase):
         assert stats['element_nodes'] == 4                                      # div + h1 + 2 p
         assert stats['tag_nodes']     == 3                                      # div, h1, p (unique)
         assert stats['text_nodes']    == 3                                      # Three text nodes
+
+
+SIMPLE_HTML_DICT = { 'tag'        : 'div'                                      ,
+                     'attrs'      : {'class': 'main', 'id': 'content'}         ,
+                     'child_nodes': []                                         ,
+                     'text_nodes' : [{'data': 'Hello World', 'position': 0}]   }
+
+
+NESTED_HTML_DICT = { 'tag'        : 'div'                                      ,
+                     'attrs'      : {'class': 'container'}                     ,
+                     'child_nodes': [
+                         { 'tag'        : 'h1'                                 ,
+                           'attrs'      : {}                                   ,
+                           'child_nodes': []                                   ,
+                           'text_nodes' : [{'data': 'Title', 'position': 0}]   ,
+                           'position'   : 0                                    },
+                         { 'tag'        : 'p'                                  ,
+                           'attrs'      : {'class': 'intro'}                   ,
+                           'child_nodes': []                                   ,
+                           'text_nodes' : [{'data': 'Intro text', 'position': 0}],
+                           'position'   : 1                                    },
+                         { 'tag'        : 'p'                                  ,
+                           'attrs'      : {}                                   ,
+                           'child_nodes': []                                   ,
+                           'text_nodes' : [{'data': 'More text', 'position': 0}],
+                           'position'   : 2                                    }
+                     ],
+                     'text_nodes' : []                                          }
