@@ -1,18 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════════════════════
    MGraph HTML Graph - Render UI - Playground Orchestrator
-   v0.1.4 - Improved Layout & Error Handling
+   v0.1.4 - Multiple Rendering Engines
 
-   Key improvements:
-   - Stats shown immediately after API call (before viz.js rendering)
-   - Graceful handling of viz.js memory errors
-   - Timing tracking for API, server, and render
-   - Stats toolbar at top-right for better visibility
+   Supports 5 renderers: DOT (viz.js), vis.js, D3.js, Cytoscape, Mermaid
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /**
  * Playground Controller
- * v0.1.4: Improved error handling and timing display
- * v0.1.4.1: Auto-render with debounce when HTML changes
+ * v0.1.4: Multiple rendering engines with caching
  */
 class Playground {
     constructor() {
@@ -20,16 +15,27 @@ class Playground {
         this.configPanel = null;
         this.statsToolbar = null;
         this.graphCanvas = null;
-        this.dotRenderer = null;
         this.urlInput = null;
+
+        // All renderers
+        this.dotRenderer = null;
+        this.visRenderer = null;
+        this.d3Renderer = null;
+        this.cytoscapeRenderer = null;
+        this.mermaidRenderer = null;
 
         this.currentHtml = '';
         this.currentConfig = {};
+        this.currentDot = null;      // Cache DOT for renderer switching
+        this.currentStats = null;
+        this.currentApiMs = 0;
+        this.currentServerMs = 0;
+        this.currentDotSize = 0;
         this.isRendering = false;
 
         // Debounce timer for auto-render
         this.autoRenderTimer = null;
-        this.autoRenderDelay = 800;  // ms to wait after user stops typing
+        this.autoRenderDelay = 800;
     }
 
     /**
@@ -41,8 +47,23 @@ class Playground {
         this.configPanel = document.querySelector('config-panel');
         this.statsToolbar = document.querySelector('stats-toolbar');
         this.graphCanvas = document.querySelector('graph-canvas');
-        this.dotRenderer = document.querySelector('dot-renderer');
         this.urlInput = document.querySelector('url-input');
+
+        // Get all renderer references
+        this.dotRenderer = document.querySelector('dot-renderer');
+        this.visRenderer = document.querySelector('vis-renderer');
+        this.d3Renderer = document.querySelector('d3-renderer');
+        this.cytoscapeRenderer = document.querySelector('cytoscape-renderer');
+        this.mermaidRenderer = document.querySelector('mermaid-renderer');
+
+        // Set target canvas for renderers that need it
+        const canvasArea = this.graphCanvas?.canvasArea;
+        if (canvasArea) {
+            if (this.visRenderer) this.visRenderer.setTargetCanvas(canvasArea);
+            if (this.d3Renderer) this.d3Renderer.setTargetCanvas(canvasArea);
+            if (this.cytoscapeRenderer) this.cytoscapeRenderer.setTargetCanvas(canvasArea);
+            if (this.mermaidRenderer) this.mermaidRenderer.setTargetCanvas(canvasArea);
+        }
 
         // Setup event listeners
         this.setupEventListeners();
@@ -50,7 +71,7 @@ class Playground {
         // Check for sample or URL in query params
         this.loadFromUrl();
 
-        console.log('Playground v0.1.4 initialized (auto-render enabled, 800ms debounce)');
+        console.log('Playground v0.1.4 initialized (5 renderers: DOT, vis.js, D3, Cytoscape, Mermaid)');
     }
 
     /**
@@ -60,21 +81,28 @@ class Playground {
         // HTML changed - trigger debounced auto-render
         document.addEventListener('html-changed', (e) => {
             this.currentHtml = e.detail.html;
+            this.currentDot = null;  // Clear cached DOT
             this.scheduleAutoRender();
         });
 
-        // Config changed - trigger immediate render
+        // Config changed - trigger render
         document.addEventListener('config-changed', (e) => {
             this.currentConfig = e.detail.config;
-            // If we have HTML content, re-render with new config
+            this.currentDot = null;  // Clear cached DOT
             if (this.currentHtml && this.currentHtml.trim()) {
-                this.scheduleAutoRender(300);  // Shorter delay for config changes
+                this.scheduleAutoRender(300);
             }
         });
 
-        // Renderer changed
+        // Renderer changed - re-render with cached DOT if available
         document.addEventListener('renderer-changed', (e) => {
-            console.log('Renderer changed to:', e.detail.renderer);
+            const newRenderer = e.detail.renderer;
+            console.log('Renderer changed to:', newRenderer);
+
+            // If we have cached DOT, render with new renderer immediately
+            if (this.currentDot && this.currentHtml) {
+                this.renderWithCurrentRenderer();
+            }
         });
 
         // URL HTML fetched
@@ -82,7 +110,7 @@ class Playground {
             this.handleUrlHtmlFetched(e.detail);
         });
 
-        // Render requested (from stats-toolbar button) - NEW in v0.1.4
+        // Render requested (from stats-toolbar button)
         document.addEventListener('render-requested', () => {
             this.renderGraph();
         });
@@ -107,9 +135,9 @@ class Playground {
         }
 
         this.currentHtml = html;
+        this.currentDot = null;
         console.log(`Fetched HTML from ${url} (${contentType})`);
 
-        // Auto-render fetched content after short delay
         this.scheduleAutoRender(500);
     }
 
@@ -130,27 +158,31 @@ class Playground {
             this.urlInput.setUrl(fetchUrl);
             setTimeout(() => this.urlInput.fetchUrl(), 100);
         }
+
+        // Check for renderer param
+        const renderer = params.get('renderer');
+        if (renderer) {
+            const select = this.graphCanvas?.querySelector('#renderer-select');
+            if (select) {
+                select.value = renderer;
+            }
+        }
     }
 
     /**
      * Schedule auto-render with debounce
-     * Waits for user to stop typing before rendering
      */
     scheduleAutoRender(delay = null) {
-        // Clear any existing timer
         if (this.autoRenderTimer) {
             clearTimeout(this.autoRenderTimer);
             this.autoRenderTimer = null;
         }
 
-        // Don't auto-render if already rendering
         if (this.isRendering) return;
 
-        // Don't auto-render if no HTML content
         const html = this.htmlInput ? this.htmlInput.getHtml() : this.currentHtml;
         if (!html || !html.trim()) return;
 
-        // Schedule render after delay
         const renderDelay = delay !== null ? delay : this.autoRenderDelay;
         this.autoRenderTimer = setTimeout(() => {
             this.autoRenderTimer = null;
@@ -168,7 +200,7 @@ class Playground {
         const config = this.configPanel ? this.configPanel.getConfig() : this.currentConfig;
 
         if (!html || !html.trim()) {
-            this.statsToolbar.showError(
+            this.statsToolbar?.showError(
                 'No HTML to render',
                 'Please enter some HTML or fetch from a URL first.',
                 ''
@@ -177,43 +209,36 @@ class Playground {
         }
 
         this.isRendering = true;
-        this.statsToolbar.setRenderingState(true);
-        this.statsToolbar.hideError();
-        this.statsToolbar.clearStats();  // Clear previous stats immediately
-        this.graphCanvas.showLoading();
+        this.statsToolbar?.setRenderingState(true);
+        this.statsToolbar?.hideError();
+        this.statsToolbar?.clearStats();
+        this.graphCanvas?.showLoading();
 
         try {
-            const renderer = this.graphCanvas.getCurrentRenderer();
+            // Always call API to get DOT (needed by all renderers)
+            await this.fetchDotFromApi(html, config);
 
-            if (renderer === 'dot') {
-                await this.renderDot(html, config);
-            } else {
-                this.statsToolbar.showError(
-                    'Renderer not available',
-                    `The '${renderer}' renderer is not yet implemented.`,
-                    'Try using the DOT (Graphviz) renderer.'
-                );
-            }
+            // Then render with current renderer
+            await this.renderWithCurrentRenderer();
+
         } catch (error) {
             console.error('Render error:', error);
-            this.statsToolbar.showError(
+            this.statsToolbar?.showError(
                 'API Error',
                 error.message || 'Failed to call the API.',
                 'Check that the server is running and try again.'
             );
-            this.graphCanvas.showError('API request failed', error.message);
+            this.graphCanvas?.showError('API request failed', error.message);
         } finally {
             this.isRendering = false;
-            this.statsToolbar.setRenderingState(false);
+            this.statsToolbar?.setRenderingState(false);
         }
     }
 
     /**
-     * Render using DOT/Graphviz
-     * v0.1.4: Shows stats immediately, handles viz.js errors gracefully with actual error message
+     * Fetch DOT from API
      */
-    async renderDot(html, config) {
-        // Build request
+    async fetchDotFromApi(html, config) {
         const request = {
             html: html,
             preset: config.preset || 'FULL_DETAIL',
@@ -223,103 +248,191 @@ class Playground {
             color_scheme: config.color_scheme || 'DEFAULT'
         };
 
-        // Call API with timing
         const apiStartTime = performance.now();
         const response = await apiClient.htmlToDot(request);
         const apiEndTime = performance.now();
         const apiMs = Math.round(apiEndTime - apiStartTime);
 
-        // IMMEDIATELY update stats (before viz.js rendering) - v0.1.4 improvement
+        // Cache the response
+        this.currentDot = response.dot;
+        this.currentStats = response.stats;
+        this.currentApiMs = apiMs;
+        this.currentServerMs = response.processing_ms || 0;
+        this.currentDotSize = response.dot_size_bytes || response.dot.length;
+
+        // Update stats immediately
         if (response.stats) {
-            this.statsToolbar.setStats(response.stats);
+            this.statsToolbar?.setStats(response.stats);
         }
 
-        // Update timing info immediately (render_ms will be updated after)
-        this.statsToolbar.setTiming({
+        this.statsToolbar?.setTiming({
             api_ms: apiMs,
             server_ms: response.processing_ms || 0,
             dot_size: response.dot_size_bytes || response.dot.length,
             render_ms: 0
         });
 
-        // Now attempt viz.js rendering
-        if (this.dotRenderer && response.dot) {
-            const renderStartTime = performance.now();
+        return response;
+    }
 
-            try {
+    /**
+     * Render with the currently selected renderer
+     */
+    async renderWithCurrentRenderer() {
+        if (!this.currentDot) {
+            console.warn('No DOT available to render');
+            return;
+        }
 
-                this.statsToolbar.setTiming({
-                    api_ms: apiMs,
-                    server_ms: response.processing_ms || 0,
-                    dot_size: response.dot_size_bytes || response.dot.length,
-                });
+        const renderer = this.graphCanvas?.getCurrentRenderer() || 'dot';
+        const renderStartTime = performance.now();
 
-                await this.dotRenderer.renderDot(response.dot);
-
-                const renderEndTime = performance.now();
-                const renderMs = Math.round(renderEndTime - renderStartTime);
-
-                // Update render timing
-                this.statsToolbar.setTiming({
-                    api_ms: apiMs,
-                    server_ms: response.processing_ms || 0,
-                    dot_size: response.dot_size_bytes || response.dot.length,
-                    render_ms: renderMs
-                });
-                const svg = this.graphCanvas.canvasArea.querySelector('svg');
-                if(parseFloat(svg.getAttribute('height')) < 300) {              // handle case of small diagrams that were not displaying ok
-                    this.graphCanvas.zoom(0.3) }
-
-                // Enable panning on the rendered SVG
-                this.enablePanning();
-
-            } catch (vizError) {
-                console.error('viz.js rendering error:', vizError);
-
-                // Get the actual error message
-                const errorMsg = vizError.message || String(vizError);
-
-                // Check if it's a memory/WASM error
-                const isMemoryError = errorMsg.includes('memory') ||
-                                     errorMsg.includes('out of bounds') ||
-                                     errorMsg.includes('allocation') ||
-                                     errorMsg.includes('RuntimeError') ||
-                                     errorMsg.includes('WASM');
-
-                // Show error with actual message
-                this.statsToolbar.showError(
-                    isMemoryError ? 'Graph too large for browser rendering' : 'Rendering failed',
-                    `${response.stats.total_nodes.toLocaleString()} nodes, ${response.stats.total_edges.toLocaleString()} edges`,
-                    `Error: ${errorMsg}`
-                );
-
-                // Show the raw DOT as fallback
-                this.showDotFallback(response.dot, response.stats, errorMsg);
+        try {
+            switch (renderer) {
+                case 'dot':
+                    await this.renderWithDot();
+                    break;
+                case 'visjs':
+                    await this.renderWithVisJs();
+                    break;
+                case 'd3':
+                    await this.renderWithD3();
+                    break;
+                case 'cytoscape':
+                    await this.renderWithCytoscape();
+                    break;
+                case 'mermaid':
+                    await this.renderWithMermaid();
+                    break;
+                default:
+                    throw new Error(`Unknown renderer: ${renderer}`);
             }
-        } else if (response.dot) {
-            // No dot-renderer available, show raw DOT
-            this.showDotFallback(response.dot, response.stats, 'viz.js renderer not loaded');
+
+            const renderEndTime = performance.now();
+            const renderMs = Math.round(renderEndTime - renderStartTime);
+
+            this.statsToolbar?.setTiming({
+                api_ms: this.currentApiMs,
+                server_ms: this.currentServerMs,
+                dot_size: this.currentDotSize,
+                render_ms: renderMs
+            });
+
+        } catch (error) {
+            console.error(`${renderer} rendering error:`, error);
+            this.handleRenderError(renderer, error);
         }
     }
 
     /**
-     * Enable panning (drag to move) on the graph canvas
+     * Render with DOT/viz.js
+     */
+    async renderWithDot() {
+        if (!this.dotRenderer) {
+            throw new Error('DOT renderer not available');
+        }
+
+        await this.dotRenderer.renderDot(this.currentDot);
+
+        // Handle small diagrams
+        const svg = this.graphCanvas.canvasArea.querySelector('svg');
+        if (svg && parseFloat(svg.getAttribute('height')) < 300) {
+            this.graphCanvas.zoom(0.3);
+        }
+
+        this.enablePanning();
+    }
+
+    /**
+     * Render with vis.js
+     */
+    async renderWithVisJs() {
+        if (!this.visRenderer) {
+            throw new Error('vis.js renderer not available. Make sure <vis-renderer> is included in the page.');
+        }
+
+        await this.visRenderer.renderDot(this.currentDot);
+    }
+
+    /**
+     * Render with D3.js
+     */
+    async renderWithD3() {
+        if (!this.d3Renderer) {
+            throw new Error('D3.js renderer not available. Make sure <d3-renderer> is included in the page.');
+        }
+
+        await this.d3Renderer.renderDot(this.currentDot);
+    }
+
+    /**
+     * Render with Cytoscape.js
+     */
+    async renderWithCytoscape() {
+        if (!this.cytoscapeRenderer) {
+            throw new Error('Cytoscape renderer not available. Make sure <cytoscape-renderer> is included in the page.');
+        }
+
+        await this.cytoscapeRenderer.renderDot(this.currentDot);
+    }
+
+    /**
+     * Render with Mermaid.js
+     */
+    async renderWithMermaid() {
+        if (!this.mermaidRenderer) {
+            throw new Error('Mermaid renderer not available. Make sure <mermaid-renderer> is included in the page.');
+        }
+
+        await this.mermaidRenderer.renderDot(this.currentDot);
+    }
+
+    /**
+     * Handle render errors
+     */
+    handleRenderError(renderer, error) {
+        const errorMsg = error.message || String(error);
+
+        const isMemoryError = errorMsg.includes('memory') ||
+                             errorMsg.includes('out of bounds') ||
+                             errorMsg.includes('allocation') ||
+                             errorMsg.includes('RuntimeError') ||
+                             errorMsg.includes('WASM');
+
+        if (isMemoryError) {
+            this.statsToolbar?.showError(
+                'Graph too large for browser rendering',
+                `${this.currentStats?.total_nodes?.toLocaleString() || '?'} nodes. Try a different renderer (vis.js, D3, or Cytoscape handle large graphs better).`,
+                `Error: ${errorMsg}`
+            );
+
+            this.showDotFallback(this.currentDot, this.currentStats, errorMsg);
+        } else {
+            this.statsToolbar?.showError(
+                `${renderer} rendering failed`,
+                errorMsg,
+                'Try a different renderer.'
+            );
+            this.graphCanvas?.showError(`${renderer} error`, errorMsg);
+        }
+    }
+
+    /**
+     * Enable panning on the graph canvas (for DOT renderer)
      */
     enablePanning() {
-        const canvasArea = this.graphCanvas.canvasArea;
-        const svg = canvasArea.querySelector('svg');
+        const canvasArea = this.graphCanvas?.canvasArea;
+        const svg = canvasArea?.querySelector('svg');
         if (!svg) return;
 
         let isPanning = false;
         let startX, startY;
         let scrollLeft, scrollTop;
 
-        // Make canvas scrollable
         canvasArea.style.overflow = 'auto';
         canvasArea.style.cursor = 'grab';
 
-        canvasArea.addEventListener('mousedown', (e) => {
-            // Only pan with left mouse button and not on interactive elements
+        canvasArea.onmousedown = (e) => {
             if (e.button !== 0) return;
             isPanning = true;
             canvasArea.style.cursor = 'grabbing';
@@ -328,34 +441,31 @@ class Playground {
             scrollLeft = canvasArea.scrollLeft;
             scrollTop = canvasArea.scrollTop;
             e.preventDefault();
-        });
+        };
 
-        canvasArea.addEventListener('mousemove', (e) => {
+        canvasArea.onmousemove = (e) => {
             if (!isPanning) return;
-
             const x = e.pageX - canvasArea.offsetLeft;
             const y = e.pageY - canvasArea.offsetTop;
-
-            const walkX = (x - startX) * 1.5;  // Scroll speed multiplier
-            const walkY = (y - startY) * .5;
-
+            const walkX = (x - startX) * 1.5;
+            const walkY = (y - startY) * 0.5;
             canvasArea.scrollLeft = scrollLeft - walkX;
             canvasArea.scrollTop = scrollTop - walkY;
-        });
+        };
 
-        canvasArea.addEventListener('mouseup', () => {
+        canvasArea.onmouseup = () => {
             isPanning = false;
             canvasArea.style.cursor = 'grab';
-        });
+        };
 
-        canvasArea.addEventListener('mouseleave', () => {
+        canvasArea.onmouseleave = () => {
             isPanning = false;
             canvasArea.style.cursor = 'grab';
-        });
+        };
     }
 
     /**
-     * Show raw DOT code as fallback when viz.js fails
+     * Show raw DOT code as fallback
      */
     showDotFallback(dot, stats, errorMessage = '') {
         const truncatedDot = dot.length > 5000
@@ -369,17 +479,14 @@ class Playground {
                         ⚠️ Browser rendering unavailable for this graph size
                     </div>
                     <div style="font-size: 0.9em; color: #666;">
-                        Graph has ${stats.total_nodes.toLocaleString()} nodes. 
-                        Showing raw DOT code below. You can copy this and use it with a local Graphviz installation.
+                        Graph has ${stats?.total_nodes?.toLocaleString() || '?'} nodes. 
+                        Try vis.js, D3, or Cytoscape renderers for large graphs, or copy the DOT code below.
                     </div>
                     ${errorMessage ? `
                     <div style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; font-family: monospace; font-size: 0.8em; color: #666; word-break: break-all;">
                         <strong>Error:</strong> ${this.escapeHtml(errorMessage)}
                     </div>
                     ` : ''}
-                    <div style="margin-top: 8px; font-size: 0.85em; color: #888;">
-                        💡 Tip: Try "Structure Only" or "Minimal" preset, or hide attribute/text nodes to reduce graph size.
-                    </div>
                 </div>
                 <div style="margin-bottom: 10px;">
                     <button onclick="navigator.clipboard.writeText(document.getElementById('dot-output').textContent).then(() => this.textContent = '✓ Copied!')" 

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Visualization v0.1.4</title>
+
+    <!-- Reference v0.1.0 styles -->
+    <link rel="stylesheet" href="../v0.1.0/css/common.css">
+    <link rel="stylesheet" href="../v0.1.0/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>🔗 HTML Graph Visualization</h1>
+            <p>Interactive visualization of HTML document structure as graphs</p>
+            <p class="mt-sm" style="opacity: 0.8; font-size: 0.9em;">v0.1.4 - 5 Rendering Engines</p>
+
+            <div class="api-status mt-md">
+                <span id="api-status-dot" class="api-status-dot loading"></span>
+                <span id="api-status-text">Checking...</span>
+            </div>
+        </header>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Render Engines</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Presets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">URLs to Explore</div>
+            </div>
+        </div>
+
+        <!-- 5 Renderers -->
+        <h2 style="text-align: center; margin-top: 30px;">🎨 5 Rendering Engines</h2>
+        <div class="feature-grid" style="grid-template-columns: repeat(5, 1fr);">
+            <div class="feature-card" style="padding: 15px;">
+                <div class="feature-card-icon">📐</div>
+                <h3 style="font-size: 1em;">DOT (Graphviz)</h3>
+                <p style="font-size: 0.85em;">Static hierarchical layout via WebAssembly</p>
+            </div>
+            <div class="feature-card" style="padding: 15px;">
+                <div class="feature-card-icon">🌐</div>
+                <h3 style="font-size: 1em;">vis.js</h3>
+                <p style="font-size: 0.85em;">Interactive network with drag & zoom</p>
+            </div>
+            <div class="feature-card" style="padding: 15px;">
+                <div class="feature-card-icon">⚡</div>
+                <h3 style="font-size: 1em;">D3.js</h3>
+                <p style="font-size: 0.85em;">Force-directed physics simulation</p>
+            </div>
+            <div class="feature-card" style="padding: 15px;">
+                <div class="feature-card-icon">🔬</div>
+                <h3 style="font-size: 1em;">Cytoscape</h3>
+                <p style="font-size: 0.85em;">Advanced network analysis</p>
+            </div>
+            <div class="feature-card" style="padding: 15px;">
+                <div class="feature-card-icon">📊</div>
+                <h3 style="font-size: 1em;">Mermaid</h3>
+                <p style="font-size: 0.85em;">Flowchart-style diagrams</p>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="feature-grid" style="margin-top: 30px;">
+            <!-- Graph Playground -->
+            <div class="feature-card">
+                <div class="feature-card-icon">🎮</div>
+                <h3>Graph Playground</h3>
+                <p>
+                    Try all 5 rendering engines. Switch between DOT, vis.js, D3,
+                    Cytoscape, and Mermaid instantly without re-calling the API.
+                </p>
+                <a href="./playground.html" class="btn btn-primary">
+                    Open Playground →
+                </a>
+            </div>
+
+            <!-- Performance Timing -->
+            <div class="feature-card">
+                <div class="feature-card-icon">⏱️</div>
+                <h3>Performance Timing</h3>
+                <p>
+                    Timing statistics: API call, server processing, browser render time,
+                    and DOT code size. Compare renderer performance.
+                </p>
+                <a href="./playground.html?sample=bootstrap" class="btn btn-secondary">
+                    View Timing →
+                </a>
+            </div>
+
+            <!-- Large Graph Support -->
+            <div class="feature-card">
+                <div class="feature-card-icon">🔧</div>
+                <h3>Large Graph Support</h3>
+                <p>
+                    When DOT renderer fails on large graphs, try vis.js or Cytoscape
+                    which handle larger datasets better. Stats always displayed.
+                </p>
+                <a href="./playground.html" class="btn btn-secondary">
+                    Try It →
+                </a>
+            </div>
+
+            <!-- API Documentation -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📚</div>
+                <h3>API Documentation</h3>
+                <p>
+                    Response includes:<br>
+                    <code>processing_ms</code> - Server time<br>
+                    <code>dot_size_bytes</code> - DOT size
+                </p>
+                <a href="/docs" class="btn btn-secondary" target="_blank">
+                    View API Docs →
+                </a>
+            </div>
+
+            <!-- URL Fetching -->
+            <div class="feature-card">
+                <div class="feature-card-icon">🌐</div>
+                <h3>Fetch Any URL</h3>
+                <p>
+                    Enter any URL to fetch and visualize its HTML structure.
+                    Try example.com, wikipedia.org, or your own sites.
+                </p>
+                <a href="./playground.html?url=https://example.com" class="btn btn-secondary">
+                    Fetch Example →
+                </a>
+            </div>
+
+            <!-- Previous Versions -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📁</div>
+                <h3>Previous Versions</h3>
+                <p>
+                    v0.1.0-v0.1.3: Foundation, core UI, DOT renderer, URL fetching.
+                </p>
+                <div class="flex gap-sm mt-sm" style="flex-wrap: wrap;">\
+                    <a href="/console"             class="btn btn-sm btn-primary">latest</a>
+                    <a href="../v0.1.0/index.html" class="btn btn-sm btn-secondary">v0.1.0</a>
+                    <a href="../v0.1.1/index.html" class="btn btn-sm btn-secondary">v0.1.1</a>
+                    <a href="../v0.1.2/index.html" class="btn btn-sm btn-secondary">v0.1.2</a>
+                    <a href="../v0.1.3/index.html" class="btn btn-sm btn-secondary">v0.1.3</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="version-info">
+            <p>MGraph HTML Graph Render UI v0.1.4 |
+               <a href="../v0.1.0/index.html">v0.1.0</a> |
+               <a href="../v0.1.1/index.html">v0.1.1</a> |
+               <a href="../v0.1.2/index.html">v0.1.2</a> |
+               <a href="../v0.1.3/index.html">v0.1.3</a> |
+               <a href="/docs" target="_blank">API Docs</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Reference v0.1.0 scripts -->
+    <script src="../v0.1.0/js/services/api-client.js"></script>
+    <script src="../v0.1.0/js/dashboard.js"></script>
+</body>
+</html>

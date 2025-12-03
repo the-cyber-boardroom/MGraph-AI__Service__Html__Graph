@@ -1,0 +1,128 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Render UI - Playground Styles
+   v0.1.4 - Multiple Rendering Engines
+
+   Additional styles for vis.js and D3 renderers
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Renderer selector styling */
+.renderer-selector select {
+    min-width: 160px;
+}
+
+/* Canvas area - ensure it works with all renderers */
+.canvas-area {
+    position: relative;
+    background: #fafafa;
+}
+
+/* vis.js container needs full dimensions */
+#vis-container {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+}
+
+/* D3 SVG should fill container */
+.canvas-area > svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Renderer info in empty state */
+.renderer-info {
+    text-align: left;
+    max-width: 320px;
+    margin: 15px auto 0;
+    line-height: 1.6;
+}
+
+/* Loading state for async renderer loading */
+.renderer-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+}
+
+.renderer-loading .spinner {
+    margin-bottom: 10px;
+}
+
+/* Interactive renderer hint */
+.canvas-area::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+/* Show hint for interactive renderers */
+.canvas-area.interactive::after {
+    content: '🖱️ Drag to pan, scroll to zoom';
+    width: auto;
+    height: auto;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.75em;
+    opacity: 1;
+}
+
+/* Force-directed layout animation */
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.4; }
+}
+
+.d3-simulating .canvas-area::before {
+    content: 'Physics simulation running...';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 4px 8px;
+    background: rgba(99, 102, 241, 0.9);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.75em;
+    animation: pulse 1.5s ease-in-out infinite;
+    z-index: 10;
+}
+
+/* Node hover effects for D3 */
+.canvas-area svg g.nodes rect:hover {
+    filter: brightness(1.1);
+    cursor: grab;
+}
+
+.canvas-area svg g.nodes rect:active {
+    cursor: grabbing;
+}
+
+/* Link hover effects for D3 */
+.canvas-area svg g.links line:hover {
+    stroke-opacity: 1;
+    stroke-width: 2.5;
+}
+
+/* Tooltip styling for vis.js */
+.vis-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    max-width: 250px;
+    word-wrap: break-word;
+    pointer-events: none;
+    z-index: 1000;
+}
