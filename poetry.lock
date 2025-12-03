@@ -325,14 +325,14 @@ typing-extensions = "*"
 
 [[package]]
 name = "mgraph-db"
-version = "1.6.0"
+version = "1.7.0"
 description = "MGraph-DB"
 optional = false
 python-versions = "<4.0,>=3.11"
 groups = ["main"]
 files = [
-    {file = "mgraph_db-1.6.0-py3-none-any.whl", hash = "sha256:15547976eea15639c93606f1e142b6ab1d5e8562f0862b0d6f543710c6dfdf5c"},
-    {file = "mgraph_db-1.6.0.tar.gz", hash = "sha256:f87a6b43a2fe0cf0d1cc13c096d9082926e595f6bc7bedb6405833c43f5d17c2"},
+    {file = "mgraph_db-1.7.0-py3-none-any.whl", hash = "sha256:b251c5a620a68dc93147e2e73875ff8e159b4da8b975145658baede5330fe184"},
+    {file = "mgraph_db-1.7.0.tar.gz", hash = "sha256:6059234b5300be636507fc4b36b96547a91f52b1a21e16581e1568f4c0fe25f0"},
 ]
 
 [package.dependencies]

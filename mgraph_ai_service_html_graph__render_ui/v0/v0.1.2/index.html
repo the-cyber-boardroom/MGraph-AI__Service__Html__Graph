@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Graph Visualization - MGraph Service</title>
+    <title>HTML Graph Visualization v0.1.2</title>
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="./css/common.css">
-    <link rel="stylesheet" href="./css/dashboard.css">
+    <!-- Reference v0.1.0 styles -->
+    <link rel="stylesheet" href="../v0.1.0/css/common.css">
+    <link rel="stylesheet" href="../v0.1.0/css/dashboard.css">
 </head>
 <body>
     <div class="dashboard">
@@ -15,6 +15,7 @@
         <header class="dashboard-header">
             <h1>🔗 HTML Graph Visualization</h1>
             <p>Interactive visualization of HTML document structure as graphs</p>
+            <p class="mt-sm" style="opacity: 0.8; font-size: 0.9em;">v0.1.2 - DOT Renderer (viz-js)</p>
             
             <div class="api-status mt-md">
                 <span id="api-status-dot" class="api-status-dot loading"></span>
@@ -46,26 +47,26 @@
                 <h3>Graph Playground</h3>
                 <p>
                     Interactive playground for visualizing HTML structure as graphs. 
-                    Input HTML, configure rendering options, and see the graph rendered 
-                    in real-time using various visualization libraries.
+                    Input HTML, configure rendering options, and see the graph 
+                    rendered as SVG using Graphviz (via viz-js WebAssembly).
                 </p>
-                <p class="text-muted mt-sm" style="font-size: 0.9em;">
-                    Coming in v0.1.1 →
-                </p>
+                <a href="./playground.html" class="btn btn-primary">
+                    Open Playground →
+                </a>
             </div>
 
-            <!-- Render Formats -->
+            <!-- What's New in v0.1.2 -->
             <div class="feature-card">
-                <div class="feature-card-icon">🎨</div>
-                <h3>Multiple Render Formats</h3>
+                <div class="feature-card-icon">✨</div>
+                <h3>What's New in v0.1.2</h3>
                 <p>
-                    Choose from multiple rendering engines: DOT (Graphviz via viz-js), 
-                    vis.js for interactive exploration, D3 for force-directed layouts, 
-                    Cytoscape for analysis, and Mermaid for documentation.
+                    This version adds the DOT renderer component using viz-js 
+                    (Graphviz compiled to WebAssembly). DOT output from the API 
+                    is now rendered as interactive SVG graphics!
                 </p>
-                <p class="text-muted mt-sm" style="font-size: 0.9em;">
-                    DOT renderer coming in v0.1.2 →
-                </p>
+                <a href="./playground.html" class="btn btn-secondary">
+                    Try It →
+                </a>
             </div>
 
             <!-- Sample Files -->
@@ -77,8 +78,8 @@
                     simple structures, nested elements, attributes, mixed content, 
                     and real-world Bootstrap examples.
                 </p>
-                <a href="./samples/simple.html" class="btn btn-secondary" target="_blank">
-                    View Simple Sample →
+                <a href="./playground.html?sample=simple" class="btn btn-secondary">
+                    View Samples →
                 </a>
             </div>
 
@@ -91,9 +92,9 @@
                     toggle visibility of tag/attribute/text nodes, and choose from multiple 
                     color schemes.
                 </p>
-                <p class="text-muted mt-sm" style="font-size: 0.9em;">
-                    Config panel coming in v0.1.1 →
-                </p>
+                <a href="./playground.html" class="btn btn-secondary">
+                    Configure →
+                </a>
             </div>
 
             <!-- API Documentation -->
@@ -110,32 +111,33 @@
                 </a>
             </div>
 
-            <!-- About -->
+            <!-- Previous Versions -->
             <div class="feature-card">
-                <div class="feature-card-icon">ℹ️</div>
-                <h3>About MGraph</h3>
+                <div class="feature-card-icon">📁</div>
+                <h3>Previous Versions</h3>
                 <p>
-                    MGraph is a graph-based data structure library that transforms 
-                    HTML documents into traversable graph representations, enabling 
-                    powerful analysis and visualization.
+                    View previous versions: v0.1.0 (foundation), v0.1.1 (core UI framework).
+                    Each version builds incrementally on the previous.
                 </p>
-                <a href="https://github.com/owasp-sbot/MGraph-AI" class="btn btn-secondary" target="_blank">
-                    Learn More →
-                </a>
+                <div class="flex gap-sm mt-sm">
+                    <a href="../v0.1.0/index.html" class="btn btn-sm btn-secondary">v0.1.0</a>
+                    <a href="../v0.1.1/index.html" class="btn btn-sm btn-secondary">v0.1.1</a>
+                </div>
             </div>
         </div>
 
         <!-- Version Info -->
         <div class="version-info">
-            <p>MGraph HTML Graph Render UI v0.1.0 | 
-               <a href="/docs" target="_blank">API Docs</a> | 
-               <a href="https://github.com/owasp-sbot/MGraph-AI" target="_blank">GitHub</a>
+            <p>MGraph HTML Graph Render UI v0.1.2 | 
+               <a href="../v0.1.0/index.html">v0.1.0</a> |
+               <a href="../v0.1.1/index.html">v0.1.1</a> |
+               <a href="/docs" target="_blank">API Docs</a>
             </p>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="./js/services/api-client.js"></script>
-    <script src="./js/dashboard.js"></script>
+    <!-- Reference v0.1.0 scripts -->
+    <script src="../v0.1.0/js/services/api-client.js"></script>
+    <script src="../v0.1.0/js/dashboard.js"></script>
 </body>
 </html>

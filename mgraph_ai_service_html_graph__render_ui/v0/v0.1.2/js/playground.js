@@ -1,11 +1,14 @@
 /* ═══════════════════════════════════════════════════════════════════════════════
    MGraph HTML Graph - Render UI - Playground Orchestrator
-   v0.1.1 - Core UI Framework
+   v0.1.2 - DOT Renderer (viz-js)
+   
+   This version extends v0.1.1 with actual SVG rendering via viz-js
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /**
  * Playground Controller
  * Orchestrates communication between components and API
+ * v0.1.2: Adds viz-js rendering via dot-renderer component
  */
 class Playground {
     constructor() {
@@ -14,6 +17,7 @@ class Playground {
         this.statsPanel = null;
         this.graphCanvas = null;
         this.renderButton = null;
+        this.dotRenderer = null;  // NEW in v0.1.2
 
         this.currentHtml = '';
         this.currentConfig = {};
@@ -30,6 +34,7 @@ class Playground {
         this.statsPanel = document.querySelector('stats-panel');
         this.graphCanvas = document.querySelector('graph-canvas');
         this.renderButton = document.getElementById('render-button');
+        this.dotRenderer = document.querySelector('dot-renderer');  // NEW in v0.1.2
 
         // Setup event listeners
         this.setupEventListeners();
@@ -37,7 +42,7 @@ class Playground {
         // Check for sample in URL
         this.loadFromUrl();
 
-        console.log('Playground v0.1.1 initialized');
+        console.log('Playground v0.1.2 initialized (with viz-js rendering)');
     }
 
     /**
@@ -122,7 +127,7 @@ class Playground {
 
     /**
      * Render using DOT/Graphviz
-     * Note: v0.1.1 shows raw DOT output as text. v0.1.2 adds viz-js rendering.
+     * v0.1.2: Uses viz-js via dot-renderer component for SVG rendering
      */
     async renderDot(html, config) {
         // Build request
@@ -143,15 +148,13 @@ class Playground {
             this.statsPanel.setStats(response.stats);
         }
 
-        // v0.1.1: Show raw DOT output as formatted text
-        if (response.dot) {
+        // v0.1.2: Render DOT to SVG using dot-renderer component
+        if (this.dotRenderer && response.dot) {
+            await this.dotRenderer.renderDot(response.dot);
+        } else if (response.dot) {
+            // Fallback: show raw DOT if dot-renderer not available
             this.graphCanvas.canvasArea.innerHTML = `
-                <div style="width: 100%; height: 100%; overflow: auto; padding: 20px;">
-                    <div style="margin-bottom: 10px; color: #666; font-size: 0.9em;">
-                        📝 DOT Output (v0.1.2 adds visual rendering)
-                    </div>
-                    <pre style="text-align: left; background: #f5f5f5; padding: 15px; border-radius: 8px; font-size: 0.85em; white-space: pre-wrap; word-wrap: break-word;">${this.escapeHtml(response.dot)}</pre>
-                </div>
+                <pre style="text-align: left; padding: 20px; overflow: auto;">${this.escapeHtml(response.dot)}</pre>
             `;
         }
     }

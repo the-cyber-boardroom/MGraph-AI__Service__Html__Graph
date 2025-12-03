@@ -8,15 +8,16 @@ readme      = "README.md"
 homepage    = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Html__Graph"
 repository  = "https://github.com/the-cyber-boardroom/MGraph-AI__Service__Html__Graph"
 
-[tool.poetry.dependencies]
-python                     = "^3.12"
-osbot-fast-api-serverless  = "*"
-mgraph_db                  = "*"
 
 packages    = [
     { include = "mgraph_ai_service_html_graph"            },
     { include = "mgraph_ai_service_html_graph__render_ui" }
 ]
+
+[tool.poetry.dependencies]
+python                     = "^3.12"
+osbot-fast-api-serverless  = "*"
+mgraph_db                  = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
