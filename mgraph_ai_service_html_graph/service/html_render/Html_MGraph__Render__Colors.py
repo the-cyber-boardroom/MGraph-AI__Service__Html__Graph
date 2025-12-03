@@ -1,12 +1,6 @@
-from enum                            import Enum
-from typing                          import Dict, Optional
-from osbot_utils.type_safe.Type_Safe import Type_Safe
-
-
-class Enum__Html_Render__Color_Scheme(str, Enum):                                           # Available color schemes for HTML visualization
-    DEFAULT       = 'default'
-    MONOCHROME    = 'monochrome'
-    HIGH_CONTRAST = 'high_contrast'
+from typing                                                                     import Dict
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from mgraph_ai_service_html_graph.schemas.enums.Enum__Html_Render__Color_Scheme import Enum__Html_Render__Color_Scheme
 
 
 class Html_MGraph__Render__Colors(Type_Safe):                                               # Color definitions for HTML-aware MGraph visualization

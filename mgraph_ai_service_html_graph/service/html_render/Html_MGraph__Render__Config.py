@@ -1,17 +1,11 @@
-from enum                                                                         import Enum
 from typing                                                                       import Dict, Any, Optional, Callable
+from mgraph_ai_service_html_graph.schemas.enums.Enum__Html_Render__Preset         import Enum__Html_Render__Preset
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 from mgraph_db.mgraph.actions.exporters.dot.MGraph__Export__Dot                   import MGraph__Export__Dot
 from mgraph_db.mgraph.domain.Domain__MGraph__Node                                 import Domain__MGraph__Node
 from mgraph_db.mgraph.domain.Domain__MGraph__Edge                                 import Domain__MGraph__Edge
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors import Html_MGraph__Render__Colors, Enum__Html_Render__Color_Scheme
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Labels import Html_MGraph__Render__Labels
-
-
-class Enum__Html_Render__Preset(str, Enum):                                                 # Rendering presets for different visualization needs
-    FULL_DETAIL     = 'full_detail'                                                         # Show everything
-    STRUCTURE_ONLY  = 'structure_only'                                                      # Only elements and child edges
-    MINIMAL         = 'minimal'                                                             # Just element nodes with tags inline
 
 
 class Html_MGraph__Render__Config(Type_Safe):                                               # Configuration for HTML-aware MGraph visualization using path-based styling
@@ -43,12 +37,8 @@ class Html_MGraph__Render__Config(Type_Safe):                                   
     text_edge_style  : str  = 'solid'                                                       # Style for text edges
 
     # Internal tracking
-    _filtered_nodes  : Dict[str, bool] = None                                               # Track which nodes to filter
+    _filtered_nodes  : Dict[str, bool]                                                     # Track which nodes to filter
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if self._filtered_nodes is None:
-            self._filtered_nodes = {}
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Preset Application
