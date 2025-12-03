@@ -7,11 +7,11 @@ class ConfigPanel extends HTMLElement {
     constructor() {
         super();
         this.config = {
-            preset: 'FULL_DETAIL',
+            preset: 'full_detail',
             show_tag_nodes: true,
             show_attr_nodes: true,
             show_text_nodes: true,
-            color_scheme: 'DEFAULT'
+            color_scheme: 'default'
         };
     }
 
@@ -34,7 +34,7 @@ class ConfigPanel extends HTMLElement {
                     <div class="config-section-title">Preset</div>
                     <div class="config-row">
                         <select id="config-preset" class="form-control">
-                            <option value="FULL_DETAIL">Full Detail</option>
+                            <option value="full_detail">Full Detail</option>
                             <option value="STRUCTURE_ONLY">Structure Only</option>
                             <option value="MINIMAL">Minimal</option>
                         </select>
@@ -61,7 +61,7 @@ class ConfigPanel extends HTMLElement {
                     <div class="config-section-title">Color Scheme</div>
                     <div class="config-row">
                         <select id="config-color-scheme" class="form-control">
-                            <option value="DEFAULT">Default</option>
+                            <option value="default">Default</option>
                             <option value="MONOCHROME">Monochrome</option>
                             <option value="HIGH_CONTRAST">High Contrast</option>
                             <option value="PASTEL">Pastel</option>
@@ -110,7 +110,7 @@ class ConfigPanel extends HTMLElement {
         const showTextCheckbox = this.querySelector('#config-show-text');
 
         switch (preset) {
-            case 'FULL_DETAIL':
+            case 'full_detail':
                 showTagCheckbox.checked = true;
                 showAttrCheckbox.checked = true;
                 showTextCheckbox.checked = true;

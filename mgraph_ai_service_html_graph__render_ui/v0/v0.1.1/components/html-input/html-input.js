@@ -78,7 +78,7 @@ class HtmlInput extends HTMLElement {
 
     async loadSample(sampleName) {
         try {
-            const response = await fetch(`../../v0.1.0/samples/${sampleName}.html`);
+            const response = await fetch(`../v0.1.0/samples/${sampleName}.html`);
             if (!response.ok) throw new Error(`Failed to load sample: ${response.statusText}`);
             const html = await response.text();
             this.textarea.value = html;

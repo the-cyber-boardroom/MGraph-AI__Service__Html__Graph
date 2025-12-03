@@ -177,7 +177,7 @@ class ApiClient {
      */
     async checkHealth() {
         try {
-            await this.get('/health', { timeout: 5000 });
+            await this.get('/info/health', { timeout: 5000 });
             return true;
         } catch {
             return false;

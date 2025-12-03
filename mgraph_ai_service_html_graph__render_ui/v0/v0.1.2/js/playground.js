@@ -133,11 +133,11 @@ class Playground {
         // Build request
         const request = {
             html: html,
-            preset: config.preset || 'FULL_DETAIL',
+            preset: config.preset || 'full_detail',
             show_tag_nodes: config.show_tag_nodes !== false,
             show_attr_nodes: config.show_attr_nodes !== false,
             show_text_nodes: config.show_text_nodes !== false,
-            color_scheme: config.color_scheme || 'DEFAULT'
+            color_scheme: config.color_scheme || 'default'
         };
 
         // Call API
