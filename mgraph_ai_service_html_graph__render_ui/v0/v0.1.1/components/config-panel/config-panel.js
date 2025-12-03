@@ -35,8 +35,8 @@ class ConfigPanel extends HTMLElement {
                     <div class="config-row">
                         <select id="config-preset" class="form-control">
                             <option value="full_detail">Full Detail</option>
-                            <option value="STRUCTURE_ONLY">Structure Only</option>
-                            <option value="MINIMAL">Minimal</option>
+                            <option value="structure_only">Structure Only</option>
+                            <option value="minimal">Minimal</option>
                         </select>
                     </div>
                 </div>
@@ -62,10 +62,10 @@ class ConfigPanel extends HTMLElement {
                     <div class="config-row">
                         <select id="config-color-scheme" class="form-control">
                             <option value="default">Default</option>
-                            <option value="MONOCHROME">Monochrome</option>
-                            <option value="HIGH_CONTRAST">High Contrast</option>
-                            <option value="PASTEL">Pastel</option>
-                            <option value="DARK">Dark</option>
+                            <option value="monochrome">Monochrome</option>
+                            <option value="high_contrast">High Contrast</option>
+<!--                            <option value="PASTEL">Pastel</option>-->
+<!--                            <option value="DARK">Dark</option>-->
                         </select>
                     </div>
                 </div>
@@ -115,12 +115,12 @@ class ConfigPanel extends HTMLElement {
                 showAttrCheckbox.checked = true;
                 showTextCheckbox.checked = true;
                 break;
-            case 'STRUCTURE_ONLY':
+            case 'structure_only':
                 showTagCheckbox.checked = true;
                 showAttrCheckbox.checked = false;
                 showTextCheckbox.checked = false;
                 break;
-            case 'MINIMAL':
+            case 'minimal':
                 showTagCheckbox.checked = false;
                 showAttrCheckbox.checked = false;
                 showTextCheckbox.checked = false;
