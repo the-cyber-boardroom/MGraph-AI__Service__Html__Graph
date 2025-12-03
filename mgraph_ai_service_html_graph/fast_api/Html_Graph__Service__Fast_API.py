@@ -7,7 +7,7 @@ from starlette.responses                                            import Redir
 from starlette.staticfiles                                          import StaticFiles
 from mgraph_ai_service_html_graph.config                            import FAST_API__TITLE, FAST_API__DESCRIPTION, UI__CONSOLE__ROUTE__CONSOLE, UI__CONSOLE__MAJOR__VERSION, UI__CONSOLE__LATEST__VERSION
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph     import Routes__Graph
-from mgraph_ai_service_html_graph.fast_api.routes.Routes__Html import Routes__Html
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Html      import Routes__Html
 from mgraph_ai_service_html_graph.utils.Version                     import version__mgraph_ai_service_html_graph
 
 

@@ -105,6 +105,7 @@ class UrlInput extends HTMLElement {
                             class="url-input-field" 
                             placeholder="https://example.com"
                             autocomplete="url"
+                            value = "https://example.com"
                         >
                         <button id="url-fetch-btn" class="url-fetch-btn">
                             🔗 Fetch

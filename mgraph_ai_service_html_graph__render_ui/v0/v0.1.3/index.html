@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Graph Visualization v0.1.3</title>
+    <title>HTML Graph Visualization v0.1.4</title>
 
     <!-- Reference v0.1.0 styles -->
     <link rel="stylesheet" href="../v0.1.0/css/common.css">
@@ -15,7 +15,7 @@
         <header class="dashboard-header">
             <h1>🔗 HTML Graph Visualization</h1>
             <p>Interactive visualization of HTML document structure as graphs</p>
-            <p class="mt-sm" style="opacity: 0.8; font-size: 0.9em;">v0.1.3 - URL Fetching</p>
+            <p class="mt-sm" style="opacity: 0.8; font-size: 0.9em;">v0.1.4 - Improved Layout & Error Handling</p>
 
             <div class="api-status mt-md">
                 <span id="api-status-dot" class="api-status-dot loading"></span>
@@ -46,65 +46,65 @@
                 <div class="feature-card-icon">📊</div>
                 <h3>Graph Playground</h3>
                 <p>
-                    Interactive playground for visualizing HTML structure as graphs.
-                    Now with URL fetching! Enter any URL to visualize its DOM structure
-                    rendered as beautiful SVG graphics.
+                    Interactive playground with improved layout. Stats and render button
+                    now at top-right for better visibility. Real-time timing info shows
+                    API, server, and render performance.
                 </p>
                 <a href="./playground.html" class="btn btn-primary">
                     Open Playground →
                 </a>
             </div>
 
-            <!-- What's New in v0.1.3 -->
+            <!-- What's New in v0.1.4 -->
             <div class="feature-card">
-                <div class="feature-card-icon">🌐</div>
-                <h3>What's New in v0.1.3</h3>
+                <div class="feature-card-icon">✨</div>
+                <h3>What's New in v0.1.4</h3>
                 <p>
-                    <strong>URL Fetching!</strong> Enter any URL and fetch its HTML content
-                    directly. The fetched HTML populates the editor so you can view,
-                    edit, and then render the graph. Try visualizing any website!
-                </p>
-                <a href="./playground.html?url=https://example.com" class="btn btn-secondary">
-                    Try with example.com →
-                </a>
-            </div>
-
-            <!-- Sample Files -->
-            <div class="feature-card">
-                <div class="feature-card-icon">📄</div>
-                <h3>Sample HTML Files</h3>
-                <p>
-                    Pre-loaded sample HTML files to demonstrate capabilities:
-                    simple structures, nested elements, attributes, mixed content,
-                    and real-world Bootstrap examples.
-                </p>
-                <a href="./playground.html?sample=simple" class="btn btn-secondary">
-                    View Samples →
-                </a>
-            </div>
-
-            <!-- Configuration -->
-            <div class="feature-card">
-                <div class="feature-card-icon">⚙️</div>
-                <h3>Flexible Configuration</h3>
-                <p>
-                    Customize visualization with presets (Full Detail, Structure Only, Minimal),
-                    toggle visibility of tag/attribute/text nodes, and choose from multiple
-                    color schemes.
+                    <strong>Better Error Handling:</strong> Graceful handling of large graphs
+                    that exceed browser memory. Stats shown immediately after API call.
+                    Helpful tips for reducing graph size.
                 </p>
                 <a href="./playground.html" class="btn btn-secondary">
-                    Configure →
+                    Try It →
+                </a>
+            </div>
+
+            <!-- Timing Info -->
+            <div class="feature-card">
+                <div class="feature-card-icon">⏱️</div>
+                <h3>Performance Timing</h3>
+                <p>
+                    New timing statistics: API call duration, server processing time,
+                    browser render time, and DOT code size. Helps identify bottlenecks
+                    and optimize graph generation.
+                </p>
+                <a href="./playground.html?sample=bootstrap" class="btn btn-secondary">
+                    View Timing →
+                </a>
+            </div>
+
+            <!-- Large Graph Support -->
+            <div class="feature-card">
+                <div class="feature-card-icon">🔧</div>
+                <h3>Large Graph Support</h3>
+                <p>
+                    When graphs are too large for browser rendering, stats are still displayed.
+                    Raw DOT code is shown with copy button for use with local Graphviz.
+                    Tips suggest using simpler presets.
+                </p>
+                <a href="./playground.html" class="btn btn-secondary">
+                    Learn More →
                 </a>
             </div>
 
             <!-- API Documentation -->
             <div class="feature-card">
                 <div class="feature-card-icon">📚</div>
-                <h3>API Endpoints</h3>
+                <h3>API Updates</h3>
                 <p>
-                    New endpoints in v0.1.3:<br>
-                    <code>/html/from/url</code> - Fetch HTML from URL<br>
-                    <code>/graph/from/url/to/dot</code> - URL to DOT in one call
+                    Response now includes:<br>
+                    <code>processing_ms</code> - Server processing time<br>
+                    <code>dot_size_bytes</code> - DOT code size
                 </p>
                 <a href="/docs" class="btn btn-secondary" target="_blank">
                     View API Docs →
@@ -117,23 +117,25 @@
                 <h3>Previous Versions</h3>
                 <p>
                     View previous versions: v0.1.0 (foundation), v0.1.1 (core UI),
-                    v0.1.2 (DOT renderer). Each version builds incrementally.
+                    v0.1.2 (DOT renderer), v0.1.3 (URL fetching).
                 </p>
                 <div class="flex gap-sm mt-sm" style="flex-wrap: wrap;">
                     <a href="/console"             class="btn btn-sm btn-primary">latest</a>
                     <a href="../v0.1.0/index.html" class="btn btn-sm btn-secondary">v0.1.0</a>
                     <a href="../v0.1.1/index.html" class="btn btn-sm btn-secondary">v0.1.1</a>
                     <a href="../v0.1.2/index.html" class="btn btn-sm btn-secondary">v0.1.2</a>
+                    <a href="../v0.1.3/index.html" class="btn btn-sm btn-secondary">v0.1.3</a>
                 </div>
             </div>
         </div>
 
         <!-- Version Info -->
         <div class="version-info">
-            <p>MGraph HTML Graph Render UI v0.1.3 |
+            <p>MGraph HTML Graph Render UI v0.1.4 |
                <a href="../v0.1.0/index.html">v0.1.0</a> |
                <a href="../v0.1.1/index.html">v0.1.1</a> |
                <a href="../v0.1.2/index.html">v0.1.2</a> |
+               <a href="../v0.1.3/index.html">v0.1.3</a> |
                <a href="/docs" target="_blank">API Docs</a>
             </p>
         </div>

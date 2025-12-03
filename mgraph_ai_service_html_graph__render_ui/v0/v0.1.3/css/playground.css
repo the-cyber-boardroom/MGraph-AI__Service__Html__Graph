@@ -1,0 +1,47 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Render UI - Playground Styles Override
+   v0.1.4 - Improved Layout & Error Handling
+
+   Overrides v0.1.1 styles for new layout with stats at top-right
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Override left panel to remove render button and stats */
+.left-panel {
+    max-height: calc(100vh - 80px);
+}
+
+/* Right panel layout: toolbar at top, canvas fills rest */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+}
+
+/* Canvas container takes remaining space */
+.graph-canvas-container {
+    flex: 1;
+    min-height: 0;
+}
+
+/* Hide the old stats panel and render button when using new layout */
+.left-panel stats-panel,
+.left-panel .render-button {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .playground-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    .left-panel {
+        max-height: none;
+    }
+
+    .right-panel {
+        min-height: 500px;
+    }
+}

@@ -1,6 +1,7 @@
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
+from osbot_utils.helpers.duration.decorators.capture_duration                            import capture_duration
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request       import Schema__Graph__From_Html__Request
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__To__Dot                import Html_MGraph__To__Dot
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                           import Html__To__Html_Dict
 from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__OSBot__To__Html_Dict     import Html_Dict__OSBot__To__Html_Dict
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph                         import Html_MGraph
@@ -43,13 +44,19 @@ class Html_Graph__Export__Service(Type_Safe):                                   
                                     attr_nodes    = raw_stats.get('attr_nodes'   , 0) )
 
     def to_dot(self, request: Schema__Graph__From_Html__Request                                   # Convert HTML to DOT format
-               ) -> Schema__Graph__Dot__Response:
-        html_mgraph = self.html_to_mgraph(request.html)                                           # Parse HTML to MGraph
-        config      = self.create_config(request)                                                 # Create render config
-        exporter    = Html_MGraph__To__Dot(mgraph = html_mgraph.mgraph ,                          # Create exporter
-                                           config = config             )
-        dot_string  = exporter.to_string()                                                        # Generate DOT string
-        stats       = self.get_stats(html_mgraph)                                                 # Get statistics
+                ) -> Schema__Graph__Dot__Response:
+        with capture_duration() as duration:
 
-        return Schema__Graph__Dot__Response(dot   = dot_string ,
-                                            stats = stats      )
+            html_mgraph = self.html_to_mgraph(request.html)                                           # Parse HTML to MGraph
+            config      = self.create_config(request)                                                 # Create render config
+            exporter    = Html_MGraph__To__Dot(mgraph = html_mgraph.mgraph ,                          # Create exporter
+                                               config = config             )
+            dot_string  = exporter.to_string()                                                        # Generate DOT string
+            stats       = self.get_stats(html_mgraph)                                                 # Get statistics
+
+            dot_size    = len(dot_string)                                        # Get DOT size in bytes
+
+            return Schema__Graph__Dot__Response(dot      = dot_string     ,
+                                                stats    = stats          ,
+                                                dot_size = dot_size ,
+                                                duration = duration.seconds  )
