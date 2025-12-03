@@ -1,10 +1,10 @@
-from fastapi                                                           import FastAPI
-from osbot_fast_api.api.Fast_API                                       import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
-from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid  import Random_Guid
-from osbot_utils.utils.Env                                             import set_env
-from starlette.testclient                                              import TestClient
-from mgraph_ai_service_html_graph.fast_api.Html_Graph__Service__Fast_API     import Html_Graph__Service__Fast_API
+from fastapi                                                             import FastAPI
+from osbot_fast_api.api.Fast_API                                         import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid    import Random_Guid
+from osbot_utils.utils.Env                                               import set_env
+from starlette.testclient                                                import TestClient
+from mgraph_ai_service_html_graph.fast_api.Html_Graph__Service__Fast_API import Html_Graph__Service__Fast_API
 
 TEST_API_KEY__NAME = 'key-used-in-pytest'
 TEST_API_KEY__VALUE = Random_Guid()

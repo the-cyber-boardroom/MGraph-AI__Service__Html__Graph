@@ -30,6 +30,12 @@ class test_Deploy__Service__base():     # Base class for deployment tests - over
 
     def test_3__create(self):
         assert self.deploy_fast_api.create() is True
+        self.test_3_1__update_lambda_runtime__to_3_13()             # todo: add support to OSBot_AWS lambda deploy methods for configuring the version of the python runtime
+
+    def test_3_1__update_lambda_runtime__to_3_13(self):
+        self.deploy_fast_api.lambda_function().configuration_update(Runtime='python3.13')
+        self.deploy_fast_api.lambda_function().wait_for_function_update_to_complete()
+
 
     def test_4__invoke(self):
         assert self.deploy_fast_api.invoke().get('errorMessage') == DEFAULT__ERROR_MESSAGE__WHEN_FAST_API_IS_OK

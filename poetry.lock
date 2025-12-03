@@ -45,18 +45,18 @@ trio = ["trio (>=0.31.0)", "trio (>=0.32.0)"]
 
 [[package]]
 name = "boto3"
-version = "1.42.0"
+version = "1.42.1"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.42.0-py3-none-any.whl", hash = "sha256:af32b7f61dd6293cad728ec205bcb3611ab1bf7b7dbccfd0f2bd7b9c9af96039"},
-    {file = "boto3-1.42.0.tar.gz", hash = "sha256:9c67729a6112b7dced521ea70b0369fba138e89852b029a7876041cd1460c084"},
+    {file = "boto3-1.42.1-py3-none-any.whl", hash = "sha256:9a8f9799afff600ff5cb43f57a619a5375ea71077ec958bda70e296378da7024"},
+    {file = "boto3-1.42.1.tar.gz", hash = "sha256:137fbea593a30afa1b75656ea1f1ff8796be608a8c77f1b606c4473289679898"},
 ]
 
 [package.dependencies]
-botocore = ">=1.41.6,<1.42.0"
+botocore = ">=1.42.0,<1.43.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.16.0,<0.17.0"
 
@@ -65,14 +65,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.41.6"
+version = "1.42.1"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.41.6-py3-none-any.whl", hash = "sha256:963cc946e885acb941c96e7d343cb6507b479812ca22566ceb3e9410d0588de0"},
-    {file = "botocore-1.41.6.tar.gz", hash = "sha256:08fe47e9b306f4436f5eaf6a02cb6d55c7745d13d2d093ce5d917d3ef3d3df75"},
+    {file = "botocore-1.42.1-py3-none-any.whl", hash = "sha256:9d49f5197487f9f71daa9c5397f81484ffcc0dc1cf89a63e94ae3e5a27faa98c"},
+    {file = "botocore-1.42.1.tar.gz", hash = "sha256:3337df815c69dd87c314ee29329b8ea411ad3562fb6563d139bbe085dac14ce0"},
 ]
 
 [package.dependencies]
@@ -248,14 +248,14 @@ files = [
 
 [[package]]
 name = "fastapi"
-version = "0.123.4"
+version = "0.123.5"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "fastapi-0.123.4-py3-none-any.whl", hash = "sha256:fc2b5cbc10fa05f4f22d87ef7ebc8993b5110ffd9850c08e1fc35a0da37f492e"},
-    {file = "fastapi-0.123.4.tar.gz", hash = "sha256:c2d0ac82f3534c8e35692fda67e2412ac60bad846bb903a65cd8145a65741474"},
+    {file = "fastapi-0.123.5-py3-none-any.whl", hash = "sha256:a9c708e47c0fa424139cddb8601d0f92d3111b77843c22e9c8d0164d65fe3c97"},
+    {file = "fastapi-0.123.5.tar.gz", hash = "sha256:54bbb660ca231d3985474498b51c621ddcf8888d9a4c1ecb10aa40ec217e4965"},
 ]
 
 [package.dependencies]
@@ -324,6 +324,21 @@ files = [
 typing-extensions = "*"
 
 [[package]]
+name = "mgraph-db"
+version = "1.7.0"
+description = "MGraph-DB"
+optional = false
+python-versions = "<4.0,>=3.11"
+groups = ["main"]
+files = [
+    {file = "mgraph_db-1.7.0-py3-none-any.whl", hash = "sha256:b251c5a620a68dc93147e2e73875ff8e159b4da8b975145658baede5330fe184"},
+    {file = "mgraph_db-1.7.0.tar.gz", hash = "sha256:6059234b5300be636507fc4b36b96547a91f52b1a21e16581e1568f4c0fe25f0"},
+]
+
+[package.dependencies]
+osbot-utils = "*"
+
+[[package]]
 name = "osbot-aws"
 version = "2.39.9"
 description = "OWASP Security Bot - AWS"
@@ -376,14 +391,14 @@ osbot-fast-api = "*"
 
 [[package]]
 name = "osbot-utils"
-version = "3.53.0"
+version = "3.55.0"
 description = "OWASP Security Bot - Utils"
 optional = false
 python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "osbot_utils-3.53.0-py3-none-any.whl", hash = "sha256:c5915397efb161c5554970696f9331bf09bb9bc7510507ab6495c30ae63cf91c"},
-    {file = "osbot_utils-3.53.0.tar.gz", hash = "sha256:87401a18eb47f16a9e82f6f22d74638af07bc7fcbd80ccc4aa1394075a2cde2a"},
+    {file = "osbot_utils-3.55.0-py3-none-any.whl", hash = "sha256:d1de616f16864bc96369b001bd20900a6c7100fd847efe3bad16f9650615162f"},
+    {file = "osbot_utils-3.55.0.tar.gz", hash = "sha256:2d9a3ddc8642e37940c30691fe422c6fb246304fc97f2c29da31393e0151d625"},
 ]
 
 [[package]]
@@ -695,4 +710,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "20fbb4667c340f827cf51723368ab89feae0f56b1b8a631f303cc74c6edc22fe"
+content-hash = "b9982e3bd113d263f1468353beaa53406d7054067cbd9c49e5f63ab0ead6259c"

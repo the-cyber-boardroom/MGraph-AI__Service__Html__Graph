@@ -1,0 +1,14 @@
+<div id="main-container" class="container fluid">
+    <nav id="navbar" class="nav primary" role="navigation">
+        <a href="#home" class="nav-link active" data-section="home">Home</a>
+        <a href="#about" class="nav-link" data-section="about">About</a>
+        <a href="#contact" class="nav-link" data-section="contact">Contact</a>
+    </nav>
+    <main id="content" class="main-content" aria-label="Main content">
+        <form id="contact-form" action="/submit" method="POST" class="form validated">
+            <input type="text" id="name" name="name" class="form-control" placeholder="Your name" required>
+            <input type="email" id="email" name="email" class="form-control" placeholder="Email address">
+            <button type="submit" class="btn btn-primary" disabled>Submit</button>
+        </form>
+    </main>
+</div>
