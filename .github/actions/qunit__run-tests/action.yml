@@ -1,101 +1,29 @@
 name: "qunit__run-tests"
-description: "Run QUnit browser tests using Playwright"
+description: "Run QUnit browser tests using Karma"
 inputs:
-  test_path:
-    description: "Path to QUnit test index.html (relative to repo root)"
+  node-version:
+    description: "Node.js version"
     required: false
-    default: "console/v0/v0.1/tests/index.html"
-  timeout:
-    description: "Test timeout in milliseconds"
+    default: "20"
+  working-directory:
+    description: "Directory containing package.json with Karma config"
     required: false
-    default: "30000"
+    default: "."
 
 runs:
   using: "composite"
   steps:
-    - name: Setup Node.js
+    - name: Setup Node.js ${{ inputs.node-version }}
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: ${{ inputs.node-version }}
 
-    - name: Create QUnit Playwright config
+    - name: Install dependencies
       shell: bash
-      run: |
-        cat > qunit-playwright.mjs << 'EOF'
-        import { chromium } from 'playwright';
-        import { createServer } from 'http';
-        import { readFileSync, existsSync, statSync } from 'fs';
-        import { join, extname, resolve } from 'path';
+      working-directory: ${{ inputs.working-directory }}
+      run: npm install
 
-        const TEST_PATH = process.env.TEST_PATH || 'tests/index.html';
-        const TIMEOUT = parseInt(process.env.TIMEOUT || '30000');
-        const PORT = 8080;
-
-        const MIME = {
-          '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css',
-          '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml'
-        };
-
-        const server = createServer((req, res) => {
-          let file = join('.', decodeURIComponent(req.url.split('?')[0]));
-          if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
-          try {
-            const content = readFileSync(file);
-            res.writeHead(200, { 'Content-Type': MIME[extname(file)] || 'application/octet-stream' });
-            res.end(content);
-          } catch {
-            res.writeHead(404);
-            res.end('Not Found');
-          }
-        });
-
-        server.listen(PORT, async () => {
-          const browser = await chromium.launch();
-          const page = await browser.newPage();
-          
-          page.on('console', msg => { if (msg.type() === 'error') console.error('Browser:', msg.text()); });
-          
-          try {
-            await page.goto(`http://localhost:${PORT}/${TEST_PATH}`, { waitUntil: 'networkidle' });
-            
-            const results = await page.evaluate((timeout) => new Promise((resolve, reject) => {
-              const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
-              if (typeof QUnit === 'undefined') { clearTimeout(timer); reject(new Error('QUnit not found')); return; }
-              QUnit.done(d => { clearTimeout(timer); resolve(d); });
-            }), TIMEOUT);
-
-            console.log(`\n✅ Passed: ${results.passed}/${results.total} (${results.runtime}ms)`);
-            
-            if (results.failed > 0) {
-              const failures = await page.evaluate(() => 
-                Array.from(document.querySelectorAll('#qunit-tests > li.fail')).slice(0, 10).map(li => ({
-                  name: li.querySelector('.test-name')?.textContent || 'Unknown',
-                  message: li.querySelector('.test-message')?.textContent || ''
-                }))
-              );
-              console.log(`\n❌ Failed: ${results.failed}`);
-              failures.forEach((f, i) => console.log(`  ${i + 1}. ${f.name}: ${f.message}`));
-            }
-
-            await browser.close();
-            server.close();
-            process.exit(results.failed > 0 ? 1 : 0);
-          } catch (e) {
-            console.error('Error:', e.message);
-            await browser.close();
-            server.close();
-            process.exit(1);
-          }
-        });
-        EOF
-
-    - name: Install Playwright
+    - name: Run QUnit tests
       shell: bash
-      run: npx playwright install chromium
-
-    - name: Run QUnit Tests
-      shell: bash
-      env:
-        TEST_PATH: ${{ inputs.test_path }}
-        TIMEOUT: ${{ inputs.timeout }}
-      run: node qunit-playwright.mjs
+      working-directory: ${{ inputs.working-directory }}
+      run: npm test

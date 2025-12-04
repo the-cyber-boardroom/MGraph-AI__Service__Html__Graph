@@ -58,8 +58,7 @@ jobs:
       - name: Run QUnit Tests
         uses: ./.github/actions/qunit__run-tests
         with:
-          test_path: "console/v0/v0.1/tests/index.html"
-
+          working-directory: "console/v0/v0.1/tests"
   increment-tag:
     # Always define this job, but skip the actual tag increment step conditionally
     name: Increment Tag

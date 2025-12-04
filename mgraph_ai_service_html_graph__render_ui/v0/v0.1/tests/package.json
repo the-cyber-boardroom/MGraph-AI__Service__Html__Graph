@@ -1,0 +1,15 @@
+{
+  "name": "mgraph-html-graph-tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "karma start karma.conf.cjs --single-run"
+  },
+  "devDependencies": {
+    "karma": "^6.4.3",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-qunit": "^4.2.0",
+    "qunit": "^2.21.0"
+  }
+}
