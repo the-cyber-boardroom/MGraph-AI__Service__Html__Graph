@@ -6,18 +6,13 @@ module.exports = function(config) {
     frameworks: ['qunit'],
 
     files: [
-      // QUnit CSS (for reporter)
-      { pattern: 'https://code.jquery.com/qunit/qunit-2.20.0.css', included: true, type: 'css' },
-
-      // Test utilities
-      { pattern: 'tests/test-paths.js', type: 'module' },
-      { pattern: 'tests/test-utils.js', type: 'module' },
+      // Test utilities - loaded as regular scripts (not modules) so they set globals
+      { pattern: 'tests/test-paths.js', type: 'js' },
+      { pattern: 'tests/test-utils.js', type: 'js' },
 
       // Unit tests
-      { pattern: 'tests/unit/*.test.js', type: 'module' },
+      { pattern: 'tests/unit/*.test.js', type: 'js' },
 
-      // Integration tests
-      { pattern: 'tests/integration/*.test.js', type: 'module' },
 
       // Source files (served but not included - loaded by tests)
       { pattern: 'v0.1.0/**/*.js', included: false, served: true, type: 'module' },
@@ -26,19 +21,20 @@ module.exports = function(config) {
       { pattern: 'v0.1.3/**/*.js', included: false, served: true, type: 'module' },
       { pattern: 'v0.1.4/**/*.js', included: false, served: true, type: 'module' },
 
+      // Source files - CSS
+      { pattern: 'v0.1.0/**/*.css', included: false, served: true },
+      { pattern: 'v0.1.1/**/*.css', included: false, served: true },
+      { pattern: 'v0.1.2/**/*.css', included: false, served: true },
+      { pattern: 'v0.1.3/**/*.css', included: false, served: true },
+      { pattern: 'v0.1.4/**/*.css', included: false, served: true },
+
       // Sample HTML files
       { pattern: 'v0.1.0/samples/*.html', included: false, served: true },
     ],
-
-    // Proxy paths to match how tests expect to load files
-    proxies: {
-      '/v0.1.0/': '/base/v0.1.0/',
-      '/v0.1.1/': '/base/v0.1.1/',
-      '/v0.1.2/': '/base/v0.1.2/',
-      '/v0.1.3/': '/base/v0.1.3/',
-      '/v0.1.4/': '/base/v0.1.4/',
-    },
-
+      
+        proxies: {
+          '/console/v0/v0.1/': '/base/',
+        },
     exclude: [],
 
     preprocessors: {},
