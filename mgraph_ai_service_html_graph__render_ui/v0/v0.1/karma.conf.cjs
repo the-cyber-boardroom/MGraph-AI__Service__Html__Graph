@@ -1,7 +1,7 @@
 module.exports = function(config) {
   config.set({
     // Base path for resolving patterns
-    basePath: '..',
+    basePath: '.',
 
     frameworks: ['qunit'],
 
