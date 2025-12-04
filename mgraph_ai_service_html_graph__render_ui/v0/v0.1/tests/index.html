@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGraph HTML Graph - Test Suite v0.1.4</title>
+    
+    <!-- QUnit from CDN -->
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.0.css">
+    <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
+    
+    <style>
+        .test-nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+        .test-nav h1 {
+            color: white;
+            margin: 0 0 10px 0;
+            font-size: 1.4em;
+        }
+        .test-nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .test-nav-links a {
+            color: white;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85em;
+        }
+        .test-nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .test-info {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-left: 4px solid #667eea;
+            margin: 0 20px 20px;
+            font-size: 0.9em;
+        }
+        .test-info code {
+            background: #ddd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-nav">
+        <h1>🧪 MGraph HTML Graph - Test Suite v0.1.4</h1>
+        <div class="test-nav-links">
+            <a href="unit/api-client.test.html">API Client</a>
+            <a href="unit/config-panel.test.html">Config Panel</a>
+            <a href="unit/html-input.test.html">HTML Input</a>
+            <a href="unit/stats-toolbar.test.html">Stats Toolbar</a>
+            <a href="unit/graph-canvas.test.html">Graph Canvas</a>
+            <a href="unit/dot-renderer.test.html">DOT Renderer</a>
+            <a href="unit/dot-parser.test.html">DOT Parser</a>
+            <a href="unit/url-input.test.html">URL Input</a>
+            <a href="integration/playground.test.html">Playground (Integration)</a>
+        </div>
+    </div>
+    
+    <div class="test-info">
+        <strong>Test Configuration:</strong> 
+        Tests run against v0.1.x components. When consolidating to v0.2.0, 
+        copy this <code>tests/</code> folder and update <code>test-paths.js</code> only.
+    </div>
+
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+
+    <!-- Test Configuration -->
+    <script src="test-paths.js"></script>
+    <script src="test-utils.js"></script>
+    
+    <!-- Load all unit tests -->
+    <script src="unit/api-client.test.js"></script>
+    <script src="unit/config-panel.test.js"></script>
+    <script src="unit/html-input.test.js"></script>
+    <script src="unit/stats-toolbar.test.js"></script>
+    <script src="unit/graph-canvas.test.js"></script>
+    <script src="unit/dot-parser.test.js"></script>
+    <script src="unit/url-input.test.js"></script>
+    
+    <!-- Integration tests (load last) -->
+    <script src="integration/playground.test.js"></script>
+</body>
+</html>

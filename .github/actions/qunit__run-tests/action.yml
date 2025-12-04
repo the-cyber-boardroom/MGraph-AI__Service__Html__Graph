@@ -1,0 +1,26 @@
+name: "qunit__run-tests"
+description: "Run QUnit browser tests using node-qunit-puppeteer"
+inputs:
+  test_path:
+    default: "console/v0/v0.1/tests/index.html"
+    description: test_path
+    required: false
+  timeout:
+    default: "30000"
+    description: timeout
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Run QUnit Tests
+      shell: bash
+      run: |
+        npx start-server-and-test \
+          'npx serve . -l 8080' \
+          8080 \
+          'npx node-qunit-puppeteer http://localhost:8080/${{ inputs.test_path }} ${{ inputs.timeout }}'
