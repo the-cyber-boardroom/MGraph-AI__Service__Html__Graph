@@ -24,3 +24,5 @@ runs:
           'npx serve . -l 8080' \
           8080 \
           'npx node-qunit-puppeteer http://localhost:8080/${{ inputs.test_path }} ${{ inputs.timeout }}'
+      env:
+        PUPPETEER_LAUNCH_ARGS: '--no-sandbox --disable-setuid-sandbox'
