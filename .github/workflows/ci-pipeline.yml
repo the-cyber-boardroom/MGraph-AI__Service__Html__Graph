@@ -84,8 +84,8 @@ jobs:
     name: Check AWS Credentials
     runs-on: ubuntu-latest
     needs:
-      #- run-tests-api
-      - run-tests-ui
+      - run-tests-api
+      #- run-tests-ui
     outputs:
       has-credentials: ${{ steps.check.outputs.has-credentials }}
     steps:
