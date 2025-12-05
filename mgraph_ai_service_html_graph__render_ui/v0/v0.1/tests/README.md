@@ -21,7 +21,7 @@ Each component has its own test file that can be run independently:
 - `unit/stats-toolbar.test.html` - Stats Toolbar tests
 - `unit/graph-canvas.test.html` - Graph Canvas tests
 - `unit/dot-renderer.test.html` - DOT Renderer tests
-- `unit/dot-parser.test.html` - DOT Parser logic tests
+- `unit/vis-renderer.test.html` - DOT Parser logic tests
 - `unit/url-input.test.html` - URL Input tests
 - `integration/playground.test.html` - Playground integration tests
 

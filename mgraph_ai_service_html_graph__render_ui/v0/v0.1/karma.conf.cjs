@@ -11,7 +11,7 @@ module.exports = function(config) {
       { pattern: 'tests/test-utils.js', type: 'js' },
 
       // Unit tests
-      { pattern: 'tests/unit/*.test.js', type: 'js' },
+      { pattern: 'tests/unit/**/*.test.js', type: 'js' },
 
 
       // Source files (served but not included - loaded by tests)
@@ -31,7 +31,7 @@ module.exports = function(config) {
       // Sample HTML files
       { pattern: 'v0.1.0/samples/*.html', included: false, served: true },
     ],
-      
+
         proxies: {
           '/console/v0/v0.1/': '/base/',
         },

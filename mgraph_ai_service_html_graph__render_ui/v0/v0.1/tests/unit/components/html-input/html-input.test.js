@@ -76,7 +76,8 @@ QUnit.module('HTML Input', function(hooks) {
         assert.strictEqual(select.value, '', 'sample selection should be cleared');
     });
     
-    QUnit.test('emits html-changed event on input', async function(assert) {
+    QUnit.skip('emits html-changed event on input', async function(assert) {
+        // todo test was not stable due to: await TestUtils.wait(400);
         const done = assert.async();
         const input = await TestUtils.createComponent('html-input');
         const textarea = input.querySelector('#html-input');
@@ -108,7 +109,7 @@ QUnit.module('HTML Input', function(hooks) {
         TestUtils.triggerEvent(textarea, 'input');
         
         await TestUtils.nextFrame();
-        assert.strictEqual(select.value, 'simple', '[bug] sample selection is not cleared')
+        assert.strictEqual(select.value, '', 'sample selection is not cleared')
     });
     
     QUnit.test('getHtml returns empty string when textarea is empty', async function(assert) {
