@@ -27,7 +27,7 @@ class CytoscapeRenderer extends HTMLElement {
     async loadCytoscape() {
         if (window.cytoscape) {
             this.isLoaded = true;
-            console.log('Cytoscape.js already loaded');
+            //console.log('Cytoscape.js already loaded');
             return;
         }
 
@@ -45,7 +45,7 @@ class CytoscapeRenderer extends HTMLElement {
             }
 
             this.isLoaded = true;
-            console.log('Cytoscape.js loaded successfully');
+            //console.log('Cytoscape.js loaded successfully');
         } catch (error) {
             console.error('Failed to load Cytoscape.js:', error);
         }

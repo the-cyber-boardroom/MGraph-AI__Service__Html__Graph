@@ -26,14 +26,14 @@ class VisRenderer extends HTMLElement {
     async loadVisJs() {
         if (window.vis) {
             this.isLoaded = true;
-            console.log('vis.js already loaded');
+            //console.log('vis.js already loaded');
             return;
         }
 
         try {
             await this.loadScript('https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js');
             this.isLoaded = true;
-            console.log('vis.js loaded successfully');
+            //console.log('vis.js loaded successfully');
         } catch (error) {
             console.error('Failed to load vis.js:', error);
         }

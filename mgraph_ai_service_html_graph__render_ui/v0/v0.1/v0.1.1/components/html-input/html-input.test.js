@@ -96,7 +96,7 @@ QUnit.module('HTML Input', function(hooks) {
         await TestUtils.wait(400);
     });
     
-    QUnit.test('typing does not clear sample selection', async function(assert) {
+    QUnit.test('[bug] typing does not clear sample selection', async function(assert) {
         const input = await TestUtils.createComponent('html-input');
         const textarea = input.querySelector('#html-input');
         const select = input.querySelector('#sample-select');
@@ -109,7 +109,8 @@ QUnit.module('HTML Input', function(hooks) {
         TestUtils.triggerEvent(textarea, 'input');
         
         await TestUtils.nextFrame();
-        assert.strictEqual(select.value, '', 'sample selection is not cleared')
+        //assert.strictEqual(select.value, 'simple', 'sample selection is not cleared')
+        assert.strictEqual(select.value, '', '[bug] sample selection is not cleared')
     });
     
     QUnit.test('getHtml returns empty string when textarea is empty', async function(assert) {

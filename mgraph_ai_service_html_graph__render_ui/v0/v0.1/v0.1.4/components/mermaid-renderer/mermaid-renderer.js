@@ -26,7 +26,7 @@ class MermaidRenderer extends HTMLElement {
     async loadMermaid() {
         if (window.mermaid) {
             this.isLoaded = true;
-            console.log('Mermaid.js already loaded');
+            //console.log('Mermaid.js already loaded');
             return;
         }
 
@@ -48,7 +48,7 @@ class MermaidRenderer extends HTMLElement {
             });
 
             this.isLoaded = true;
-            console.log('Mermaid.js loaded successfully');
+            //console.log('Mermaid.js loaded successfully');
         } catch (error) {
             console.error('Failed to load Mermaid.js:', error);
         }

@@ -10,26 +10,16 @@ module.exports = function(config) {
       { pattern: 'tests/test-paths.js', type: 'js' },
       { pattern: 'tests/test-utils.js', type: 'js' },
 
-      // Unit tests
-      { pattern: 'tests/unit/**/*.test.js', type: 'js' },
+        // Unit tests
+        { pattern: '**/*.test.js', type: 'js' },
+
+        // Source files (served but not included)
+        { pattern: 'v0.1.*/**/*.js', included: false, served: true },
+        { pattern: 'v0.1.*/**/*.css', included: false, served: true },
 
 
-      // Source files (served but not included - loaded by tests)
-      { pattern: 'v0.1.0/**/*.js', included: false, served: true, type: 'module' },
-      { pattern: 'v0.1.1/**/*.js', included: false, served: true, type: 'module' },
-      { pattern: 'v0.1.2/**/*.js', included: false, served: true, type: 'module' },
-      { pattern: 'v0.1.3/**/*.js', included: false, served: true, type: 'module' },
-      { pattern: 'v0.1.4/**/*.js', included: false, served: true, type: 'module' },
-
-      // Source files - CSS
-      { pattern: 'v0.1.0/**/*.css', included: false, served: true },
-      { pattern: 'v0.1.1/**/*.css', included: false, served: true },
-      { pattern: 'v0.1.2/**/*.css', included: false, served: true },
-      { pattern: 'v0.1.3/**/*.css', included: false, served: true },
-      { pattern: 'v0.1.4/**/*.css', included: false, served: true },
-
-      // Sample HTML files
-      { pattern: 'v0.1.0/samples/*.html', included: false, served: true },
+        // Sample HTML files
+        { pattern: 'v0.1.0/samples/*.html', included: false, served: true },
     ],
 
         proxies: {

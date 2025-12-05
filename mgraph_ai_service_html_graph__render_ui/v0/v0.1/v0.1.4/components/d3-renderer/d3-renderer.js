@@ -27,14 +27,14 @@ class D3Renderer extends HTMLElement {
     async loadD3() {
         if (window.d3) {
             this.isLoaded = true;
-            console.log('D3.js already loaded');
+            //console.log('D3.js already loaded');
             return;
         }
 
         try {
             await this.loadScript('https://d3js.org/d3.v7.min.js');
             this.isLoaded = true;
-            console.log('D3.js loaded successfully');
+            //console.log('D3.js loaded successfully');
         } catch (error) {
             console.error('Failed to load D3.js:', error);
         }

@@ -50,7 +50,7 @@ class DotRenderer extends HTMLElement {
                 script.onload = async () => {
                     try {
                         this.viz = await Viz.instance();
-                        console.log('viz-js loaded successfully');
+                        //console.log('viz-js loaded successfully');
                         resolve(this.viz);
                     } catch (err) {
                         reject(new Error(`Failed to initialize viz-js: ${err.message}`));
