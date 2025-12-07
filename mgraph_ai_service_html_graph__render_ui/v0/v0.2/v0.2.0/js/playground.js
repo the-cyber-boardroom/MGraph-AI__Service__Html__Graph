@@ -335,10 +335,10 @@ class Playground {
         await this.dotRenderer.renderDot(this.currentDot);
 
         // Handle small diagrams
-        const svg = this.graphCanvas.canvasArea.querySelector('svg');
-        if (svg && parseFloat(svg.getAttribute('height')) < 300) {
-            this.graphCanvas.zoom(0.3);
-        }
+        // const svg = this.graphCanvas.canvasArea.querySelector('svg');
+        // if (svg && parseFloat(svg.getAttribute('height')) < 300) {
+        //     this.graphCanvas.zoom(0.3);
+        // }
 
         this.enablePanning();
     }

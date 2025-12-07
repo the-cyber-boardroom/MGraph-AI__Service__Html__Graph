@@ -17,6 +17,12 @@ on:
         required: false
         type: boolean
         default: false
+      ui_folder:
+        required: true
+        type: boolean
+      ui_version:
+        required: true
+        type: boolean
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: false
@@ -58,7 +64,7 @@ jobs:
       - name: Run QUnit Tests
         uses: ./.github/actions/qunit__run-tests
         with:
-          working-directory: "mgraph_ai_service_html_graph__render_ui/v0/v0.1"
+          working-directory: "${{ inputs.ui_folder }}${{ inputs.ui_version }}"
   increment-tag:
     # Always define this job, but skip the actual tag increment step conditionally
     name: Increment Tag

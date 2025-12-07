@@ -13,4 +13,6 @@ jobs:
       release_type        : 'minor'
       target_deploy       : 'dev'
       should_increment_tag: true
+      ui_folder           : mgraph_ai_service_html_graph__render_ui
+      ui_version          : v0/v0.1
     secrets: inherit
