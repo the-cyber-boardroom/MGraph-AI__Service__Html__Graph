@@ -64,7 +64,7 @@ jobs:
       - name: Run QUnit Tests
         uses: ./.github/actions/qunit__run-tests
         with:
-          working-directory: "${{ inputs.ui_folder }}${{ inputs.ui_version }}"
+          working-directory: "${{ inputs.ui_folder }}/${{ inputs.ui_version }}"
   increment-tag:
     # Always define this job, but skip the actual tag increment step conditionally
     name: Increment Tag
