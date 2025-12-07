@@ -19,10 +19,10 @@ on:
         default: false
       ui_folder:
         required: true
-        type: boolean
+        type: string
       ui_version:
         required: true
-        type: boolean
+        type: string
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: false
