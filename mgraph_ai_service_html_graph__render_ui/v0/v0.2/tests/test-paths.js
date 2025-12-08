@@ -49,16 +49,16 @@ const TestPaths = {
         return this.getComponentPath(this.VERSIONS.V0_2_0, 'components/stats-panel/stats-panel.js');
     },
     
-    get topNav() {
-        return this.getComponentPath(this.VERSIONS.V0_2_0, 'components/top-nav/top-nav.js');
-    },
-    
     get dotRenderer() {
         return this.getComponentPath(this.VERSIONS.V0_2_0, 'components/dot-renderer/dot-renderer.js');
     },
     
     get statsToolbar() {
         return this.getComponentPath(this.VERSIONS.V0_2_0, 'components/stats-toolbar/stats-toolbar.js');
+    },
+
+    get topNav() {
+        return this.getComponentPath(this.VERSIONS.V0_2_0, 'components/top-nav/top-nav.js');
     },
     
     get urlInput() {
@@ -118,35 +118,6 @@ const TestPaths = {
     getSamplePath(sampleName) {
         return `${this.BASE_PATH}/samples/${sampleName}.html`;
     },
-    
-    // ═══════════════════════════════════════════════════════════════════════════
-    // Co-located Test Files
-    // ═══════════════════════════════════════════════════════════════════════════
-    
-    get testFiles() {
-        return {
-            // Services
-            apiClient: `${this.BASE_PATH}/js/services/api-client.test.js`,
-            
-            // Components
-            configPanel: `${this.BASE_PATH}/v0.2.0/components/config-panel/config-panel.test.js`,
-            htmlInput: `${this.BASE_PATH}/components/html-input/html-input.test.js`,
-            dotRenderer: `${this.BASE_PATH}/components/dot-renderer/dot-renderer.test.js`,
-            statsToolbar: `${this.BASE_PATH}/components/stats-toolbar/stats-toolbar.test.js`,
-            urlInput: `${this.BASE_PATH}/components/url-input/url-input.test.js`,
-            graphCanvas: `${this.BASE_PATH}/components/graph-canvas/graph-canvas.test.js`,
-            visRenderer: `${this.BASE_PATH}/components/vis-renderer/vis-renderer.test.js`,
-            d3Renderer: `${this.BASE_PATH}/components/d3-renderer/d3-renderer.test.js`,
-            cytoscapeRenderer: `${this.BASE_PATH}/components/cytoscape-renderer/cytoscape-renderer.test.js`,
-            mermaidRenderer: `${this.BASE_PATH}/components/mermaid-renderer/mermaid-renderer.test.js`,
-            
-            // Orchestrators
-            playground: `${this.BASE_PATH}/js/playground.test.js`,
-            
-            // Integration tests
-            playgroundIntegration: `${this.BASE_PATH}/playground.html.test.js`
-        };
-    }
 };
 
 // Freeze to prevent accidental modification

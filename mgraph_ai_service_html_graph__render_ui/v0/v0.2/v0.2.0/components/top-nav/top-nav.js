@@ -6,6 +6,10 @@
 class TopNav extends HTMLElement {
     constructor() {
         super();
+        //this.render();
+    }
+
+    connectedCallback() {
         this.render();
     }
 
