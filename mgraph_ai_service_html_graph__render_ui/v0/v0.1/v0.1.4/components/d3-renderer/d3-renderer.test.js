@@ -187,6 +187,7 @@ QUnit.module('D3 Renderer', function(hooks) {
         assert.strictEqual(links.length, 0, 'should have no links (node2 not defined)');
     });
 
+    // note: BUG: this is failed once in GH Actions (there could be a race condition somewhere)
     QUnit.test('drag creates d3 drag behavior', async function(assert) {
         const renderer = await TestUtils.createComponent('d3-renderer');
         

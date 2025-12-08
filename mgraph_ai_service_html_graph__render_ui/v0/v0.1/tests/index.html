@@ -53,17 +53,6 @@
 <body>
     <div class="test-nav">
         <h1>🧪 MGraph HTML Graph - Test Suite v0.1.4</h1>
-        <div class="test-nav-links">
-            <a href="unit/api-client.test.html">API Client</a>
-            <a href="unit/config-panel.test.html">Config Panel</a>
-            <a href="unit/html-input.test.html">HTML Input</a>
-            <a href="unit/stats-toolbar.test.html">Stats Toolbar</a>
-            <a href="unit/graph-canvas.test.html">Graph Canvas</a>
-            <a href="unit/dot-renderer.test.html">DOT Renderer</a>
-            <a href="unit/vis-renderer.test.html">DOT Parser</a>
-            <a href="unit/url-input.test.html">URL Input</a>
-            <a href="integration/playground.test.html">Playground (Integration)</a>
-        </div>
     </div>
     
     <div class="test-info">
@@ -80,15 +69,20 @@
     <script src="test-utils.js"></script>
     
     <!-- Load all unit tests -->
-    <script src="unit/services/api-client.test.js"></script>
-    <script src="unit/components/config-panel/config-panel.test.js"></script>
-    <script src="unit/components/html-input/html-input.test.js"></script>
-    <script src="unit/components/stats-toolbar/stats-toolbar.test.js"></script>
-    <script src="unit/components/graph-canvas/graph-canvas.test.js"></script>
-    <script src="unit/components/vis-renderer/vis-renderer.test.js"></script>
-    <script src="unit/components/url-input/url-input.test.js"></script>
-    
+    <script src="../v0.1.0/js/services/api-client.test.js"></script>
+    <script src="../v0.1.1/components/config-panel/config-panel.test.js"></script>
+    <script src="../v0.1.1/components/html-input/html-input.test.js"></script>
+    <script src="../v0.1.2/components/dot-renderer/dot-renderer.test.js"></script>
+    <script src="../v0.1.3/components/url-input/url-input.test.js"></script>
+    <script src="../v0.1.3/components/stats-toolbar/stats-toolbar.test.js"></script>
+    <script src="../v0.1.4/components/graph-canvas/graph-canvas.test.js"></script>
+    <script src="../v0.1.4/components/cytoscape-renderer/cytoscape-renderer.test.js"></script>
+    <script src="../v0.1.4/components/d3-renderer/d3-renderer.test.js"></script>
+    <script src="../v0.1.4/components/graph-canvas/graph-canvas.test.js"></script>
+    <script src="../v0.1.4/components/mermaid-renderer/mermaid-renderer.test.js"></script>
+    <script src="../v0.1.4/components/vis-renderer/vis-renderer.test.js"></script>
+
     <!-- Integration tests (load last) -->
-    <script src="integration/playground.test.js"></script>
+    <script src="../v0.1.4/js/playground.test.js"></script>
 </body>
 </html>
