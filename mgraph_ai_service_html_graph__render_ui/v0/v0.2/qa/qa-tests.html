@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--
+  ═══════════════════════════════════════════════════════════════════════════════
+  MGraph HTML Graph - QA Framework Tests
+  v0.2.0 - Tests for the QA framework itself
+  
+  This page runs QUnit tests on the QA Engine, scenarios, and assertions.
+  It should pass before using the QA framework to test the application.
+  ═══════════════════════════════════════════════════════════════════════════════
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Framework Tests - MGraph v0.2.0</title>
+    
+    <!-- QUnit CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.0.css">
+    
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .test-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.5em;
+        }
+        
+        .test-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        #qunit {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>🧪 QA Framework Tests</h1>
+        <p>Testing the QA Engine, Scenarios, and Assertions</p>
+    </div>
+    
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    
+    <!-- QUnit JS -->
+    <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
+    
+    <!-- QA Framework -->
+    <script src="qa/qa-engine.js"></script>
+    
+    <!-- QA Tests -->
+    <script src="qa/qa-engine.test.js"></script>
+</body>
+</html>
