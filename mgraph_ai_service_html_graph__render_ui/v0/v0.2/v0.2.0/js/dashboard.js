@@ -41,7 +41,7 @@ class Dashboard {
         this.statusText.textContent = 'Checking...';
 
         try {
-            const isHealthy = await apiClient.checkHealth();
+            const isHealthy = await window.apiClient.checkHealth();     // todo: replace this use of window.apiClient with an event driven solution
 
             if (isHealthy) {
                 this.statusDot.className = 'api-status-dot';

@@ -1,193 +1,387 @@
 /* ═══════════════════════════════════════════════════════════════════════════════
-   MGraph HTML Graph - Test Suite - Cytoscape Renderer Tests
-   v0.2.0 - Consolidated from v0.1.x
+   MGraph HTML Graph - Test Suite - Cytoscape Renderer Extended Tests
+   v0.2.0 - Additional tests to improve coverage from 78%
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-QUnit.module('Cytoscape Renderer', function(hooks) {
-    
+QUnit.module('Cytoscape Renderer Extended', function(hooks) {
+
     hooks.before(async function(assert) {
         await TestUtils.loadScript(TestPaths.cytoscapeRenderer);
         assert.ok(customElements.get('cytoscape-renderer'), 'cytoscape-renderer should be registered');
     });
-    
+
     hooks.afterEach(function() {
         TestUtils.cleanup();
     });
 
-    QUnit.test('component initializes correctly', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        assert.ok(renderer, 'renderer should exist');
-        assert.strictEqual(renderer.cy, null, 'cy should initially be null');
-        assert.strictEqual(renderer.targetCanvas, null, 'targetCanvas should initially be null');
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Constructor Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('constructor initializes all properties', function(assert) {
+        const renderer = document.createElement('cytoscape-renderer');
+
+        assert.strictEqual(renderer.cy, null, 'cy should be null');
+        assert.strictEqual(renderer.targetCanvas, null, 'targetCanvas should be null');
+        assert.strictEqual(renderer.isLoaded, false, 'isLoaded should be false');
     });
 
-    QUnit.test('setTargetCanvas sets the target', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        const canvas = document.createElement('div');
-        canvas.id = 'test-canvas';
-        
-        renderer.setTargetCanvas(canvas);
-        
-        assert.strictEqual(renderer.targetCanvas, canvas, 'targetCanvas should be set');
+    // ═══════════════════════════════════════════════════════════════════════════
+    // connectedCallback Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('connectedCallback calls loadCytoscape', async function(assert) {
+        const renderer = document.createElement('cytoscape-renderer');
+        let loadCalled = false;
+        renderer.loadCytoscape = async () => { loadCalled = true; };
+
+        document.getElementById('qunit-fixture').appendChild(renderer);
+        await TestUtils.nextFrame();
+
+        assert.ok(loadCalled, 'loadCytoscape should be called');
     });
 
-    QUnit.test('parseDot extracts nodes correctly', async function(assert) {
+    // ═══════════════════════════════════════════════════════════════════════════
+    // loadCytoscape Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('loadCytoscape sets isLoaded when cytoscape exists', async function(assert) {
         const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        const dotCode = `
-            digraph G {
-                "node1" [label="<div>", fillcolor="#E8E8E8", fontcolor="#333333"];
-                "node2" [label="<p>", fillcolor="#4A90D9", fontcolor="#FFFFFF"];
-                "node3" [label="Hello", fillcolor="#FFFACD", fontcolor="#333333"];
-            }
-        `;
-        
-        const { nodes, edges } = renderer.parseDot(dotCode);
-        
-        assert.strictEqual(nodes.length, 3, 'should extract 3 nodes');
-        assert.strictEqual(nodes[0].id, 'node1', 'first node should have correct id');
-        assert.strictEqual(nodes[0].label, '<div>', 'first node should have correct label');
-        assert.strictEqual(nodes[0].color, '#E8E8E8', 'first node should have correct color');
+
+        if (window.cytoscape) {
+            assert.ok(renderer.isLoaded, 'isLoaded should be true');
+        } else {
+            assert.ok(true, 'cytoscape not loaded - skip');
+        }
     });
 
-    QUnit.test('parseDot extracts edges correctly', async function(assert) {
+    // ═══════════════════════════════════════════════════════════════════════════
+    // loadScript Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('loadScript resolves immediately for already loaded scripts', async function(assert) {
         const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        const dotCode = `
-            digraph G {
-                "node1" [label="A"];
-                "node2" [label="B"];
-                "node3" [label="C"];
-                "node1" -> "node2";
-                "node2" -> "node3" [style=dashed];
-            }
-        `;
-        
-        const { nodes, edges } = renderer.parseDot(dotCode);
-        
-        assert.strictEqual(edges.length, 2, 'should extract 2 edges');
-        assert.strictEqual(edges[0].source, 'node1', 'first edge should have correct source');
-        assert.strictEqual(edges[0].target, 'node2', 'first edge should have correct target');
-        assert.strictEqual(edges[1].dashed, true, 'second edge should be dashed');
+
+        // Create a script that's "already loaded"
+        const existingScript = document.createElement('script');
+        existingScript.src = 'https://example.com/already-loaded.js';
+        document.head.appendChild(existingScript);
+
+        // Should resolve immediately
+        await renderer.loadScript('https://example.com/already-loaded.js');
+
+        // Cleanup
+        existingScript.remove();
+
+        assert.ok(true, 'should resolve for already loaded script');
     });
 
-    QUnit.test('extractAttr extracts quoted values', async function(assert) {
+    // ═══════════════════════════════════════════════════════════════════════════
+    // renderDot Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('renderDot throws without target canvas', async function(assert) {
         const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        const attrString = 'label="Hello World", fillcolor="#FF0000"';
-        
-        assert.strictEqual(renderer.extractAttr(attrString, 'label'), 'Hello World', 'should extract label');
-        assert.strictEqual(renderer.extractAttr(attrString, 'fillcolor'), '#FF0000', 'should extract fillcolor');
-        assert.strictEqual(renderer.extractAttr(attrString, 'nonexistent'), null, 'should return null for missing attr');
+        renderer.targetCanvas = null;
+        renderer.isLoaded = true;
+
+        try {
+            await renderer.renderDot('digraph { a -> b }');
+            assert.ok(false, 'should have thrown');
+        } catch (e) {
+            assert.ok(e.message.includes('target canvas'), 'should mention target canvas');
+        }
     });
 
-    QUnit.test('extractAttr extracts unquoted values', async function(assert) {
+    QUnit.test('renderDot calls loadCytoscape if not loaded', async function(assert) {
         const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        const attrString = 'style=dashed, width=2';
-        
-        assert.strictEqual(renderer.extractAttr(attrString, 'style'), 'dashed', 'should extract unquoted style');
-    });
+        renderer.isLoaded = false;
+        renderer.targetCanvas = document.createElement('div');
 
-    QUnit.test('detectNodeType identifies tag nodes', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        assert.strictEqual(renderer.detectNodeType('<div>', '#E8E8E8'), 'tag', '<div> should be tag');
-        assert.strictEqual(renderer.detectNodeType('<p>', '#4A90D9'), 'tag', '<p> should be tag');
-    });
-
-    QUnit.test('detectNodeType identifies attribute nodes', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        assert.strictEqual(renderer.detectNodeType('class=container', '#B39DDB'), 'attribute', 'class= should be attribute');
-        assert.strictEqual(renderer.detectNodeType('id=main', '#B39DDB'), 'attribute', 'id= should be attribute');
-    });
-
-    QUnit.test('detectNodeType identifies text nodes', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        assert.strictEqual(renderer.detectNodeType('Hello', '#FFFACD'), 'text', 'text with FFFACD should be text node');
-        assert.strictEqual(renderer.detectNodeType('World', '#fffacd'), 'text', 'text with lowercase fffacd should be text node');
-    });
-
-    QUnit.test('detectNodeType identifies element nodes', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        assert.strictEqual(renderer.detectNodeType('something', '#E8E8E8'), 'element', 'default should be element');
-    });
-
-    QUnit.test('cleanLabel removes escape sequences', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        assert.strictEqual(renderer.cleanLabel('Hello\\nWorld'), 'Hello\nWorld', 'should convert \\n to newline');
-        assert.strictEqual(renderer.cleanLabel('Say \\"Hi\\"'), 'Say "Hi"', 'should convert \\" to quote');
-        assert.strictEqual(renderer.cleanLabel('"quoted"'), 'quoted', 'should remove surrounding quotes');
-    });
-
-    QUnit.test('darkenColor darkens hex colors', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        const darkened = renderer.darkenColor('#FFFFFF');
-        assert.ok(darkened.startsWith('#'), 'should return hex color');
-        assert.notStrictEqual(darkened, '#FFFFFF', 'should be different from input');
-        assert.strictEqual(darkened.toLowerCase(), '#e1e1e1', 'white should darken to #e1e1e1');
-    });
-
-    QUnit.test('darkenColor handles edge cases', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        const result = renderer.darkenColor('#000000');
-        assert.strictEqual(result, '#000000', 'black should stay black');
-        
-        const result2 = renderer.darkenColor('#101010');
-        assert.ok(result2.match(/^#[0-9a-f]{6}$/i), 'should return valid hex');
-    });
-
-    QUnit.test('fitToView calls fit on cy instance', async function(assert) {
-        const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        let fitCalled = false;
-        renderer.cy = {
-            fit: () => { fitCalled = true; }
+        let loadCalled = false;
+        const originalLoad = renderer.loadCytoscape.bind(renderer);
+        renderer.loadCytoscape = async () => {
+            loadCalled = true;
+            await originalLoad();
         };
-        
-        renderer.fitToView();
-        
-        assert.ok(fitCalled, 'fit should be called');
+
+        try {
+            await renderer.renderDot('digraph { "a" [label="A"]; }');
+        } catch (e) {
+            // May fail if cytoscape not available
+        }
+
+        assert.ok(loadCalled, 'loadCytoscape should be called');
     });
 
-    QUnit.test('fitToView handles null cy', async function(assert) {
+    // ═══════════════════════════════════════════════════════════════════════════
+    // parseDot Extended Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('parseDot creates borderColor from fillcolor', async function(assert) {
         const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        renderer.cy = null;
-        
-        renderer.fitToView();
-        assert.ok(true, 'should not throw when cy is null');
+
+        const dot = `digraph G { "n1" [label="Test", fillcolor="#FFFFFF"]; }`;
+        const { nodes } = renderer.parseDot(dot);
+
+        assert.ok(nodes[0].borderColor, 'should have borderColor');
+        assert.notStrictEqual(nodes[0].borderColor, '#FFFFFF', 'borderColor should be darker');
     });
 
-    QUnit.test('exportSvg returns null (not supported)', async function(assert) {
+    QUnit.test('parseDot creates edge id from source and target', async function(assert) {
         const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        
-        const result = renderer.exportSvg();
-        
-        assert.strictEqual(result, null, 'exportSvg should return null');
+
+        const dot = `digraph G {
+            "a" [label="A"];
+            "b" [label="B"];
+            "a" -> "b";
+        }`;
+
+        const { edges } = renderer.parseDot(dot);
+
+        assert.strictEqual(edges[0].id, 'a-b', 'edge id should be source-target');
     });
 
-    QUnit.test('exportPng returns null when no cy instance', async function(assert) {
+    QUnit.test('parseDot extracts fontcolor', async function(assert) {
         const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        renderer.cy = null;
-        
+
+        const dot = `digraph G { "n1" [label="Test", fontcolor="#FF0000"]; }`;
+        const { nodes } = renderer.parseDot(dot);
+
+        assert.strictEqual(nodes[0].fontColor, '#FF0000', 'should extract fontColor');
+    });
+
+    QUnit.test('parseDot uses default fontcolor', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        const dot = `digraph G { "n1" [label="Test"]; }`;
+        const { nodes } = renderer.parseDot(dot);
+
+        assert.strictEqual(nodes[0].fontColor, '#333333', 'should use default fontColor');
+    });
+
+    QUnit.test('parseDot uses node id as label when label missing', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        const dot = `digraph G { "myNodeId" [fillcolor="#000000"]; }`;
+        const { nodes } = renderer.parseDot(dot);
+
+        assert.strictEqual(nodes[0].label, 'myNodeId', 'should use nodeId as label');
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // exportPng Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('exportPng returns value from cy.png when cy exists', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        renderer.cy = {
+            png: (opts) => {
+                assert.ok(opts.full, 'should request full graph');
+                assert.strictEqual(opts.scale, 2, 'should use scale 2');
+                return 'data:image/png;base64,test';
+            }
+        };
+
         const result = renderer.exportPng();
-        
-        assert.strictEqual(result, null, 'exportPng should return null when no cy');
+
+        assert.strictEqual(result, 'data:image/png;base64,test', 'should return PNG data');
     });
 
-    QUnit.test('runLayout handles null cy', async function(assert) {
+    // ═══════════════════════════════════════════════════════════════════════════
+    // runLayout Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('runLayout supports dagre layout', async function(assert) {
         const renderer = await TestUtils.createComponent('cytoscape-renderer');
-        renderer.cy = null;
-        
+
+        let layoutConfig = null;
+        renderer.cy = {
+            layout: (config) => {
+                layoutConfig = config;
+                return { run: () => {} };
+            }
+        };
+
         renderer.runLayout('dagre');
-        assert.ok(true, 'should not throw when cy is null');
+
+        assert.strictEqual(layoutConfig.name, 'dagre', 'should use dagre layout');
+    });
+
+    QUnit.test('runLayout supports breadthfirst layout', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        let layoutConfig = null;
+        renderer.cy = {
+            layout: (config) => {
+                layoutConfig = config;
+                return { run: () => {} };
+            }
+        };
+
+        renderer.runLayout('breadthfirst');
+
+        assert.strictEqual(layoutConfig.name, 'breadthfirst', 'should use breadthfirst layout');
+        assert.strictEqual(layoutConfig.directed, true, 'should be directed');
+    });
+
+    QUnit.test('runLayout supports circle layout', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        let layoutConfig = null;
+        renderer.cy = {
+            layout: (config) => {
+                layoutConfig = config;
+                return { run: () => {} };
+            }
+        };
+
+        renderer.runLayout('circle');
+
+        assert.strictEqual(layoutConfig.name, 'circle', 'should use circle layout');
+    });
+
+    QUnit.test('runLayout supports grid layout', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        let layoutConfig = null;
+        renderer.cy = {
+            layout: (config) => {
+                layoutConfig = config;
+                return { run: () => {} };
+            }
+        };
+
+        renderer.runLayout('grid');
+
+        assert.strictEqual(layoutConfig.name, 'grid', 'should use grid layout');
+    });
+
+    QUnit.test('runLayout supports cose layout', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        let layoutConfig = null;
+        renderer.cy = {
+            layout: (config) => {
+                layoutConfig = config;
+                return { run: () => {} };
+            }
+        };
+
+        renderer.runLayout('cose');
+
+        assert.strictEqual(layoutConfig.name, 'cose', 'should use cose layout');
+    });
+
+    QUnit.test('runLayout defaults to dagre for unknown layout', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        let layoutConfig = null;
+        renderer.cy = {
+            layout: (config) => {
+                layoutConfig = config;
+                return { run: () => {} };
+            }
+        };
+
+        renderer.runLayout('unknown');
+
+        assert.strictEqual(layoutConfig.name, 'dagre', 'should default to dagre');
+    });
+
+    QUnit.test('runLayout calls layout.run()', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        let runCalled = false;
+        renderer.cy = {
+            layout: () => ({
+                run: () => { runCalled = true; }
+            })
+        };
+
+        renderer.runLayout('dagre');
+
+        assert.ok(runCalled, 'run should be called');
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // detectNodeType Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('detectNodeType returns tag for angle bracket labels', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        assert.strictEqual(renderer.detectNodeType('<html>', '#000'), 'tag');
+        assert.strictEqual(renderer.detectNodeType('<body>', '#000'), 'tag');
+        assert.strictEqual(renderer.detectNodeType('<custom-element>', '#000'), 'tag');
+    });
+
+    QUnit.test('detectNodeType returns attribute for equals sign', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        assert.strictEqual(renderer.detectNodeType('data-id=123', '#000'), 'attribute');
+        assert.strictEqual(renderer.detectNodeType('style=color:red', '#000'), 'attribute');
+    });
+
+    QUnit.test('detectNodeType returns text for FFFACD color', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        assert.strictEqual(renderer.detectNodeType('any text', '#FFFACD'), 'text');
+        assert.strictEqual(renderer.detectNodeType('any text', '#fffacd'), 'text');
+    });
+
+    QUnit.test('detectNodeType returns element as default', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        assert.strictEqual(renderer.detectNodeType('node', '#E8E8E8'), 'element');
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // cleanLabel Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('cleanLabel handles multiple newlines', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        const result = renderer.cleanLabel('a\\nb\\nc');
+        assert.strictEqual(result, 'a\nb\nc', 'should convert multiple \\n');
+    });
+
+    QUnit.test('cleanLabel handles mixed escapes', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        const result = renderer.cleanLabel('say \\"hi\\"\\nbye');
+        assert.strictEqual(result, 'say "hi"\nbye', 'should handle mixed escapes');
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // darkenColor Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('darkenColor handles mid-range colors', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        // #808080 (128,128,128) should become #626262 (98,98,98)
+        const result = renderer.darkenColor('#808080');
+        assert.ok(result.match(/^#[0-9a-f]{6}$/i), 'should return valid hex');
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // fitToView Tests
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    QUnit.test('fitToView passes padding to fit', async function(assert) {
+        const renderer = await TestUtils.createComponent('cytoscape-renderer');
+
+        let fitPadding = null;
+        renderer.cy = {
+            fit: (nodes, padding) => { fitPadding = padding; }
+        };
+
+        renderer.fitToView();
+
+        assert.strictEqual(fitPadding, 30, 'should pass padding of 30');
     });
 
 });

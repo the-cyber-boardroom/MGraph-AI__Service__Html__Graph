@@ -168,7 +168,7 @@ class UrlInput extends HTMLElement {
         this.setStatus('Fetching HTML...', '');
 
         try {
-            const response = await apiClient.post('/html/from/url', { url: url, timeout: 30 });
+            const response = await window.apiClient.post('/html/from/url', { url: url, timeout: 30 });
 
             this.setStatus(`✓ Fetched ${this.formatBytes(response.html.length)} from ${response.url}`, 'success');
 
