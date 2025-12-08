@@ -249,7 +249,7 @@ class Playground {
         };
 
         const apiStartTime = performance.now();
-        const response = await apiClient.htmlToDot(request);
+        const response = await window.apiClient.htmlToDot(request);
         const apiEndTime = performance.now();
         const apiMs = Math.round(apiEndTime - apiStartTime);
 
