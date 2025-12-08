@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGraph HTML Graph - Test Suite v0.2.1</title>
+    
+    <!-- QUnit CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.0.css">
+    
+    <!-- Global CSS for component testing -->
+    <link rel="stylesheet" href="../css/components-shared.css">
+    
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .test-header {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-bottom: 20px;
+        }
+        .test-header h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.5em;
+        }
+        .test-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        .test-info {
+            padding: 10px 20px;
+            background: #f0f9ff;
+            border-left: 4px solid #667eea;
+            margin: 0 20px 20px;
+            font-size: 0.9em;
+        }
+        .test-info code {
+            background: rgba(0,0,0,0.05);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="test-header">
+    <h1>🧪 MGraph HTML Graph - Test Suite</h1>
+    <p>v0.2.1 - Shadow DOM Component Architecture</p>
+</div>
+
+<div class="test-info">
+    <strong>Phase 1 Tests:</strong> 
+    Foundation (<code>Helpers</code>, <code>BaseComponent</code>) + 
+    Refactored components (<code>stats-toolbar</code>, <code>url-input</code>)
+</div>
+
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     QUnit
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     Test Infrastructure
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<script src="./test-paths.js"></script>
+<script src="./test-utils.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     Test Files - Foundation
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<script src="../js/utils/helpers.test.js"></script>
+<script src="../components/_base/base-component.test.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     Test Files - Refactored Components
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<script src="../components/stats-toolbar/stats-toolbar.test.js"></script>
+<script src="../components/url-input/url-input.test.js"></script>
+
+</body>
+</html>
