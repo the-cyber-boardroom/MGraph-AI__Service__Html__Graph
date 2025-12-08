@@ -54,15 +54,16 @@ class Html_Dict__To__Html_MGraph(Type_Safe):                                    
                                                       node_path = Node_Path(element_path)  )
         element_node_id = element_node.node_id
 
+        # todo: a) see the value of this extra 'tag' node (which at the moment is a unique node)
+        #       b) see if we can't get the same with an edge
+        #       c) find a good way to filter these nodes out from the rendered view
+        # todo: add option to disable this
         tag_node_id = self.get_or_create_tag_node(tag)                                      # Link to tag value node
-        # self.mgraph.edit().new_edge(from_node_id = element_node_id  ,
-        #                             to_node_id   = tag_node_id      ,
-        #                             predicate    = 'tag'            )
         self.new_edge_with_predicate(from_node_id = element_node_id,
                                      to_node_id   = tag_node_id    ,
                                      predicate    = 'tag'          )
 
-
+        # todo: add option to disable this
         for attr_name, attr_value in attrs.items():                             # Process attributes
             self.add_attribute(element_node_id, attr_name, attr_value)
 

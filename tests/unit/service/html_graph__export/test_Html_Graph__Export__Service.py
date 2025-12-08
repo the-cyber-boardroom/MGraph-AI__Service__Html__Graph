@@ -1,9 +1,9 @@
-from unittest                                                                        import TestCase
-from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Stats                 import Schema__Graph__Stats
-from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request   import Schema__Graph__From_Html__Request
-from mgraph_ai_service_html_graph.service.html_graph__export                         import Html_Graph__Export__Service
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config    import Enum__Html_Render__Preset
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors    import Enum__Html_Render__Color_Scheme
+from unittest                                                                            import TestCase
+from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Stats                     import Schema__Graph__Stats
+from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request       import Schema__Graph__From_Html__Request
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service import Html_Graph__Export__Service
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config        import Enum__Html_Render__Preset
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors        import Enum__Html_Render__Color_Scheme
 
 
 class test_Html_Graph__Export__Service(TestCase):                                                      # Tests for the underlying service

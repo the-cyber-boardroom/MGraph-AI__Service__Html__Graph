@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Visualization v0.1.1</title>
+    
+    <!-- Reference v0.1.0 styles -->
+    <link rel="stylesheet" href="../v0.1.0/css/common.css">
+    <link rel="stylesheet" href="../v0.1.0/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>🔗 HTML Graph Visualization</h1>
+            <p>Interactive visualization of HTML document structure as graphs</p>
+            <p class="mt-sm" style="opacity: 0.8; font-size: 0.9em;">v0.1.1 - Core UI Framework</p>
+            
+            <div class="api-status mt-md">
+                <span id="api-status-dot" class="api-status-dot loading"></span>
+                <span id="api-status-text">Checking...</span>
+            </div>
+        </header>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Render Formats</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Presets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Sample Files</div>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="feature-grid">
+            <!-- Graph Playground -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📊</div>
+                <h3>Graph Playground</h3>
+                <p>
+                    Interactive playground for visualizing HTML structure as graphs. 
+                    Input HTML, configure rendering options, and see the graph data.
+                    This version outputs raw DOT format.
+                </p>
+                <a href="./playground.html" class="btn btn-primary">
+                    Open Playground →
+                </a>
+            </div>
+
+            <!-- What's New in v0.1.1 -->
+            <div class="feature-card">
+                <div class="feature-card-icon">✨</div>
+                <h3>What's New in v0.1.1</h3>
+                <p>
+                    This version adds the core UI framework: playground page, 
+                    HTML input component, configuration panel, stats panel, 
+                    and graph canvas. DOT output is shown as text.
+                </p>
+                <a href="./playground.html" class="btn btn-secondary">
+                    Try It →
+                </a>
+            </div>
+
+            <!-- Sample Files -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📄</div>
+                <h3>Sample HTML Files</h3>
+                <p>
+                    Pre-loaded sample HTML files to demonstrate capabilities: 
+                    simple structures, nested elements, attributes, mixed content, 
+                    and real-world Bootstrap examples.
+                </p>
+                <a href="./playground.html?sample=simple" class="btn btn-secondary">
+                    View Samples →
+                </a>
+            </div>
+
+            <!-- Configuration -->
+            <div class="feature-card">
+                <div class="feature-card-icon">⚙️</div>
+                <h3>Flexible Configuration</h3>
+                <p>
+                    Customize visualization with presets (Full Detail, Structure Only, Minimal), 
+                    toggle visibility of tag/attribute/text nodes, and choose from multiple 
+                    color schemes.
+                </p>
+                <a href="./playground.html" class="btn btn-secondary">
+                    Configure →
+                </a>
+            </div>
+
+            <!-- API Documentation -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📚</div>
+                <h3>API Documentation</h3>
+                <p>
+                    Full OpenAPI documentation for the graph rendering endpoints. 
+                    Integrate graph generation into your own applications with 
+                    simple REST API calls.
+                </p>
+                <a href="/docs" class="btn btn-secondary" target="_blank">
+                    View API Docs →
+                </a>
+            </div>
+
+            <!-- Previous Version -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📁</div>
+                <h3>Previous Version</h3>
+                <p>
+                    View the v0.1.0 dashboard which provides the foundation 
+                    styles, API client, and sample files that this version builds upon.
+                </p>
+                <a href="/console"             class="btn btn-primary">latest →</a>
+                <a href="../v0.1.0/index.html" class="btn btn-secondary">View v0.1.0 →</a>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="version-info">
+            <p>MGraph HTML Graph Render UI v0.1.1 |
+               <a href="../v0.1.0/index.html">v0.1.0</a> |
+               <a href="/docs" target="_blank">API Docs</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Reference v0.1.0 scripts -->
+    <script src="../v0.1.0/js/services/api-client.js"></script>
+    <script src="../v0.1.0/js/dashboard.js"></script>
+</body>
+</html>

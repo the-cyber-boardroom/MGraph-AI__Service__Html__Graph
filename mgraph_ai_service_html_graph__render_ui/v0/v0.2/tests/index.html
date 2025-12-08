@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Test Suite - Test Runner
+     v0.2.0 - Consolidated from v0.1.x
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph v0.2.0 - Test Suite</title>
+    
+    <!-- QUnit CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.0.css">
+    
+    <!-- Application CSS (needed for component rendering) -->
+    <link rel="stylesheet" href="../v0.2.0/css/common.css">
+    <link rel="stylesheet" href="../v0.2.0/css/playground.css">
+    
+    <style>
+        #qunit-fixture {
+            position: absolute;
+            left: -10000px;
+            top: -10000px;
+            width: 1000px;
+            height: 1000px;
+        }
+        .test-info {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            font-family: system-ui, sans-serif;
+        }
+        .test-info h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.2em;
+        }
+        .test-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h2>🧪 MGraph HTML Graph v0.2.0 - Test Suite</h2>
+        <p>Consolidated tests from v0.1.x • Co-located with source files per IFD methodology</p>
+    </div>
+    
+    <!-- QUnit Container -->
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    
+    <!-- QUnit -->
+    <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
+    
+    <!-- Test Infrastructure -->
+    <script src="test-utils.js"></script>
+    <script src="test-paths.js"></script>
+
+    <!-- Services -->
+    <script src="../v0.2.0/js/services/api-client.test.js"></script>
+    
+    <!-- Components -->
+    <script src="../v0.2.0/components/config-panel/config-panel.test.js"></script>
+    <script src="../v0.2.0/components/html-input/html-input.test.js"></script>
+    <script src="../v0.2.0/components/dot-renderer/dot-renderer.test.js"></script>
+    <script src="../v0.2.0/components/stats-toolbar/stats-toolbar.test.js"></script>
+    <script src="../v0.2.0/components/url-input/url-input.test.js"></script>
+    <script src="../v0.2.0/components/graph-canvas/graph-canvas.test.js"></script>
+    <script src="../v0.2.0/components/vis-renderer/vis-renderer.test.js"></script>
+    <script src="../v0.2.0/components/d3-renderer/d3-renderer.test.js"></script>
+    <script src="../v0.2.0/components/cytoscape-renderer/cytoscape-renderer.test.js"></script>
+    <script src="../v0.2.0/components/mermaid-renderer/mermaid-renderer.test.js"></script>
+
+    <!-- Orchestrator -->
+    <script src="../v0.2.0/js/playground.test.js"></script>
+
+    <!-- Integration Tests -->
+    <script src="../v0.2.0/playground.html.test.js"></script>
+</body>
+</html>

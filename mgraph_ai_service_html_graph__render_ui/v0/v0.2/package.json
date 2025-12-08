@@ -1,0 +1,25 @@
+{
+  "name": "mgraph-html-graph-render-ui-v0.2.0",
+  "version": "0.2.0",
+  "description": "MGraph HTML Graph Render UI - v0.2.0 (Consolidated)",
+  "type": "module",
+  "scripts": {
+    "test": "karma start karma.conf.cjs --single-run",
+    "test:watch": "karma start karma.conf.cjs",
+    "test:wallaby": "echo 'Run Wallaby from your IDE'"
+  },
+  "devDependencies": {
+    "karma": "^6.4.2",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-qunit": "^4.1.2",
+    "qunit": "^2.20.0"
+  },
+  "keywords": [
+    "html",
+    "graph",
+    "visualization",
+    "mgraph"
+  ],
+  "author": "MGraph Team",
+  "license": "MIT"
+}

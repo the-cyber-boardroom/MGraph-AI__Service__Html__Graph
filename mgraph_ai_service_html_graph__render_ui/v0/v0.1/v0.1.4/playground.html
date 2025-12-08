@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Playground v0.1.4 - HTML Graph Visualization</title>
+
+    <!-- Reference v0.1.0 common styles -->
+    <link rel="stylesheet" href="../v0.1.0/css/common.css">
+
+    <!-- Reference v0.1.1 playground styles -->
+    <link rel="stylesheet" href="../v0.1.1/css/playground.css">
+
+    <!-- v0.1.4 style overrides -->
+    <link rel="stylesheet" href="./css/playground.css">
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation (from v0.1.1) -->
+        <top-nav></top-nav>
+
+        <!-- Main Content -->
+        <main class="playground-main">
+            <!-- Left Panel - Input & Config -->
+            <div class="left-panel">
+                <!-- URL Input (from v0.1.3) -->
+                <url-input></url-input>
+
+                <!-- HTML Input Component (from v0.1.1) -->
+                <html-input></html-input>
+
+                <!-- Configuration Panel (from v0.1.1) -->
+                <config-panel></config-panel>
+            </div>
+
+            <!-- Right Panel - Stats Toolbar + Graph Canvas -->
+            <div class="right-panel">
+                <!-- Stats Toolbar - NEW in v0.1.4 (combines render button + stats + timing) -->
+                <stats-toolbar></stats-toolbar>
+
+                <!-- Graph Canvas (v0.1.4: all 5 renderers enabled) -->
+                <graph-canvas></graph-canvas>
+            </div>
+        </main>
+    </div>
+
+    <!-- Renderers (hidden, used by playground) -->
+    <dot-renderer style="display: none;"></dot-renderer>
+    <vis-renderer style="display: none;"></vis-renderer>
+    <d3-renderer style="display: none;"></d3-renderer>
+    <cytoscape-renderer style="display: none;"></cytoscape-renderer>
+    <mermaid-renderer style="display: none;"></mermaid-renderer>
+
+    <!-- Reference v0.1.0 API client -->
+    <script src="../v0.1.0/js/services/api-client.js"></script>
+
+    <!-- Reference v0.1.1 Components -->
+    <script src="../v0.1.1/components/top-nav/top-nav.js"></script>
+    <script src="../v0.1.1/components/html-input/html-input.js"></script>
+    <script src="../v0.1.1/components/config-panel/config-panel.js"></script>
+
+    <!-- Reference v0.1.2 DOT Renderer -->
+    <script src="../v0.1.2/components/dot-renderer/dot-renderer.js"></script>
+
+    <!-- Reference v0.1.3 URL Input -->
+    <script src="../v0.1.3/components/url-input/url-input.js"></script>
+
+    <!-- v0.1.4 Stats Toolbar -->
+    <script src="../v0.1.3/components/stats-toolbar/stats-toolbar.js"></script>
+
+    <!-- v0.1.4 Graph Canvas (overrides v0.1.1 to enable all renderers) -->
+    <script src="./components/graph-canvas/graph-canvas.js"></script>
+
+    <!-- v0.1.4 Additional Renderers -->
+    <script src="./components/vis-renderer/vis-renderer.js"></script>
+    <script src="./components/d3-renderer/d3-renderer.js"></script>
+    <script src="./components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    <script src="./components/mermaid-renderer/mermaid-renderer.js"></script>
+
+    <!-- v0.1.4 Orchestrator (supports all 5 renderers) -->
+    <script src="./js/playground.js"></script>
+</body>
+</html>

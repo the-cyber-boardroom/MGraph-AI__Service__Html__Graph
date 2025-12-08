@@ -1,0 +1,114 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Render UI - Playground Styles Override
+   v0.1.4 - Improved Layout & Error Handling
+
+   Overrides v0.1.1 styles for new layout with stats at top-right
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Full height layout */
+.playground {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.playground-main {
+    flex: 1;
+    min-height: 0;  /* Important for flex children to shrink */
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    overflow: hidden;
+}
+
+/* Left panel - scrollable */
+.left-panel {
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Right panel layout: toolbar at top, canvas fills rest */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Stats toolbar - fixed height */
+.stats-toolbar {
+    flex-shrink: 0;
+}
+
+/* Graph canvas - fills remaining space */
+graph-canvas {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+graph-canvas .graph-canvas-container,
+graph-canvas .canvas-area {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+}
+
+/* Canvas area styling for panning */
+graph-canvas .canvas-area {
+    overflow: auto;
+    cursor: grab;
+    position: relative;
+}
+
+graph-canvas .canvas-area:active {
+    cursor: grabbing;
+}
+
+/* Make SVG fill the space but allow overflow for panning */
+graph-canvas .canvas-area svg {
+    min-width: 100%;
+    min-height: 100%;
+    display: block;
+}
+
+/* Hide the old stats panel and render button when using new layout */
+.left-panel stats-panel,
+.left-panel .render-button {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .playground-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        overflow: auto;
+    }
+
+    .left-panel {
+        height: auto;
+        max-height: 50vh;
+    }
+
+    .right-panel {
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .playground-main {
+        padding: var(--spacing-sm);
+    }
+
+    .left-panel {
+        max-height: 40vh;
+    }
+}

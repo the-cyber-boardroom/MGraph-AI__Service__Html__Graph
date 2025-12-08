@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Playground v0.1.4 - HTML Graph Visualization</title>
+
+    <!-- Reference v0.1.0 common styles -->
+    <link rel="stylesheet" href="../v0.1.0/css/common.css">
+
+    <!-- Reference v0.1.1 playground styles -->
+    <link rel="stylesheet" href="../v0.1.1/css/playground.css">
+
+    <!-- v0.1.4 style overrides -->
+    <link rel="stylesheet" href="./css/playground.css">
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation (from v0.1.1) -->
+        <top-nav></top-nav>
+
+        <!-- Main Content -->
+        <main class="playground-main">
+            <!-- Left Panel - Input & Config -->
+            <div class="left-panel">
+                <!-- URL Input (from v0.1.3) -->
+                <url-input></url-input>
+
+                <!-- HTML Input Component (from v0.1.1) -->
+                <html-input></html-input>
+
+                <!-- Configuration Panel (from v0.1.1) -->
+                <config-panel></config-panel>
+            </div>
+
+            <!-- Right Panel - Stats Toolbar + Graph Canvas -->
+            <div class="right-panel">
+                <!-- Stats Toolbar - NEW in v0.1.4 (combines render button + stats + timing) -->
+                <stats-toolbar></stats-toolbar>
+
+                <!-- Graph Canvas (from v0.1.1) -->
+                <graph-canvas></graph-canvas>
+
+                <!-- DOT Renderer (from v0.1.2) -->
+                <dot-renderer></dot-renderer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Reference v0.1.0 API client -->
+    <script src="../v0.1.0/js/services/api-client.js"></script>
+
+    <!-- Reference v0.1.1 Components -->
+    <script src="../v0.1.1/components/top-nav/top-nav.js"></script>
+    <script src="../v0.1.1/components/html-input/html-input.js"></script>
+    <script src="../v0.1.1/components/config-panel/config-panel.js"></script>
+    <script src="../v0.1.1/components/graph-canvas/graph-canvas.js"></script>
+
+    <!-- Reference v0.1.2 DOT Renderer -->
+    <script src="../v0.1.2/components/dot-renderer/dot-renderer.js"></script>
+
+    <!-- Reference v0.1.3 URL Input -->
+    <script src="../v0.1.3/components/url-input/url-input.js"></script>
+
+    <!-- v0.1.4 Stats Toolbar - NEW -->
+    <script src="./components/stats-toolbar/stats-toolbar.js"></script>
+
+    <!-- v0.1.4 Orchestrator (improved error handling + timing) -->
+    <script src="./js/playground.js"></script>
+</body>
+</html>

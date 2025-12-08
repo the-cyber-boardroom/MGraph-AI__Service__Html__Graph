@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Render UI - Playground
+     v0.2.0 - Consolidated from v0.1.x
+     
+     Features all 5 renderers: DOT, vis.js, D3, Cytoscape, Mermaid
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Playground v0.2.0</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/playground.css">
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation -->
+        <top-nav></top-nav>
+        
+        <!-- Main Content -->
+        <main class="playground-main">
+            <!-- Left Panel: Input & Config -->
+            <aside class="left-panel">
+                <!-- URL Input -->
+                <url-input></url-input>
+                
+                <!-- HTML Input -->
+                <html-input></html-input>
+                
+                <!-- Configuration -->
+                <config-panel></config-panel>
+            </aside>
+            
+            <!-- Right Panel: Graph Canvas -->
+            <section class="right-panel">
+                <!-- Stats Toolbar -->
+                <stats-toolbar></stats-toolbar>
+                
+                <!-- Graph Canvas -->
+                <graph-canvas></graph-canvas>
+            </section>
+        </main>
+    </div>
+
+    <!-- API Client -->
+    <script src="./js/services/api-client.js"></script>
+    
+    <!-- Components (all local) -->
+    <script src="./components/top-nav/top-nav.js"></script>
+    <script src="./components/html-input/html-input.js"></script>
+    <script src="./components/config-panel/config-panel.js"></script>
+    <script src="./components/stats-panel/stats-panel.js"></script>
+    <script src="./components/graph-canvas/graph-canvas.js"></script>
+    <script src="./components/url-input/url-input.js"></script>
+    <script src="./components/stats-toolbar/stats-toolbar.js"></script>
+    
+    <!-- Renderers (all local) -->
+    <script src="./components/dot-renderer/dot-renderer.js"></script>
+    <script src="./components/vis-renderer/vis-renderer.js"></script>
+    <script src="./components/d3-renderer/d3-renderer.js"></script>
+    <script src="./components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    <script src="./components/mermaid-renderer/mermaid-renderer.js"></script>
+    
+    <!-- Playground Orchestrator -->
+    <script src="./js/playground.js"></script>
+    
+    <!-- Invisible renderer components -->
+    <dot-renderer></dot-renderer>
+    <vis-renderer></vis-renderer>
+    <d3-renderer></d3-renderer>
+    <cytoscape-renderer></cytoscape-renderer>
+    <mermaid-renderer></mermaid-renderer>
+</body>
+</html>

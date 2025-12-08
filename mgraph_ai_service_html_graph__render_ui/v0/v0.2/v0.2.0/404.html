@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Render UI - 404 Page
+     v0.2.0 - Consolidated from v0.1.x
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | HTML Graph v0.2.0</title>
+    <link rel="stylesheet" href="./css/common.css">
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: white;
+        }
+        .error-code {
+            font-size: 8em;
+            font-weight: 700;
+            opacity: 0.3;
+            line-height: 1;
+            margin-bottom: var(--spacing-md);
+        }
+        .error-message {
+            font-size: 1.5em;
+            margin-bottom: var(--spacing-lg);
+        }
+        .error-description {
+            opacity: 0.8;
+            margin-bottom: var(--spacing-xl);
+            max-width: 400px;
+        }
+        .error-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        .error-actions .btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="error-code">404</div>
+        <h1 class="error-message">Page Not Found</h1>
+        <p class="error-description">
+            The page you're looking for doesn't exist or has been moved. 
+            Let's get you back on track.
+        </p>
+        <div class="error-actions">
+            <a href="./index.html" class="btn btn-primary">Go to Dashboard</a>
+            <a href="./playground.html" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); border: none;">Open Playground</a>
+        </div>
+    </div>
+</body>
+</html>
