@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Render UI - Dashboard
+     v0.2.5 - Transformation Mode Support
+     
+     Surgical override version - links back to v0.2.0 base
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Visualizer v0.2.5</title>
+    
+    <!-- Styles (from v0.2.0 base) -->
+    <link rel="stylesheet" href="../v0.2.0/css/common.css">
+    <link rel="stylesheet" href="../v0.2.0/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>🔗 HTML Graph Visualizer</h1>
+            <p>Transform HTML documents into interactive graph visualizations</p>
+            
+            <!-- API Status -->
+            <div class="api-status" style="margin-top: 15px;">
+                <span id="api-status-dot" class="api-status-dot loading"></span>
+                <span id="api-status-text">Checking API...</span>
+            </div>
+        </header>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Renderers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Transformations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Possibilities</div>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="feature-grid">
+            <!-- Playground -->
+            <div class="feature-card">
+                <div class="feature-card-icon">🎨</div>
+                <h3>Interactive Playground</h3>
+                <p>Enter HTML manually, paste from clipboard, or fetch from any URL. Now with transformation mode to explore different graph representations.</p>
+                <a href="./playground.html" class="btn btn-primary">Open Playground</a>
+            </div>
+
+            <!-- Transformations (NEW in v0.2.5) -->
+            <div class="feature-card">
+                <div class="feature-card-icon">🔄</div>
+                <h3>Graph Transformations</h3>
+                <p>Apply transformations to customize your graph view: collapse text nodes, show elements only, focus on body content, and more.</p>
+                <a href="./playground.html?transformation=elements_only" class="btn btn-secondary">Try Transformations</a>
+            </div>
+
+            <!-- API Docs -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📚</div>
+                <h3>API Documentation</h3>
+                <p>New endpoint pattern: <code>/graph/from/{source}/to/{engine}/{transformation}</code>. Full OpenAPI/Swagger documentation available.</p>
+                <a href="/docs" class="btn btn-secondary" target="_blank">View API Docs</a>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="version-info">
+            <p>
+                Version 0.2.5 | 
+                <a href="../v0.2.4/">Previous Version (v0.2.4)</a> |
+                Built with MGraph-AI
+            </p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../v0.2.0/js/services/api-client.js"></script>
+    <script src="../v0.2.0/js/dashboard.js"></script>
+</body>
+</html>
