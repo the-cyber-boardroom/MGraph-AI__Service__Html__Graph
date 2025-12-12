@@ -1,0 +1,188 @@
+{
+  "version": "0.2.6",
+  "shortcuts": [
+    {
+      "key": "r",
+      "event": "shortcut:reload",
+      "label": "Reload",
+      "description": "Re-render the current graph",
+      "category": "actions"
+    },
+    {
+      "key": "m",
+      "event": "shortcut:maximize-toggle",
+      "label": "Maximize",
+      "description": "Toggle fullscreen maximize mode",
+      "category": "view"
+    },
+    {
+      "key": "t",
+      "event": "shortcut:transformation-next",
+      "label": "Transform →",
+      "description": "Cycle to next transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "T",
+      "shift": true,
+      "event": "shortcut:transformation-prev",
+      "label": "Transform ←",
+      "description": "Cycle to previous transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "e",
+      "event": "shortcut:engine-next",
+      "label": "Engine →",
+      "description": "Cycle to next rendering engine",
+      "category": "engines"
+    },
+    {
+      "key": "E",
+      "shift": true,
+      "event": "shortcut:engine-prev",
+      "label": "Engine ←",
+      "description": "Cycle to previous rendering engine",
+      "category": "engines"
+    },
+    {
+      "key": "1",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 0 },
+      "label": "Transform 1",
+      "description": "Select 1st transformation (default)",
+      "category": "transformations"
+    },
+    {
+      "key": "2",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 1 },
+      "label": "Transform 2",
+      "description": "Select 2nd transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "3",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 2 },
+      "label": "Transform 3",
+      "description": "Select 3rd transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "4",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 3 },
+      "label": "Transform 4",
+      "description": "Select 4th transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "5",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 4 },
+      "label": "Transform 5",
+      "description": "Select 5th transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "6",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 5 },
+      "label": "Transform 6",
+      "description": "Select 6th transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "7",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 6 },
+      "label": "Transform 7",
+      "description": "Select 7th transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "8",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 7 },
+      "label": "Transform 8",
+      "description": "Select 8th transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "9",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 8 },
+      "label": "Transform 9",
+      "description": "Select 9th transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "0",
+      "event": "shortcut:transformation-select",
+      "data": { "index": 9 },
+      "label": "Transform 10",
+      "description": "Select 10th transformation",
+      "category": "transformations"
+    },
+    {
+      "key": "h",
+      "event": "shortcut:help-toggle",
+      "label": "Help",
+      "description": "Show/hide keyboard shortcuts help",
+      "category": "help"
+    },
+    {
+      "key": "Escape",
+      "event": "shortcut:escape",
+      "label": "Close",
+      "description": "Close dialogs or exit maximize mode",
+      "category": "navigation"
+    },
+    {
+      "key": "+",
+      "shift": true,
+      "event": "shortcut:zoom-in",
+      "label": "Zoom In",
+      "description": "Zoom in on graph",
+      "category": "view"
+    },
+    {
+      "key": "=",
+      "event": "shortcut:zoom-in",
+      "label": "Zoom In",
+      "description": "Zoom in on graph",
+      "category": "view"
+    },
+    {
+      "key": "-",
+      "event": "shortcut:zoom-out",
+      "label": "Zoom Out",
+      "description": "Zoom out on graph",
+      "category": "view"
+    },
+    {
+      "key": "0",
+      "ctrl": true,
+      "event": "shortcut:zoom-reset",
+      "label": "Zoom Reset",
+      "description": "Reset zoom to default",
+      "category": "view"
+    },
+    {
+      "key": "f",
+      "event": "shortcut:zoom-fit",
+      "label": "Fit",
+      "description": "Fit graph to viewport",
+      "category": "view"
+    }
+  ],
+  "categories": {
+    "actions": { "label": "Actions", "order": 1 },
+    "view": { "label": "View", "order": 2 },
+    "engines": { "label": "Engines", "order": 3 },
+    "transformations": { "label": "Transformations", "order": 4 },
+    "navigation": { "label": "Navigation", "order": 5 },
+    "help": { "label": "Help", "order": 6 }
+  }
+}
