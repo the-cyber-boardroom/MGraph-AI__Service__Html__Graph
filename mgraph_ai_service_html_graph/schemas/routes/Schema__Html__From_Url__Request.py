@@ -5,6 +5,6 @@ from osbot_utils.type_safe.Type_Safe                                            
 
 
 class Schema__Html__From_Url__Request(Type_Safe):                                                 # Request schema for fetching HTML from URL
-    url         : Safe_Str__Url                                                                   # URL to fetch HTML from
-    timeout     : Safe_Int__Positive  = 30                                                        # Request timeout in seconds
+    url         : Safe_Str__Url               = None                                              # URL to fetch HTML from
+    timeout     : Safe_Int__Positive          = 30                                                # Request timeout in seconds
     user_agent  : Safe_Str__Http__User_Agent  = ''                                                # Optional custom user agent
