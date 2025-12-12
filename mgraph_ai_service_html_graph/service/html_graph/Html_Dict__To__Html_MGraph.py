@@ -58,14 +58,14 @@ class Html_Dict__To__Html_MGraph(Type_Safe):                                    
         #       b) see if we can't get the same with an edge
         #       c) find a good way to filter these nodes out from the rendered view
         # todo: add option to disable this
-        tag_node_id = self.get_or_create_tag_node(tag)                                      # Link to tag value node
-        self.new_edge_with_predicate(from_node_id = element_node_id,
-                                     to_node_id   = tag_node_id    ,
-                                     predicate    = 'tag'          )
+        # tag_node_id = self.get_or_create_tag_node(tag)                                      # Link to tag value node
+        # self.new_edge_with_predicate(from_node_id = element_node_id,
+        #                              to_node_id   = tag_node_id    ,
+        #                              predicate    = 'tag'          )
 
-        # todo: add option to disable this
-        for attr_name, attr_value in attrs.items():                             # Process attributes
-            self.add_attribute(element_node_id, attr_name, attr_value)
+        # # todo: add option to disable this
+        # for attr_name, attr_value in attrs.items():                             # Process attributes
+        #     self.add_attribute(element_node_id, attr_name, attr_value)
 
         child_nodes          = html_dict.get('child_nodes', [])                 # Process children (elements and text) in order
         text_nodes           = html_dict.get('text_nodes' , [])
@@ -99,7 +99,10 @@ class Html_Dict__To__Html_MGraph(Type_Safe):                                    
             text_position = text_node.get('position', 0 )
 
             if text_data:                                                       # Skip empty text
-                text_node_id = self.create_text_node(text_data)
+                #text_node_id = self.create_text_node(text_data)
+                text_node_id = self.create_text_node(text        = text_data  ,
+                                                     parent_path = parent_path,
+                                                     position    = position   )
 
                 # self.mgraph.edit().new_edge(from_node_id = element_node_id                ,  # Add text edge with position
                 #                             to_node_id   = text_node_id                   ,
@@ -141,10 +144,18 @@ class Html_Dict__To__Html_MGraph(Type_Safe):                                    
 
         return attr_node.node_id
 
-    def create_text_node(self, text: str) -> str:                               # Create a value node for text content
-        text_path = self.path_utils.value_node_path('text')                     # Create text value node with path "text"
-        text_node = self.mgraph.edit().new_value(value     = text                ,
-                                                 node_path = Node_Path(text_path))
+    # def create_text_node(self, text: str) -> str:                               # Create a value node for text content
+    #     text_path = self.path_utils.value_node_path('text')                     # Create text value node with path "text"
+    #     text_node = self.mgraph.edit().new_value(value     = text                ,
+    #                                              node_path = Node_Path(text_path))
+    #     return text_node.node_id
+
+    def create_text_node(self, text: str, parent_path: str, position: int) -> str:
+        text_path  = self.path_utils.value_node_path('text')
+        unique_key = f"{parent_path}:{position}"                                            # Makes each text node unique
+        text_node  = self.mgraph.edit().new_value(value     = text                ,
+                                                  node_path = Node_Path(text_path),
+                                                  key       = unique_key          )
         return text_node.node_id
 
     def compute_sibling_counts(self, child_nodes: list) -> Dict[str, int]:      # Compute count of each tag among siblings

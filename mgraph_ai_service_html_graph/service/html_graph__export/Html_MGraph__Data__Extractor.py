@@ -21,7 +21,7 @@ from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Label
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Classes for Extracted Nodes and Edges
 # ═══════════════════════════════════════════════════════════════════════════════
-# todo: refactor to separate file and add Type_Safe primitives
+
 class Extracted__Node(Type_Safe):                                                 # Extracted node with all semantic data
     id           : str                                                            # Node ID
     label        : str              = ''                                          # Display label

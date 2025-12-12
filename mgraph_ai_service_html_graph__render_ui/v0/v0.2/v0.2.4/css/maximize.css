@@ -1,0 +1,160 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Maximize View
+   v0.2.4 - Fullscreen canvas mode
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Maximized state - hide left panel and top nav */
+.playground.maximized .left-panel {
+    display: none;
+}
+
+.playground.maximized .playground-main {
+    grid-template-columns: 1fr;
+}
+
+.playground.maximized top-nav {
+    display: none;
+}
+
+/* Hide stats-toolbar in maximized mode */
+.playground.maximized stats-toolbar {
+    display: none;
+}
+
+/* Hide canvas toolbar (renderer select + zoom) in maximized mode */
+.playground.maximized .canvas-toolbar,
+.playground.maximized .graph-toolbar,
+.playground.maximized graph-canvas .toolbar {
+    display: none !important;
+}
+
+/* Minimal toolbar in maximized mode */
+.maximize-toolbar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: #1a1a2e;
+    border-bottom: 1px solid #333;
+    padding: 0 16px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    gap: 16px;
+}
+
+.playground.maximized .maximize-toolbar {
+    display: flex;
+}
+
+.playground.maximized .right-panel {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+}
+
+/* Toolbar sections */
+.maximize-toolbar-left,
+.maximize-toolbar-center,
+.maximize-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.maximize-toolbar-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* Toolbar buttons */
+.max-toolbar-btn {
+    background: #2d2d44;
+    border: 1px solid #444;
+    color: #e0e0e0;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.max-toolbar-btn:hover {
+    background: #3d3d5c;
+    border-color: #666;
+}
+
+.max-toolbar-btn.primary {
+    background: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.max-toolbar-btn.primary:hover {
+    background: #6366f1;
+    border-color: #6366f1;
+}
+
+.max-toolbar-btn.icon-only {
+    padding: 6px 10px;
+    font-size: 16px;
+}
+
+/* Separator */
+.max-toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: #444;
+    margin: 0 4px;
+}
+
+/* Renderer select in toolbar */
+.max-renderer-select {
+    background: #2d2d44;
+    border: 1px solid #444;
+    color: #e0e0e0;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.max-renderer-select:hover {
+    border-color: #666;
+}
+
+/* Stats display in toolbar */
+.max-stats {
+    color: #888;
+    font-size: 12px;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+
+/* Maximize button - place in stats toolbar */
+.maximize-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #666;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.maximize-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    border-color: #6366f1;
+}
