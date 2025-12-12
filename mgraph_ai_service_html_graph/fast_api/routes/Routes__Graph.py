@@ -67,11 +67,13 @@ class Routes__Graph(Fast_API__Routes):                                          
     # HTML to Engine with Transformation
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @route_path("/graph/from/html/to/{engine}/{transformation}")
+    @route_path("/from/html/to/{engine}/{transformation}")
     def from_html_to_transformation(self, engine: str, transformation:str, request: Schema__Graph__From_Html__Request) -> Schema__Graph__Dot__Response:
         if engine == 'default':
             render_method = self.graph_service.to_dot
-        elif engine == 'vis-js':
+        elif engine == 'dot':
+            render_method = self.graph_service.to_dot
+        elif engine == 'visjs':
             render_method = self.graph_service.to_visjs
         elif engine == 'd3':
             render_method = self.graph_service.to_d3
@@ -80,11 +82,11 @@ class Routes__Graph(Fast_API__Routes):                                          
         elif engine == 'mermaid':
             render_method = self.graph_service.to_mermaid
         else:
-            raise Exception("Unknown graph transformation")
+            raise Exception(f"Unknown graph transformation: {engine}")
 
         return render_method(request, transformation=transformation)
 
-    @route_path("/graph/from/url/to/{engine}/{transformation}")
+    @route_path("/from/url/to/{engine}/{transformation}")
     def from_url_to_transformation(self, engine: str, transformation: str, request: Schema__Graph__From_Url__Request) -> Schema__Graph__Dot__Response:
         html_request = self._fetch_and_create_request(request)
         return self.from_html_to_transformation(engine=engine, transformation=transformation, request= html_request)
