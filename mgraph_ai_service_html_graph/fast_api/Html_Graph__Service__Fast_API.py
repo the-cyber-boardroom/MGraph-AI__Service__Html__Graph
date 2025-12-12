@@ -8,6 +8,7 @@ from starlette.staticfiles                                          import Stati
 from mgraph_ai_service_html_graph.config                            import FAST_API__TITLE, FAST_API__DESCRIPTION, UI__CONSOLE__ROUTE__CONSOLE, UI__CONSOLE__MAJOR__VERSION, UI__CONSOLE__LATEST__VERSION
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph     import Routes__Graph
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Html      import Routes__Html
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__PlantUML  import Routes__PlantUML
 from mgraph_ai_service_html_graph.utils.Version                     import version__mgraph_ai_service_html_graph
 
 
@@ -25,6 +26,7 @@ class Html_Graph__Service__Fast_API(Serverless__Fast_API):
     def setup_routes(self):
         self.add_routes(Routes__Graph       )
         self.add_routes(Routes__Html        )
+        self.add_routes(Routes__PlantUML    )
         self.add_routes(Routes__Info        )
         self.add_routes(Routes__Set_Cookie  )
 
