@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Render UI - Dashboard
+     v0.2.2 - Native Export Format Support
+     
+     Surgical override version - links back to v0.2.0 base
+     Changes: Updated API client with native format methods
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Visualizer v0.2.2</title>
+    
+    <!-- Styles (from v0.2.0 base) -->
+    <link rel="stylesheet" href="../v0.2.0/css/common.css">
+    <link rel="stylesheet" href="../v0.2.0/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <h1>🔗 HTML Graph Visualizer</h1>
+            <p>Transform HTML documents into interactive graph visualizations</p>
+            
+            <!-- API Status -->
+            <div class="api-status" style="margin-top: 15px;">
+                <span id="api-status-dot" class="api-status-dot loading"></span>
+                <span id="api-status-text">Checking API...</span>
+            </div>
+        </header>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Renderers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Native Formats</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Possibilities</div>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="feature-grid">
+            <!-- Playground -->
+            <div class="feature-card">
+                <div class="feature-card-icon">🎨</div>
+                <h3>Interactive Playground</h3>
+                <p>Enter HTML manually, paste from clipboard, or fetch from any URL. See your HTML transformed into a beautiful graph visualization in real-time.</p>
+                <a href="./playground.html" class="btn btn-primary">Open Playground</a>
+            </div>
+
+            <!-- API Docs -->
+            <div class="feature-card">
+                <div class="feature-card-icon">📚</div>
+                <h3>API Documentation</h3>
+                <p>Integrate HTML graph visualization into your own applications with our comprehensive REST API. Now with native export formats for vis.js, D3, Cytoscape, and Mermaid.</p>
+                <a href="/docs" class="btn btn-secondary" target="_blank">View API Docs</a>
+            </div>
+
+            <!-- Native Formats (NEW in v0.2.2) -->
+            <div class="feature-card">
+                <div class="feature-card-icon">⚡</div>
+                <h3>Native Export Formats</h3>
+                <p>New in v0.2.2: Each renderer now receives data in its native format directly from the backend. No more client-side DOT parsing—faster rendering with full semantic metadata.</p>
+                <a href="./playground.html?renderer=visjs" class="btn btn-secondary">Try Native Exports</a>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="version-info">
+            <p>
+                Version 0.2.2 | 
+                <a href="../v0.2.0/">Base Version (v0.2.0)</a> |
+                Built with MGraph-AI
+            </p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Base API client from v0.2.0, then surgical override with native format methods -->
+    <script src="../v0.2.0/js/services/api-client.js"></script>
+    <script src="./js/services/api-client.js"></script>
+    
+    <!-- Dashboard script from v0.2.0 -->
+    <script src="../v0.2.0/js/dashboard.js"></script>
+</body>
+</html>

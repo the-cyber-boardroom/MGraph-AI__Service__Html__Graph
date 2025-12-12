@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Render UI - Playground
+     v0.2.2 - Native Export Format Support
+     
+     Surgical override version - links back to v0.2.0 base
+     
+     Changes in v0.2.2:
+     - api-client.js: Added htmlToVisJs(), htmlToD3(), htmlToCytoscape(), htmlToMermaid()
+     - vis-renderer.js: Updated render() to accept native vis.js format
+     - d3-renderer.js: Updated render() to accept native D3 format  
+     - cytoscape-renderer.js: Updated render() to accept native Cytoscape format
+     - mermaid-renderer.js: Updated render() to accept native Mermaid format
+     - playground.js: Routes to correct API endpoint per renderer
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Playground v0.2.2</title>
+    
+    <!-- Styles (from v0.2.0 base) -->
+    <link rel="stylesheet" href="../v0.2.0/css/common.css">
+    <link rel="stylesheet" href="../v0.2.0/css/playground.css">
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation -->
+        <top-nav></top-nav>
+        
+        <!-- Main Content -->
+        <main class="playground-main">
+            <!-- Left Panel: Input & Config -->
+            <aside class="left-panel">
+                <!-- URL Input -->
+                <url-input></url-input>
+                
+                <!-- HTML Input -->
+                <html-input></html-input>
+                
+                <!-- Configuration -->
+                <config-panel></config-panel>
+            </aside>
+            
+            <!-- Right Panel: Graph Canvas -->
+            <section class="right-panel">
+                <!-- Stats Toolbar -->
+                <stats-toolbar></stats-toolbar>
+                
+                <!-- Graph Canvas -->
+                <graph-canvas></graph-canvas>
+            </section>
+        </main>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         API Client: Base + Surgical Override
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <script src="../v0.2.0/js/services/api-client.js"></script>
+    <script src="./js/services/api-client.js"></script>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         Components (from v0.2.0 base - unchanged)
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <script src="../v0.2.0/components/top-nav/top-nav.js"></script>
+    <script src="../v0.2.0/components/html-input/html-input.js"></script>
+    <script src="../v0.2.0/components/config-panel/config-panel.js"></script>
+    <script src="../v0.2.0/components/stats-panel/stats-panel.js"></script>
+    <script src="../v0.2.0/components/graph-canvas/graph-canvas.js"></script>
+    <script src="../v0.2.0/components/url-input/url-input.js"></script>
+    <script src="../v0.2.0/components/stats-toolbar/stats-toolbar.js"></script>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         Renderers: Base from v0.2.0, then Surgical Overrides from v0.2.2
+         
+         DOT renderer unchanged (still uses DOT format)
+         Other renderers updated to use native formats
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- DOT Renderer: unchanged, uses DOT format -->
+    <script src="../v0.2.0/components/dot-renderer/dot-renderer.js"></script>
+    
+    <!-- vis.js Renderer: base + surgical override for native format -->
+    <script src="../v0.2.0/components/vis-renderer/vis-renderer.js"></script>
+    <script src="./components/vis-renderer/vis-renderer.js"></script>
+    
+    <!-- D3 Renderer: base + surgical override for native format -->
+    <script src="../v0.2.0/components/d3-renderer/d3-renderer.js"></script>
+    <script src="./components/d3-renderer/d3-renderer.js"></script>
+    
+    <!-- Cytoscape Renderer: base + surgical override for native format -->
+    <script src="../v0.2.0/components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    <script src="./components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    
+    <!-- Mermaid Renderer: base + surgical override for native format -->
+    <script src="../v0.2.0/components/mermaid-renderer/mermaid-renderer.js"></script>
+    <script src="./components/mermaid-renderer/mermaid-renderer.js"></script>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         Playground Orchestrator: Base + Surgical Override
+         Updated to route to correct API endpoint per renderer
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <script src="../v0.2.0/js/playground.js"></script>
+    <script src="./js/playground.js"></script>
+    
+    <!-- Invisible renderer components -->
+    <dot-renderer></dot-renderer>
+    <vis-renderer></vis-renderer>
+    <d3-renderer></d3-renderer>
+    <cytoscape-renderer></cytoscape-renderer>
+    <mermaid-renderer></mermaid-renderer>
+</body>
+</html>
