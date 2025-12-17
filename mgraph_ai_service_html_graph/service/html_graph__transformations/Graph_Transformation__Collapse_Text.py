@@ -27,8 +27,7 @@ class Graph_Transformation__Collapse_Text(Graph_Transformation__Base):
     # Phase 2: Transform Dict - Remove text_nodes, merge into element
     # ═══════════════════════════════════════════════════════════════════════════
     
-    def transform_dict(self, html_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Remove text_nodes from dict, appending text to element labels."""
+    def transform_dict(self, html_dict: Dict[str, Any]) -> Dict[str, Any]:          # Remove text_nodes from dict, appending text to element labels.
         return self._collapse_text_recursive(html_dict)
     
     def _collapse_text_recursive(self, node: Dict[str, Any]) -> Dict[str, Any]:

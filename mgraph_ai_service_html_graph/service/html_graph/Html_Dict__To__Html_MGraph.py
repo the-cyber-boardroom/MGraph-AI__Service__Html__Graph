@@ -1,15 +1,14 @@
-from typing                                                            import Dict, Any, Optional
-
-from mgraph_db.mgraph.domain.Domain__MGraph__Edge import Domain__MGraph__Edge
-from mgraph_db.mgraph.schemas.Schema__MGraph__Edge__Label import Schema__MGraph__Edge__Label
-from mgraph_db.mgraph.schemas.identifiers.Edge_Path                    import Edge_Path
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                    import Node_Path
-from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
-from mgraph_db.mgraph.MGraph                                           import MGraph
-from mgraph_db.mgraph.schemas.Schema__MGraph__Node                     import Schema__MGraph__Node
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+from typing                                                             import Dict, Any, Optional
+from mgraph_db.mgraph.domain.Domain__MGraph__Edge                       import Domain__MGraph__Edge
+from mgraph_db.mgraph.schemas.Schema__MGraph__Edge__Label               import Schema__MGraph__Edge__Label
+from mgraph_db.mgraph.schemas.identifiers.Edge_Path                     import Edge_Path
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                     import Node_Path
+from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from mgraph_db.mgraph.MGraph                                            import MGraph
+from mgraph_db.mgraph.schemas.Schema__MGraph__Node                      import Schema__MGraph__Node
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id       import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id       import Safe_Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe          import type_safe
 
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__Path import Html_MGraph__Path
 
@@ -18,6 +17,7 @@ class Html_Dict__To__Html_MGraph(Type_Safe):                                    
     mgraph      : MGraph            = None                                      # The MGraph being built
     path_utils  : Html_MGraph__Path = None                                      # Path computation utilities
     tag_cache   : Dict[str, str]    = None                                      # Cache for tag value nodes (tag_name -> node_id)
+    root_id     : Node_Id           = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -30,10 +30,10 @@ class Html_Dict__To__Html_MGraph(Type_Safe):                                    
         self.mgraph    = MGraph()                                               # Initialize fresh graph and cache
         self.tag_cache = {}
 
-        self.convert_element(html_dict       = html_dict        ,               # Convert root element (no parent path)
-                             parent_path     = None             ,
-                             position        = 0                ,
-                             sibling_counts  = {'_root': 1}     )
+        self.root_id = self.convert_element(html_dict       = html_dict        ,               # Convert root element (no parent path)
+                                            parent_path     = None             ,
+                                            position        = 0                ,
+                                            sibling_counts  = {'_root': 1}     )
 
         return self.mgraph
 

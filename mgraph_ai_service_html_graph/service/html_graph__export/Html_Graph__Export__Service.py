@@ -1,27 +1,28 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # MGraph HTML Graph - Export Service
-# v0.2.5 - Unified service with transformation pipeline support
+# v0.2.6 - Added tree and tree_text export engines
 #
-# Supports: DOT, vis.js, D3.js, Cytoscape.js, Mermaid
+# Supports: DOT, vis.js, D3.js, Cytoscape.js, Mermaid, Tree, Tree Text
 # Transformations: default, collapse_text, elements_only, body_only
 # ═══════════════════════════════════════════════════════════════════════════════
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__Cytoscape import Html_MGraph__To__Cytoscape
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__D3 import Html_MGraph__To__D3
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__Mermaid import Html_MGraph__To__Mermaid
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__VisJs import Html_MGraph__To__VisJs
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__Cytoscape              import Html_MGraph__To__Cytoscape
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__D3                     import Html_MGraph__To__D3
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__Mermaid                import Html_MGraph__To__Mermaid
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__VisJs                  import Html_MGraph__To__VisJs
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__To__Tree_View              import Html_MGraph__To__Tree_View
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Registry import transformation_registry
-from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
-from osbot_utils.helpers.duration.decorators.capture_duration                           import capture_duration
-from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                          import Html__To__Html_Dict
-from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request      import Schema__Graph__From_Html__Request
-from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response            import Schema__Graph__Dot__Response
-from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Stats                    import Schema__Graph__Stats
-from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__OSBot__To__Html_Dict    import Html_Dict__OSBot__To__Html_Dict
-from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph                        import Html_MGraph
-from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__To__Dot               import Html_MGraph__To__Dot
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config       import Html_MGraph__Render__Config
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors       import Html_MGraph__Render__Colors
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Labels       import Html_MGraph__Render__Labels
+from osbot_utils.type_safe.Type_Safe                                                                 import Type_Safe
+from osbot_utils.helpers.duration.decorators.capture_duration                                        import capture_duration
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                                       import Html__To__Html_Dict
+from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request                   import Schema__Graph__From_Html__Request
+from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response                         import Schema__Graph__Dot__Response
+from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Stats                                 import Schema__Graph__Stats
+from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__OSBot__To__Html_Dict                 import Html_Dict__OSBot__To__Html_Dict
+from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph                                     import Html_MGraph
+from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__To__Dot                            import Html_MGraph__To__Dot
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config                    import Html_MGraph__Render__Config
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors                    import Html_MGraph__Render__Colors
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Labels                    import Html_MGraph__Render__Labels
 
 
 
@@ -31,37 +32,37 @@ class Html_Graph__Export__Service(Type_Safe):                                   
     # Transformation Pipeline
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def html_to_mgraph_with_transformation(self, html: str, 
+    def html_to_mgraph_with_transformation(self, html: str,
                                            transformation_name: str = "default",
                                            config = None) -> Html_MGraph:               # Full transformation pipeline
         """Execute the 5-phase transformation pipeline.
-        
+
         Phase 1: transform_html()   - Modify raw HTML string
         Phase 2: transform_dict()   - Modify parsed Html_Dict
         Phase 3: create_mgraph()    - Create Html_MGraph (custom or default)
         Phase 4: transform_mgraph() - Modify the MGraph structure
         """
         transformation = transformation_registry.get(transformation_name)
-        
+
         # Phase 1: Transform raw HTML
         html = transformation.transform_html(html)
-        
+
         # Parse HTML to dict
         html_dict__osbot = Html__To__Html_Dict(html=html).convert()
         html_dict        = Html_Dict__OSBot__To__Html_Dict().convert(html_dict__osbot)
-        
+
         # Phase 2: Transform dict
         html_dict = transformation.transform_dict(html_dict)
-        
+
         # Phase 3: Create MGraph (transformation can override)
         html_mgraph = transformation.create_mgraph(html_dict, config)
-        
+
         # Phase 4: Transform MGraph
         html_mgraph = transformation.transform_mgraph(html_mgraph)
-        
+
         return html_mgraph
 
-    def apply_export_transformation(self, export_data: dict, 
+    def apply_export_transformation(self, export_data: dict,
                                     transformation_name: str = "default") -> dict:      # Phase 5: Transform export data
         """Apply Phase 5 transformation to export data."""
         transformation = transformation_registry.get(transformation_name)
@@ -111,7 +112,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
     # DOT Export
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def to_dot(self, request: Schema__Graph__From_Html__Request, 
+    def to_dot(self, request: Schema__Graph__From_Html__Request,
                transformation: str = "default") -> Schema__Graph__Dot__Response:
         with capture_duration() as duration:
             config      = self.create_config(request)
@@ -147,7 +148,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
                        'duration'       : duration.seconds    ,
                        'format'         : 'visjs'             ,
                        'transformation' : transformation      }
-            
+
             return self.apply_export_transformation(result, transformation)
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -170,7 +171,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
                        'duration'       : duration.seconds    ,
                        'format'         : 'd3'                ,
                        'transformation' : transformation      }
-            
+
             return self.apply_export_transformation(result, transformation)
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -192,7 +193,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
                        'duration'       : duration.seconds    ,
                        'format'         : 'cytoscape'         ,
                        'transformation' : transformation      }
-            
+
             return self.apply_export_transformation(result, transformation)
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -214,5 +215,50 @@ class Html_Graph__Export__Service(Type_Safe):                                   
                        'duration'       : duration.seconds     ,
                        'format'         : 'mermaid'            ,
                        'transformation' : transformation       }
-            
+
+            return self.apply_export_transformation(result, transformation)
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Tree Export (JSON structure)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def to_tree(self, request: Schema__Graph__From_Html__Request,
+                transformation: str = "default") -> dict:
+        with capture_duration() as duration:
+            config      = self.create_config(request)
+            html_mgraph = self.html_to_mgraph_with_transformation(request.html, transformation, config)
+            exporter    = Html_MGraph__To__Tree_View(html_mgraph=html_mgraph)
+            tree_data   = exporter.export_tree()
+            stats       = self.get_stats(html_mgraph)
+
+            result = { 'tree'           : tree_data            ,
+                       'rootId'         : str(html_mgraph.root_id) if html_mgraph.root_id else None,
+                       'stats'          : stats.json()         ,
+                       'duration'       : duration.seconds     ,
+                       'format'         : 'tree'               ,
+                       'transformation' : transformation       }
+
+            return self.apply_export_transformation(result, transformation)
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Tree Text Export (formatted string)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def to_tree_text(self, request: Schema__Graph__From_Html__Request,
+                     transformation: str = "default") -> dict:
+        with capture_duration() as duration:
+            config      = self.create_config(request)
+            html_mgraph = self.html_to_mgraph_with_transformation(request.html, transformation, config)
+            exporter    = Html_MGraph__To__Tree_View(html_mgraph=html_mgraph)
+            tree_text   = exporter.export_tree__as_text()
+            stats       = self.get_stats(html_mgraph)
+
+            result = { 'tree_text'      : tree_text            ,
+                       'tree_text_size' : len(tree_text)       ,
+                       'rootId'         : str(html_mgraph.root_id) if html_mgraph.root_id else None,
+                       'stats'          : stats.json()         ,
+                       'duration'       : duration.seconds     ,
+                       'format'         : 'tree_text'          ,
+                       'transformation' : transformation       }
+
             return self.apply_export_transformation(result, transformation)

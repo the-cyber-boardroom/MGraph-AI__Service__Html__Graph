@@ -1,4 +1,5 @@
 from typing                                                                     import Dict, Any, List, Optional
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__To__Html_Dict import Html_MGraph__To__Html_Dict
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
@@ -10,6 +11,7 @@ from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__Path          
 class Html_MGraph(Type_Safe):                                                   # Main interface for HTML Graph operations
     mgraph     : MGraph            = None                                       # The underlying MGraph
     path_utils : Html_MGraph__Path = None                                       # Path computation utilities
+    root_id    : Node_Id           = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -20,7 +22,7 @@ class Html_MGraph(Type_Safe):                                                   
     def from_html_dict(cls, html_dict: Dict[str, Any]) -> 'Html_MGraph':        # Create Html_MGraph from Html__Dict
         converter = Html_Dict__To__Html_MGraph()
         mgraph    = converter.convert(html_dict)
-        return cls(mgraph=mgraph)
+        return cls(mgraph=mgraph, root_id=converter.root_id)
 
     def to_html_dict(self) -> Dict[str, Any]:                                   # Convert back to Html__Dict
         converter = Html_MGraph__To__Html_Dict()

@@ -4,13 +4,11 @@
 # https://d3js.org/
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from typing                                                                             import List, Dict, Any
-from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
-from mgraph_db.mgraph.MGraph                                                            import MGraph
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config       import Html_MGraph__Render__Config
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__Data__Extractor import (
-    Html_MGraph__Data__Extractor, Extracted__Node, Extracted__Edge
-)
+from typing                                                                               import List, Dict, Any
+from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
+from mgraph_db.mgraph.MGraph                                                              import MGraph
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config         import Html_MGraph__Render__Config
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__Data__Extractor import Html_MGraph__Data__Extractor, Extracted__Node, Extracted__Edge
 
 
 class Html_MGraph__To__D3(Type_Safe):                                                   # Converts Html_MGraph to D3.js format
