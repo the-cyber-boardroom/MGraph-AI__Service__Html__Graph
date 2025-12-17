@@ -1,21 +1,16 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # MGraph HTML Graph - Graph Routes
-# v0.2.5 - Routes with transformation pipeline support
+# v0.2.6 - Routes with transformation pipeline support + tree view engines
 #
 # New URL pattern: /graph/from/{source}/to/{engine}/{transformation}
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from enum                                                                                import Enum
-
-from osbot_fast_api.api.decorators.route_path import route_path
+from osbot_fast_api.api.decorators.route_path                                            import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
 from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response             import Schema__Graph__Dot__Response
-from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__Cytoscape__Response      import Schema__Graph__Cytoscape__Response
-from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__D3__Response             import Schema__Graph__D3__Response
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request       import Schema__Graph__From_Html__Request
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Url__Request        import Schema__Graph__From_Url__Request
-from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__Mermaid__Response        import Schema__Graph__Mermaid__Response
-from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__VisJs__Response          import Schema__Graph__VisJs__Response
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Html__From_Url__Request         import Schema__Html__From_Url__Request
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service import Html_Graph__Export__Service
 from mgraph_ai_service_html_graph.service.html_url.Html__Url__Fetcher                    import Html__Url__Fetcher
@@ -38,6 +33,8 @@ class Engine_Type(str, Enum):
     d3        = "d3"
     cytoscape = "cytoscape"
     mermaid   = "mermaid"
+    tree      = "tree"
+    tree_text = "tree_text"
 
 
 TAG__ROUTES_GRAPH = 'graph'
@@ -81,8 +78,12 @@ class Routes__Graph(Fast_API__Routes):                                          
             render_method = self.graph_service.to_cytoscape
         elif engine == 'mermaid':
             render_method = self.graph_service.to_mermaid
+        elif engine == 'tree':
+            render_method = self.graph_service.to_tree
+        elif engine == 'tree_text':
+            render_method = self.graph_service.to_tree_text
         else:
-            raise Exception(f"Unknown graph transformation: {engine}")
+            raise Exception(f"Unknown graph engine: {engine}")
 
         return render_method(request, transformation=transformation)
 
