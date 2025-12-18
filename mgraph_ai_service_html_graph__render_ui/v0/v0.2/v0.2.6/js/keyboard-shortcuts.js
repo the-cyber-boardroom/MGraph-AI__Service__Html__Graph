@@ -33,7 +33,7 @@ function KeyboardShortcuts(options) {
     this.helpPanel = null;
 
     // Elements where shortcuts should be disabled (text inputs, etc.)
-    this.disableInElements = ['INPUT', 'TEXTAREA', 'SELECT'];
+    this.disableInElements = ['INPUT', 'TEXTAREA'];
 
     this.init();
 }

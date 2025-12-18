@@ -5,7 +5,8 @@ from osbot_fast_api_serverless.fast_api.Serverless__Fast_API        import Serve
 from osbot_fast_api_serverless.fast_api.routes.Routes__Info         import Routes__Info
 from starlette.responses                                            import RedirectResponse
 from starlette.staticfiles                                          import StaticFiles
-from mgraph_ai_service_html_graph.config                            import FAST_API__TITLE, FAST_API__DESCRIPTION, UI__CONSOLE__ROUTE__CONSOLE, UI__CONSOLE__MAJOR__VERSION, UI__CONSOLE__LATEST__VERSION
+from mgraph_ai_service_html_graph.config import FAST_API__TITLE, FAST_API__DESCRIPTION, UI__CONSOLE__ROUTE__CONSOLE, UI__CONSOLE__MAJOR__VERSION, UI__CONSOLE__LATEST__VERSION, \
+    UI__CONSOLE__ROUTE__START_PAGE
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph     import Routes__Graph
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Html      import Routes__Html
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__PlantUML  import Routes__PlantUML
@@ -39,12 +40,16 @@ class Html_Graph__Service__Fast_API(Serverless__Fast_API):
         path_static_folder  = mgraph_ai_service_html_graph__render_ui.path
         path_static         = f"/{UI__CONSOLE__ROUTE__CONSOLE}"
         path_name           = UI__CONSOLE__ROUTE__CONSOLE
-        path_latest_version = f"/{UI__CONSOLE__ROUTE__CONSOLE}/{UI__CONSOLE__MAJOR__VERSION}/{UI__CONSOLE__LATEST__VERSION}/index.html"
+        major_version       = UI__CONSOLE__MAJOR__VERSION
+        latest_version      = UI__CONSOLE__LATEST__VERSION
+        start_page          = UI__CONSOLE__ROUTE__START_PAGE
+        #path_latest_version = f"/{UI__CONSOLE__ROUTE__CONSOLE}/{UI__CONSOLE__MAJOR__VERSION}/{UI__CONSOLE__LATEST__VERSION}/index.html"
+        path_latest_version = f"/{path_name}/{major_version}/{latest_version}/{start_page}.html"
         self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
 
+
         @route_path(path=f'/{UI__CONSOLE__ROUTE__CONSOLE}')
-        @route_path(path=f'/{UI__CONSOLE__ROUTE__CONSOLE}/')
-        async def redirect_to_latest():
+        def redirect_to_latest():
             return RedirectResponse(url=path_latest_version)
 
         self.add_route_get(redirect_to_latest)

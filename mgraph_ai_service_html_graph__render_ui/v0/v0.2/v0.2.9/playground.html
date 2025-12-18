@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <!-- ═══════════════════════════════════════════════════════════════════════════════
      MGraph HTML Graph - Render UI - Playground
-     v0.2.6 - Keyboard Shortcuts Support
+     v0.2.9 - Tree and Tree Text Engines
 
-     Surgical override version - links back to v0.2.0 → v0.2.3 → v0.2.4 → v0.2.5 → v0.2.6
+     Surgical override version - links back to v0.2.0 → v0.2.3 → v0.2.4 → v0.2.5 → v0.2.6 → v0.2.8 → v0.2.9
 
-     Changes in v0.2.6:
-     - keyboard-shortcuts.js: Event-driven keyboard shortcuts manager
-     - keyboard-shortcuts.json: Configurable shortcuts definition
-     - playground.js: Shortcut event bindings, cycling, toast notifications
+     Changes in v0.2.9:
+     - tree-renderer.js: Collapsible JSON tree view component
+     - tree-text-renderer.js: Syntax-highlighted text view component
+     - api-client.js: htmlToTree(), htmlToTreeText() methods
+     - playground.js: Tree engine routing and renderer management
      ═══════════════════════════════════════════════════════════════════════════════ -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Graph Playground v0.2.8</title>
+    <title>HTML Graph Playground v0.2.9</title>
 
-    <!-- Styles: v0.2.0 base → v0.2.4 maximize → v0.2.5 transformation -->
+    <!-- Styles: v0.2.0 base → v0.2.4 maximize → v0.2.5 transformation → v0.2.9 tree -->
     <link rel="stylesheet" href="../v0.2.0/css/common.css">
     <link rel="stylesheet" href="../v0.2.0/css/playground.css">
     <link rel="stylesheet" href="../v0.2.4/css/maximize.css">
     <link rel="stylesheet" href="../v0.2.5/css/transformation.css">
+    <link rel="stylesheet" href="../v0.2.9/css/tree-renderers.css">
 </head>
 <body>
     <div class="playground">
@@ -53,11 +55,12 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════════════════
-         API Client: v0.2.0 base → v0.2.3 native formats → v0.2.5 transformations
+         API Client: v0.2.0 base → v0.2.3 native formats → v0.2.5 transformations → v0.2.9 tree
          ═══════════════════════════════════════════════════════════════════════════ -->
     <script src="../v0.2.0/js/services/api-client.js"></script>
     <script src="../v0.2.3/js/services/api-client.js"></script>
     <script src="../v0.2.5/js/services/api-client.js"></script>
+    <script src="../v0.2.9/js/services/api-client.js"></script>
 
     <!-- ═══════════════════════════════════════════════════════════════════════════
          Components (from v0.2.0 base - unchanged)
@@ -66,12 +69,11 @@
     <script src="../v0.2.0/components/html-input/html-input.js"></script>
     <script src="../v0.2.0/components/config-panel/config-panel.js"></script>
     <script src="../v0.2.0/components/stats-panel/stats-panel.js"></script>
-    <script src="../v0.2.0/components/graph-canvas/graph-canvas.js"></script>
     <script src="../v0.2.0/components/url-input/url-input.js"></script>
     <script src="../v0.2.0/components/stats-toolbar/stats-toolbar.js"></script>
 
     <!-- ═══════════════════════════════════════════════════════════════════════════
-         Renderers: v0.2.0 base → v0.2.3 native format overrides
+         Renderers: v0.2.0 base → v0.2.3 native format overrides → v0.2.8 d3 fix → v0.2.9 tree
          ═══════════════════════════════════════════════════════════════════════════ -->
     <script src="../v0.2.0/components/dot-renderer/dot-renderer.js"></script>
 
@@ -88,19 +90,28 @@
     <script src="../v0.2.0/components/mermaid-renderer/mermaid-renderer.js"></script>
     <script src="../v0.2.3/components/mermaid-renderer/mermaid-renderer.js"></script>
 
+    <!-- Graph Canvas: v0.2.9 tree renderers -->
+    <script src="../v0.2.0/components/graph-canvas/graph-canvas.js"></script>
+    <script src="../v0.2.9/components/graph-canvas/graph-canvas.js"></script>
+
+    <!-- Tree Renderers: v0.2.9 (NEW) -->
+    <script src="../v0.2.9/components/tree-renderer/tree-renderer.js"></script>
+    <script src="../v0.2.9/components/tree-text-renderer/tree-text-renderer.js"></script>
+
     <!-- ═══════════════════════════════════════════════════════════════════════════
-         Keyboard Shortcuts: v0.2.6 (NEW)
+         Keyboard Shortcuts: v0.2.6
          ═══════════════════════════════════════════════════════════════════════════ -->
     <script src="../v0.2.6/js/keyboard-shortcuts.js"></script>
 
     <!-- ═══════════════════════════════════════════════════════════════════════════
-         Playground: v0.2.0 base → v0.2.3 routing → v0.2.4 maximize → v0.2.5 transforms → v0.2.6 shortcuts
+         Playground: v0.2.0 base → v0.2.3 routing → v0.2.4 maximize → v0.2.5 transforms → v0.2.6 shortcuts → v0.2.9 tree
          ═══════════════════════════════════════════════════════════════════════════ -->
     <script src="../v0.2.0/js/playground.js"></script>
     <script src="../v0.2.3/js/playground.js"></script>
     <script src="../v0.2.4/js/playground.js"></script>
     <script src="../v0.2.5/js/playground.js"></script>
     <script src="../v0.2.6/js/playground.js"></script>
+    <script src="../v0.2.9/js/playground.js"></script>
 
     <!-- Invisible renderer components -->
     <dot-renderer></dot-renderer>
@@ -108,5 +119,7 @@
     <d3-renderer></d3-renderer>
     <cytoscape-renderer></cytoscape-renderer>
     <mermaid-renderer></mermaid-renderer>
+    <tree-renderer></tree-renderer>
+    <tree-text-renderer></tree-text-renderer>
 </body>
 </html>
