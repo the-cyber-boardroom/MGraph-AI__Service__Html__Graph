@@ -1,6 +1,9 @@
 #!/bin/bash
 PORT=10020
 
+export PYTHONPATH="$(pwd)/modules/MGraph-DB:$(pwd)/modules/OSBot-Utils:${PYTHONPATH}"
+
+
 # Load environment variables from .env file if it exists
 if [ -f .local-server.env ]; then
     echo "Loading environment variables from .local-server.env file..."

@@ -1,4 +1,4 @@
-from typing                                                                                 import Dict, List, Any
+from typing                                                                                      import Dict, List, Any
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base import Graph_Transformation__Base
 
 INLINE_TAGS = {'a', 'abbr', 'acronym', 'b', 'bdo', 'big', 'br', 'button', 'cite', 'code',

@@ -1,0 +1,17 @@
+/* Fix maximize mode - ensure canvas takes full height */
+.playground.maximized graph-canvas {
+    height: 100%;
+    display: block;
+}
+
+.playground.maximized .graph-canvas-container {
+    height: 95%;
+    display: flex;
+    flex-direction: column;
+}
+
+.playground.maximized .canvas-area {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;  /* Critical for flex children to allow shrinking */
+}

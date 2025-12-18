@@ -12,12 +12,16 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe          import t
 
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__Path import Html_MGraph__Path
 
+class Schema__Config__Html_Dict__To__Html_MGraph(Type_Safe):
+    add_tag_nodes       : bool = True
+    add_attribute_nodes : bool = True
 
 class Html_Dict__To__Html_MGraph(Type_Safe):                                    # Convert Html__Dict (from OSBot-Utils) to Html_MGraph
-    mgraph      : MGraph            = None                                      # The MGraph being built
-    path_utils  : Html_MGraph__Path = None                                      # Path computation utilities
-    tag_cache   : Dict[str, str]    = None                                      # Cache for tag value nodes (tag_name -> node_id)
-    root_id     : Node_Id           = None
+    config      : Schema__Config__Html_Dict__To__Html_MGraph  = None
+    mgraph      : MGraph                                      = None            # The MGraph being built
+    path_utils  : Html_MGraph__Path                           = None            # Path computation utilities
+    tag_cache   : Dict[str, str]                              = None            # Cache for tag value nodes (tag_name -> node_id)
+    root_id     : Node_Id                                     = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -25,6 +29,8 @@ class Html_Dict__To__Html_MGraph(Type_Safe):                                    
             self.path_utils = Html_MGraph__Path()
         if self.tag_cache is None:
             self.tag_cache = {}
+        if self.config is None:
+            self.config = Schema__Config__Html_Dict__To__Html_MGraph()
 
     def convert(self, html_dict: Dict[str, Any]) -> MGraph:                     # Convert Html__Dict to Html_MGraph
         self.mgraph    = MGraph()                                               # Initialize fresh graph and cache
@@ -54,18 +60,15 @@ class Html_Dict__To__Html_MGraph(Type_Safe):                                    
                                                       node_path = Node_Path(element_path)  )
         element_node_id = element_node.node_id
 
-        # todo: a) see the value of this extra 'tag' node (which at the moment is a unique node)
-        #       b) see if we can't get the same with an edge
-        #       c) find a good way to filter these nodes out from the rendered view
-        # todo: add option to disable this
-        tag_node_id = self.get_or_create_tag_node(tag)                                      # Link to tag value node
-        self.new_edge_with_predicate(from_node_id = element_node_id,
-                                     to_node_id   = tag_node_id    ,
-                                     predicate    = 'tag'          )
+        if self.config.add_tag_nodes:
+            tag_node_id = self.get_or_create_tag_node(tag)                                      # Link to tag value node
+            self.new_edge_with_predicate(from_node_id = element_node_id,
+                                         to_node_id   = tag_node_id    ,
+                                         predicate    = 'tag'          )
 
-        # # todo: add option to disable this
-        for attr_name, attr_value in attrs.items():                             # Process attributes
-            self.add_attribute(element_node_id, attr_name, attr_value)
+        if self.config.add_attribute_nodes:
+            for attr_name, attr_value in attrs.items():                             # Process attributes
+                self.add_attribute(element_node_id, attr_name, attr_value)
 
         child_nodes          = html_dict.get('child_nodes', [])                 # Process children (elements and text) in order
         text_nodes           = html_dict.get('text_nodes' , [])

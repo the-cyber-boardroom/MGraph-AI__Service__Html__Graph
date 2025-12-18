@@ -46,7 +46,8 @@ class DotRenderer extends HTMLElement {
 
                 // Load viz-js from CDN
                 const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/@viz-js/viz@3.2.4/lib/viz-standalone.js';
+                script.src = 'https://cdn.jsdelivr.net/npm/@viz-js/viz/lib/viz-standalone.js';
+
                 script.async = true;
 
                 script.onload = async () => {

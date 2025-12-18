@@ -5,15 +5,15 @@ from osbot_fast_api_serverless.fast_api.Serverless__Fast_API        import Serve
 from osbot_fast_api_serverless.fast_api.routes.Routes__Info         import Routes__Info
 from starlette.responses                                            import RedirectResponse
 from starlette.staticfiles                                          import StaticFiles
-from mgraph_ai_service_html_graph.config import FAST_API__TITLE, FAST_API__DESCRIPTION, UI__CONSOLE__ROUTE__CONSOLE, UI__CONSOLE__MAJOR__VERSION, UI__CONSOLE__LATEST__VERSION, \
-    UI__CONSOLE__ROUTE__START_PAGE
+from mgraph_ai_service_html_graph.config                            import FAST_API__TITLE, FAST_API__DESCRIPTION, UI__CONSOLE__ROUTE__CONSOLE, UI__CONSOLE__MAJOR__VERSION, UI__CONSOLE__LATEST__VERSION, UI__CONSOLE__ROUTE__START_PAGE
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph     import Routes__Graph
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Html      import Routes__Html
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__PlantUML  import Routes__PlantUML
 from mgraph_ai_service_html_graph.utils.Version                     import version__mgraph_ai_service_html_graph
 
 
-ROUTES_PATHS__CONSOLE        = [f'/{UI__CONSOLE__ROUTE__CONSOLE}']
+ROUTES_PATHS__CONSOLE        = [f'/{UI__CONSOLE__ROUTE__CONSOLE}',
+                                '/events/server']
 
 class Html_Graph__Service__Fast_API(Serverless__Fast_API):
 
@@ -30,6 +30,8 @@ class Html_Graph__Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__PlantUML    )
         self.add_routes(Routes__Info        )
         self.add_routes(Routes__Set_Cookie  )
+
+        self.add_event_stream()
 
 
 
@@ -53,3 +55,24 @@ class Html_Graph__Service__Fast_API(Serverless__Fast_API):
             return RedirectResponse(url=path_latest_version)
 
         self.add_route_get(redirect_to_latest)
+
+    def add_event_stream(self):
+        from fastapi.responses import StreamingResponse
+        import asyncio
+        import time
+
+        SERVER_START_TIME = time.time()
+
+        async def server_events():
+            async def event_stream():
+                # Send startup time immediately
+                yield f"data: {SERVER_START_TIME}\n\n"
+                # Keep-alive heartbeat
+                while True:
+                    #await asyncio.sleep(30)
+                    await asyncio.sleep(1)
+                    yield f": heartbeat\n\n"
+
+            return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+        self.app().add_api_route("/events/server", server_events, methods=["GET"])
