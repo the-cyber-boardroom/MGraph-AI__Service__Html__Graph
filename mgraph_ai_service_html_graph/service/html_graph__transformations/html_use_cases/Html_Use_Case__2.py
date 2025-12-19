@@ -36,43 +36,151 @@ class Html_Use_Case__2(Graph_Transformation__Base):
     #     return html_mgraph
 
     def transform_mgraph(self, html_mgraph):
-        edit  = html_mgraph.mgraph.edit()
+        self.collapse_single_child_parents(html_mgraph)
+        self.merge_text_children(html_mgraph)
+        # self.clear_text_node_paths(html_mgraph)
+        return html_mgraph
+
+    # ---- Graph Traversal Utilities ----
+
+    def get_parent_node_id(self, html_mgraph, node_id):
         index = html_mgraph.mgraph.index()
+        incoming_edges = index.get_node_id_incoming_edges(node_id)
+        if incoming_edges:
+            edge_id = next(iter(incoming_edges))
+            from_node_id, _ = index.edges_to_nodes()[edge_id]
+            return from_node_id
+        return None
 
+    def get_incoming_edge_path(self, html_mgraph, node_id):
+        index = html_mgraph.mgraph.index()
+        incoming_edges = index.get_node_id_incoming_edges(node_id)
+        if incoming_edges:
+            edge_id = next(iter(incoming_edges))
+            edge = html_mgraph.mgraph.data().edge(edge_id)
+            return edge.edge_path
+        return None
+
+    def get_outgoing_edge_count(self, html_mgraph, node_id):
+        index = html_mgraph.mgraph.index()
+        outgoing_edges = index.get_node_id_outgoing_edges(node_id)
+        return len(outgoing_edges) if outgoing_edges else 0
+
+    def is_single_child_parent(self, html_mgraph, node_id):
+        return self.get_outgoing_edge_count(html_mgraph, node_id) == 1
+
+    # ---- Graph Modification Utilities ----
+
+    def create_edge_with_path(self, html_mgraph, from_node_id, to_node_id, edge_path):
+        edit = html_mgraph.mgraph.edit()
+        edit.new_edge(
+            from_node_id = from_node_id,
+            to_node_id   = to_node_id,
+            edge_path    = edge_path
+        )
+
+    def delete_nodes(self, html_mgraph, node_ids):
+        edit = html_mgraph.mgraph.edit()
+        for node_id in set(node_ids):
+            edit.delete_node(node_id)
+
+    # ---- Text Node Utilities ----
+
+    def clear_text_node_paths(self, html_mgraph):
+        for node in self.text_nodes(html_mgraph):
+            node.node_path = ''
+
+    # ---- Transform Operations ----
+
+    def collapse_single_child_parents(self, html_mgraph):
+        """Remove pass-through parent nodes that have only one child,
+           connecting grandparent directly to text node."""
         nodes_to_delete = []
-
 
         for node in self.text_nodes(html_mgraph):
             node_id              = node.node_id
             parent_node_id       = self.get_parent_node_id(html_mgraph, node_id)
             grand_parent_node_id = self.get_parent_node_id(html_mgraph, parent_node_id)
 
-            parent_outgoing_edges = index.get_node_id_outgoing_edges(parent_node_id)
-
-            if parent_outgoing_edges and len(parent_outgoing_edges) == 1:
-                # Get the edge_path from grandparent -> parent edge
-                parent_incoming_edges = index.get_node_id_incoming_edges(parent_node_id)
-                edge_path = None
-                if parent_incoming_edges:
-                    edge_id = next(iter(parent_incoming_edges))
-                    edge = html_mgraph.mgraph.data().edge(edge_id)
-                    edge_path = edge.edge_path
-
-                # Create shortcut with preserved edge_path
-                edit.new_edge(
-                    from_node_id = grand_parent_node_id,
-                    to_node_id   = node_id,
-                    edge_path    = edge_path
-                )
+            if self.is_single_child_parent(html_mgraph, parent_node_id):
+                edge_path = self.get_incoming_edge_path(html_mgraph, parent_node_id)
+                self.create_edge_with_path(html_mgraph, grand_parent_node_id, node_id, edge_path)
                 nodes_to_delete.append(parent_node_id)
 
-        for node_id in set(nodes_to_delete):
-            edit.delete_node(node_id)
+        self.delete_nodes(html_mgraph, nodes_to_delete)
 
+
+    # ---- New Utilities ----
+
+    def get_text_children_ordered(self, html_mgraph, parent_node_id):
+        """Get all text child nodes of a parent, sorted by edge_path."""
+        index = html_mgraph.mgraph.index()
+        outgoing_edges = index.get_node_id_outgoing_edges(parent_node_id)
+
+        if not outgoing_edges:
+            return []
+
+        children = []
+        for edge_id in outgoing_edges:
+            edge = html_mgraph.mgraph.data().edge(edge_id)
+            _, to_node_id = index.edges_to_nodes()[edge_id]
+            node = html_mgraph.mgraph.data().node(to_node_id)
+
+            # Check if it's a text/value node
+            if hasattr(node, 'node_data') and hasattr(node.node_data, 'value'):
+                edge_path = edge.edge_path or '0'
+                children.append({
+                    'node_id'  : to_node_id,
+                    'node'     : node,
+                    'value'    : node.node_data.value,
+                    'edge_path': int(edge_path) if edge_path.isdigit() else 0
+                })
+
+        return sorted(children, key=lambda x: x['edge_path'])
+
+    def get_parent_nodes_with_text_children(self, html_mgraph):
+        """Find all non-text nodes that have text children."""
+        parent_ids = set()
         for node in self.text_nodes(html_mgraph):
-            node.node_path = ''
+            parent_id = self.get_parent_node_id(html_mgraph, node.node_id)
+            if parent_id:
+                parent_ids.add(parent_id)
+        return parent_ids
 
-        return html_mgraph
+    def create_merged_text_node(self, html_mgraph, parent_node_id, merged_value):
+        """Create a new text node with merged value and link to parent."""
+        edit = html_mgraph.mgraph.edit()
+        new_node = edit.new_value(merged_value)
+        edit.new_edge(
+            from_node_id = parent_node_id,
+            to_node_id   = new_node.node_id,
+            edge_path    = '0'
+        )
+        return new_node
+
+    # ---- Transform Operation ----
+
+    def merge_text_children(self, html_mgraph):
+        """Merge all text children of each parent into a single concatenated text node."""
+        parent_ids = self.get_parent_nodes_with_text_children(html_mgraph)
+
+        for parent_id in parent_ids:
+            children = self.get_text_children_ordered(html_mgraph, parent_id)
+
+            if len(children) <= 1:
+                continue  # Nothing to merge
+
+            # Concatenate values in order
+            merged_value = ''.join(child['value'] for child in children)
+
+            # Collect node IDs to delete
+            nodes_to_delete = [child['node_id'] for child in children]
+
+            # Delete old text nodes
+            self.delete_nodes(html_mgraph, nodes_to_delete)
+
+            # Create new merged node
+            self.create_merged_text_node(html_mgraph, parent_id, merged_value)
 
 
 

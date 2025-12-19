@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Render UI - Playground
+     v0.2.10 - Server Reload Detector
+
+     Surgical override version - links back to v0.2.0 → ... → v0.2.9 → v0.2.10
+
+     Changes in v0.2.10:
+     - server-reload-detector.js: SSE-based server restart detection
+     - playground.js: Toggle integration
+     - server-reload.css: Toggle and toast styles
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Playground v0.2.10</title>
+
+    <!-- Styles: v0.2.0 base → v0.2.4 maximize → v0.2.5 transformation → v0.2.9 tree → v0.2.10 server-reload -->
+    <link rel="stylesheet" href="../v0.2.0/css/common.css">
+    <link rel="stylesheet" href="../v0.2.0/css/playground.css">
+    <link rel="stylesheet" href="../v0.2.4/css/maximize.css">
+    <link rel="stylesheet" href="../v0.2.5/css/transformation.css">
+    <link rel="stylesheet" href="../v0.2.9/css/tree-renderers.css">
+    <link rel="stylesheet" href="../v0.2.10/css/server-reload.css">
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation -->
+        <top-nav></top-nav>
+
+        <!-- Main Content -->
+        <main class="playground-main">
+            <!-- Left Panel: Input & Config -->
+            <aside class="left-panel">
+                <url-input></url-input>
+                <html-input></html-input>
+                <config-panel></config-panel>
+            </aside>
+
+            <!-- Right Panel: Graph Canvas -->
+            <section class="right-panel">
+                <stats-toolbar></stats-toolbar>
+                <graph-canvas></graph-canvas>
+            </section>
+        </main>
+    </div>
+
+    <!-- API Client chain -->
+    <script src="../v0.2.0/js/services/api-client.js"></script>
+    <script src="../v0.2.3/js/services/api-client.js"></script>
+    <script src="../v0.2.5/js/services/api-client.js"></script>
+    <script src="../v0.2.9/js/services/api-client.js"></script>
+
+    <!-- Components (v0.2.0 base) -->
+    <script src="../v0.2.0/components/top-nav/top-nav.js"></script>
+    <script src="../v0.2.0/components/html-input/html-input.js"></script>
+    <script src="../v0.2.0/components/config-panel/config-panel.js"></script>
+    <script src="../v0.2.0/components/stats-panel/stats-panel.js"></script>
+    <script src="../v0.2.0/components/graph-canvas/graph-canvas.js"></script>
+    <script src="../v0.2.0/components/url-input/url-input.js"></script>
+    <script src="../v0.2.0/components/stats-toolbar/stats-toolbar.js"></script>
+
+    <!-- Renderers chain -->
+    <script src="../v0.2.0/components/dot-renderer/dot-renderer.js"></script>
+    <script src="../v0.2.0/components/vis-renderer/vis-renderer.js"></script>
+    <script src="../v0.2.3/components/vis-renderer/vis-renderer.js"></script>
+    <script src="../v0.2.0/components/d3-renderer/d3-renderer.js"></script>
+    <script src="../v0.2.3/components/d3-renderer/d3-renderer.js"></script>
+    <script src="../v0.2.8/components/d3-renderer/d3-renderer.js"></script>
+    <script src="../v0.2.0/components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    <script src="../v0.2.3/components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    <script src="../v0.2.0/components/mermaid-renderer/mermaid-renderer.js"></script>
+    <script src="../v0.2.3/components/mermaid-renderer/mermaid-renderer.js"></script>
+
+    <!-- Tree Renderers (v0.2.9) -->
+    <script src="../v0.2.9/components/tree-renderer/tree-renderer.js"></script>
+    <script src="../v0.2.9/components/tree-text-renderer/tree-text-renderer.js"></script>
+
+    <!-- Graph Canvas patches -->
+    <script src="../v0.2.9/components/graph-canvas/graph-canvas.js"></script>
+
+    <!-- Keyboard Shortcuts (v0.2.6) -->
+    <script src="../v0.2.6/js/keyboard-shortcuts.js"></script>
+
+    <!-- Server Reload Detector (v0.2.10) - NEW -->
+    <script src="../v0.2.10/js/server-reload-detector.js"></script>
+
+    <!-- Copy Graph to Clipboard (v0.2.10) - NEW -->
+    <script src="../v0.2.10/components/graph-canvas/graph-canvas.js"></script>
+
+    <!-- Playground chain -->
+    <script src="../v0.2.0/js/playground.js"></script>
+    <script src="../v0.2.3/js/playground.js"></script>
+    <script src="../v0.2.4/js/playground.js"></script>
+    <script src="../v0.2.5/js/playground.js"></script>
+    <script src="../v0.2.6/js/playground.js"></script>
+    <script src="../v0.2.9/js/playground.js"></script>
+    <script src="../v0.2.10/js/playground.js"></script>
+
+    <!-- Invisible renderer components -->
+    <dot-renderer></dot-renderer>
+    <vis-renderer></vis-renderer>
+    <d3-renderer></d3-renderer>
+    <cytoscape-renderer></cytoscape-renderer>
+    <mermaid-renderer></mermaid-renderer>
+    <tree-renderer></tree-renderer>
+    <tree-text-renderer></tree-text-renderer>
+    <hr/>
+    <a href="http://localhost:10020/auth/set-cookie-form">Set cookie form</a>
+<a href="http://localhost:10020/console/v0/v0.2/v0.2.10/playground.html">local dev</a>
+</body>
+</html>

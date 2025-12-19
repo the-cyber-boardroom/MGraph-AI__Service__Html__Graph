@@ -65,12 +65,11 @@ class Html_Graph__Service__Fast_API(Serverless__Fast_API):
 
         async def server_events():
             async def event_stream():
-                # Send startup time immediately
-                yield f"data: {SERVER_START_TIME}\n\n"
-                # Keep-alive heartbeat
-                while True:
-                    #await asyncio.sleep(30)
-                    await asyncio.sleep(1)
+                yield f"data: {SERVER_START_TIME}\n\n"      # Send startup time immediately
+
+                while True:                                 # Keep-alive heartbeat
+                    await asyncio.sleep(30)
+                    #await asyncio.sleep(1)
                     yield f": heartbeat\n\n"
 
             return StreamingResponse(event_stream(), media_type="text/event-stream")

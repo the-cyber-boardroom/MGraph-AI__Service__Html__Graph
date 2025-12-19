@@ -32,7 +32,6 @@ class Html_Use_Case__Dot_Export(Type_Safe):
 
     def dot_string__use_case_2(self):
         with self.mgraph().export().export_dot() as _:
-
             #self.apply__config__use_case_1(_)
             self.apply__config__use_case_2(_)
             return _.process_graph()
@@ -43,6 +42,7 @@ class Html_Use_Case__Dot_Export(Type_Safe):
                       .show_node__path            ()
                       .show_edge__path__str       ()
                       .set_graph__rank_dir__lr    ()
+
                       .set_node__shape__type__box ()
                       .set_node__shape__rounded   ()
                       .set_value_type_fill_color  (str , '#B3D1F8')
@@ -58,9 +58,11 @@ class Html_Use_Case__Dot_Export(Type_Safe):
                       #.show_node__id  ()
                       .set_node__font__size(20)
                       .show_edge__path__str()
+                      .set_graph__splines__polyline()
+                      #.set_graph__splines__ortho()
                       #.show_edge__predicate ()
-                      #.set_graph__rank_dir__tb  ()
-                      .set_graph__rank_dir__lr  ()
+                      .set_graph__rank_dir__tb  ()
+                      #.set_graph__rank_dir__bt()
 
                       .set_node__shape__type__box ()
                       .set_node__shape__rounded   ()

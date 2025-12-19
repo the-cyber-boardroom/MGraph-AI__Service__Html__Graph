@@ -16,4 +16,5 @@ fi
 
 poetry run uvicorn mgraph_ai_service_html_graph.fast_api.lambda_handler:app --reload --host 0.0.0.0 --port $PORT \
     --log-level info \
-    --no-access-log
+    --no-access-log  \
+    --timeout-graceful-shutdown 0
