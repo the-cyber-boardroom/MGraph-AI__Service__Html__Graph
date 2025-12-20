@@ -1,0 +1,64 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Stats Toolbar Template
+   v0.2.1 - Extracted from inline render()
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="stats-toolbar">
+    <div class="stats-toolbar-row">
+        <button id="render-btn" class="btn btn-primary">
+            🔄 Render Graph
+        </button>
+        <div class="stats-group">
+            <div class="badge highlight">
+                <span class="badge-label">Nodes:</span>
+                <span class="badge-value" id="stat-nodes">0</span>
+            </div>
+            <div class="badge highlight">
+                <span class="badge-label">Edges:</span>
+                <span class="badge-value" id="stat-edges">0</span>
+            </div>
+            <div class="badge">
+                <span class="badge-label">Elements:</span>
+                <span class="badge-value" id="stat-elements">0</span>
+            </div>
+            <div class="badge">
+                <span class="badge-label">Attrs:</span>
+                <span class="badge-value" id="stat-attrs">0</span>
+            </div>
+            <div class="badge">
+                <span class="badge-label">Text:</span>
+                <span class="badge-value" id="stat-text">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats-toolbar-row">
+        <div class="timing-group">
+            <div class="timing-item">
+                <span>📡 API:</span>
+                <span class="timing-value" id="timing-api">-</span>
+            </div>
+            <div class="timing-item">
+                <span>⚙️ Server:</span>
+                <span class="timing-value" id="timing-server">-</span>
+            </div>
+            <div class="timing-item">
+                <span>🎨 Render:</span>
+                <span class="timing-value" id="timing-render">-</span>
+            </div>
+            <div class="timing-item">
+                <span>📦 DOT:</span>
+                <span class="timing-value" id="timing-dot-size">-</span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="error-banner" class="error-banner">
+        <span class="error-icon">⚠️</span>
+        <div class="error-content">
+            <div class="error-title" id="error-title">Error</div>
+            <div class="error-detail" id="error-detail"></div>
+            <div class="error-hint" id="error-hint"></div>
+        </div>
+    </div>
+</div>

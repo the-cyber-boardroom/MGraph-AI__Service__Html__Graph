@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Playground v0.2.1</title>
+
+    <!-- Global styles (link back to v0.2.0) -->
+    <link rel="stylesheet" href="../v0.2.0/css/common.css">
+    <link rel="stylesheet" href="../v0.2.0/css/playground.css">
+    
+    <style>
+        /* v0.2.1 additions for Shadow DOM component spacing */
+        stats-toolbar,
+        url-input {
+            display: block;
+            margin-bottom: var(--spacing-md, 20px);
+        }
+        
+        .version-badge {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation (link back to v0.2.0) -->
+        <top-nav></top-nav>
+        
+        <main class="playground-main">
+            <div class="left-panel">
+                <!-- URL Input (v0.2.1 - Shadow DOM) -->
+                <url-input></url-input>
+                
+                <!-- HTML Input (link back to v0.2.0) -->
+                <html-input></html-input>
+                
+                <!-- Config Panel (link back to v0.2.0) -->
+                <config-panel></config-panel>
+            </div>
+            
+            <div class="right-panel">
+                <!-- Stats Toolbar (v0.2.1 - Shadow DOM) -->
+                <stats-toolbar></stats-toolbar>
+                
+                <!-- Graph Canvas (link back to v0.2.0) -->
+                <graph-canvas></graph-canvas>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden renderers (link back to v0.2.0) -->
+    <dot-renderer style="display: none;"></dot-renderer>
+    <vis-renderer style="display: none;"></vis-renderer>
+    <d3-renderer style="display: none;"></d3-renderer>
+    <cytoscape-renderer style="display: none;"></cytoscape-renderer>
+    <mermaid-renderer style="display: none;"></mermaid-renderer>
+
+    <!-- Version badge -->
+    <div class="version-badge">v0.2.1 (Phase 1)</div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         Script Loading Order (Critical)
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- 1. v0.2.1 Foundation -->
+    <script src="./js/utils/helpers.js"></script>
+    <script src="./config/component-paths.js"></script>
+    <script src="./components/_base/base-component.js"></script>
+    
+    <!-- 2. Services (link back to v0.2.0) -->
+    <script src="../v0.2.0/js/services/api-client.js"></script>
+    
+    <!-- 3. v0.2.0 UI Components (not yet refactored) -->
+    <script src="../v0.2.0/components/top-nav/top-nav.js"></script>
+    <script src="../v0.2.0/components/html-input/html-input.js"></script>
+    <script src="../v0.2.0/components/config-panel/config-panel.js"></script>
+    <script src="../v0.2.0/components/graph-canvas/graph-canvas.js"></script>
+    
+    <!-- 4. v0.2.1 Refactored Components (Shadow DOM) -->
+    <script src="./components/stats-toolbar/stats-toolbar.js"></script>
+    <script src="./components/url-input/url-input.js"></script>
+    
+    <!-- 5. v0.2.0 Renderer Components -->
+    <script src="../v0.2.0/components/dot-renderer/dot-renderer.js"></script>
+    <script src="../v0.2.0/components/vis-renderer/vis-renderer.js"></script>
+    <script src="../v0.2.0/components/d3-renderer/d3-renderer.js"></script>
+    <script src="../v0.2.0/components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    <script src="../v0.2.0/components/mermaid-renderer/mermaid-renderer.js"></script>
+    
+    <!-- 6. Page Orchestrator (link back to v0.2.0 for now) -->
+    <script src="../v0.2.0/js/playground.js"></script>
+
+</body>
+</html>

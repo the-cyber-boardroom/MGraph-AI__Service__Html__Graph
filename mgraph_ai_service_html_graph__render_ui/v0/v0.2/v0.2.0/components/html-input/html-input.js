@@ -7,11 +7,12 @@ class HtmlInput extends HTMLElement {
     constructor() {
         super();
         this.samples = [
-            { name: 'simple', label: 'Simple' },
-            { name: 'nested', label: 'Nested Structure' },
-            { name: 'attributes', label: 'With Attributes' },
-            { name: 'mixed-content', label: 'Mixed Content' },
-            { name: 'bootstrap', label: 'Bootstrap Layout' }
+            { name: 'simple'        , label: 'Simple' },
+            { name: 'split-texts'   , label: 'Split Texts' },
+            { name: 'nested'        , label: 'Nested Structure' },
+            { name: 'attributes'    , label: 'With Attributes' },
+            { name: 'mixed-content' , label: 'Mixed Content' },
+            { name: 'bootstrap'     , label: 'Bootstrap Layout' }
         ];
         this.textarea = null;
         this.sampleSelect = null;
@@ -20,7 +21,8 @@ class HtmlInput extends HTMLElement {
     connectedCallback() {
         this.render();
         this.setupEventListeners();
-        this.loadSample('simple'); // Load default sample
+        //this.loadSample('simple'); // Load default sample
+        this.loadSample('split-texts'); // Load default sample
     }
 
     render() {

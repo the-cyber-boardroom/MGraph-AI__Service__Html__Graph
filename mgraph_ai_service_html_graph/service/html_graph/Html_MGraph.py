@@ -1,15 +1,18 @@
 from typing                                                                     import Dict, Any, List, Optional
+from osbot_utils.testing.__helpers                                              import obj
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__To__Html_Dict import Html_MGraph__To__Html_Dict
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from mgraph_db.mgraph.MGraph                                                    import MGraph
-from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__To__Html_MGraph import Html_Dict__To__Html_MGraph
+from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__To__Html_MGraph import Html_Dict__To__Html_MGraph, Schema__Config__Html_Dict__To__Html_MGraph
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__Path          import Html_MGraph__Path
 
 
 class Html_MGraph(Type_Safe):                                                   # Main interface for HTML Graph operations
     mgraph     : MGraph            = None                                       # The underlying MGraph
     path_utils : Html_MGraph__Path = None                                       # Path computation utilities
+    root_id    : Node_Id           = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -17,15 +20,29 @@ class Html_MGraph(Type_Safe):                                                   
             self.path_utils = Html_MGraph__Path()
 
     @classmethod
-    def from_html_dict(cls, html_dict: Dict[str, Any]) -> 'Html_MGraph':        # Create Html_MGraph from Html__Dict
-        converter = Html_Dict__To__Html_MGraph()
+    def from_html_dict(cls,                                                                             # Create Html_MGraph from Html__Dict
+                       html_dict: Dict[str, Any],
+                       config: Schema__Config__Html_Dict__To__Html_MGraph=None
+                 ) -> 'Html_MGraph':
+        converter = Html_Dict__To__Html_MGraph(config=config)
         mgraph    = converter.convert(html_dict)
-        return cls(mgraph=mgraph)
+        return cls(mgraph=mgraph, root_id=converter.root_id)
 
-    def to_html_dict(self) -> Dict[str, Any]:                                   # Convert back to Html__Dict
+    # todo: implement this via: Html_MGraph__To__Html
+    # def to__html(self) -> Safe_Str__Html:
+    #     html_dict = self.to__html_dict()
+    #     html      = Html_Dict__To__Html(root=html_dict).convert()
+    #     return html
+
+    def to__html_dict(self) -> Dict[str, Any]:                                   # Convert back to Html__Dict
         converter = Html_MGraph__To__Html_Dict()
         return converter.convert(self.mgraph)
 
+    def to__json(self):
+        return self.mgraph.export().to__json()
+
+    def to__obj(self):
+        return obj(self.to__json())
     # ═══════════════════════════════════════════════════════════════════════════════
     # Query Methods
     # ═══════════════════════════════════════════════════════════════════════════════

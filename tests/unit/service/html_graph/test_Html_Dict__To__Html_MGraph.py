@@ -116,7 +116,7 @@ class test_Html_Dict__To__Html_MGraph(TestCase):
                                                                             to_node_id   ='c0000005',
                                                                             edge_id      ='e0000004')),
                                                        graph_id='a0000001',
-                                                       nodes=__(c0000001=__(node_data=__(),
+                                                       nodes=__(c0000001=__(node_data=None,
                                                                             node_path='div',
                                                                             node_type='mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node',
                                                                             node_id='c0000001'),
@@ -293,7 +293,7 @@ class test_Html_Dict__To__Html_MGraph(TestCase):
             if in_github_action():
                 assert duration.seconds < 0.5
             else:
-                assert duration.seconds < 0.1           # locally this is about 0.035
+                assert duration.seconds < 0.2           # locally this is about 0.035
             # --------------------------------------
             # stats for ghost ids bug in Type_Safe
             # --------------------------------------

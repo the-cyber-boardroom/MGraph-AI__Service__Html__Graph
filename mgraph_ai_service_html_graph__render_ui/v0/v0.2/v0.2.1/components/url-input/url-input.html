@@ -1,0 +1,35 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - URL Input Template
+   v0.2.1 - Extracted from inline render()
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="card">
+    <div class="panel-header">
+        <span class="panel-title">
+            <span class="panel-title-icon">🌐</span>
+            Fetch from URL
+        </span>
+    </div>
+    <div class="url-input-container">
+        <div class="url-input-row">
+            <input 
+                type="url" 
+                id="url-input" 
+                class="form-control url-input-field" 
+                placeholder="https://example.com"
+                autocomplete="url"
+                value="https://example.com"
+            >
+            <button id="url-fetch-btn" class="btn btn-fetch">
+                🔗 Fetch
+            </button>
+        </div>
+        <div id="url-status" class="url-status"></div>
+        <div class="url-examples">
+            <span class="url-examples-label">Try:</span>
+            <button class="url-example-btn" data-url="https://example.com">example.com</button>
+            <button class="url-example-btn" data-url="https://www.akeia.ai">akeia.ai</button>
+            <button class="url-example-btn" data-url="https://docs.diniscruz.ai/about.html">docs.diniscruz.ai</button>
+        </div>
+    </div>
+</div>

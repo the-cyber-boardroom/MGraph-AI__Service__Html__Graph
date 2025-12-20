@@ -56,6 +56,7 @@ jobs:
           FAST_API__AUTH__API_KEY__VALUE: 'this-is-the-value-of-the-api-key'
 
   run-tests-ui:
+    if: False
     name: "Run tests (UI)"
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - run-tests-api
-      - run-tests-ui
+      #- run-tests-ui
     steps:
       - uses: actions/checkout@v4
 

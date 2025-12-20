@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantUML Renderer Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 24px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .panel {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        .panel h2 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .controls {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        button {
+            padding: 8px 16px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0055aa;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status {
+            margin-left: auto;
+            font-size: 13px;
+            color: #666;
+        }
+        .status.ready {
+            color: #090;
+        }
+        .status.error {
+            color: #c00;
+        }
+        plantuml-renderer {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        .examples {
+            margin-top: 20px;
+        }
+        .examples h3 {
+            font-size: 14px;
+            margin: 0 0 8px 0;
+        }
+        .example-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .example-btn {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            color: #333;
+            font-size: 13px;
+        }
+        .example-btn:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1>PlantUML Renderer Test</h1>
+
+    <div class="container">
+        <div class="panel">
+            <h2>PlantUML Source</h2>
+            <textarea id="source">@startuml
+Alice -> Bob : Hello!
+Bob -> Alice : Hi there!
+Alice -> Bob : How are you?
+Bob -> Alice : I'm good, thanks!
+@enduml</textarea>
+
+            <div class="controls">
+                <button id="renderBtn" disabled>Render</button>
+                <select id="themeSelect">
+                    <option value="light">Light Theme</option>
+                    <option value="dark">Dark Theme</option>
+                </select>
+                <span id="status" class="status">Initializing...</span>
+            </div>
+
+            <div class="examples">
+                <h3>Example Diagrams:</h3>
+                <div class="example-buttons">
+                    <button class="example-btn" data-example="sequence">Sequence</button>
+                    <button class="example-btn" data-example="class">Class</button>
+                    <button class="example-btn" data-example="usecase">Use Case</button>
+                    <button class="example-btn" data-example="activity">Activity</button>
+                    <button class="example-btn" data-example="component">Component</button>
+                    <button class="example-btn" data-example="state">State</button>
+                    <button class="example-btn" data-example="mindmap">Mind Map</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Rendered Output</h2>
+            <plantuml-renderer id="renderer" jar-path="/app"></plantuml-renderer>
+        </div>
+    </div>
+
+    <script src="plantuml-renderer.js"></script>
+    <script>
+        const examples = {
+            sequence: `@startuml
+participant User
+participant "Web App" as App
+participant "API Server" as API
+database Database
+
+User -> App : Click button
+activate App
+App -> API : POST /api/action
+activate API
+API -> Database : INSERT data
+Database --> API : OK
+API --> App : 200 Success
+deactivate API
+App --> User : Show confirmation
+deactivate App
+@enduml`,
+
+            class: `@startuml
+class Animal {
+  +name: String
+  +age: int
+  +makeSound(): void
+}
+
+class Dog {
+  +breed: String
+  +bark(): void
+}
+
+class Cat {
+  +color: String
+  +meow(): void
+}
+
+Animal <|-- Dog
+Animal <|-- Cat
+@enduml`,
+
+            usecase: `@startuml
+left to right direction
+actor Customer
+actor Admin
+
+rectangle "Online Store" {
+  Customer --> (Browse Products)
+  Customer --> (Add to Cart)
+  Customer --> (Checkout)
+  (Checkout) --> (Process Payment)
+  Admin --> (Manage Products)
+  Admin --> (View Orders)
+}
+@enduml`,
+
+            activity: `@startuml
+start
+:Receive Order;
+if (In Stock?) then (yes)
+  :Pack Items;
+  :Ship Order;
+  :Send Confirmation;
+else (no)
+  :Notify Customer;
+  :Backorder;
+endif
+stop
+@enduml`,
+
+            component: `@startuml
+package "Frontend" {
+  [Web App]
+  [Mobile App]
+}
+
+package "Backend" {
+  [API Gateway]
+  [Auth Service]
+  [User Service]
+  [Order Service]
+}
+
+database "Database" {
+  [PostgreSQL]
+  [Redis]
+}
+
+[Web App] --> [API Gateway]
+[Mobile App] --> [API Gateway]
+[API Gateway] --> [Auth Service]
+[API Gateway] --> [User Service]
+[API Gateway] --> [Order Service]
+[User Service] --> [PostgreSQL]
+[Order Service] --> [PostgreSQL]
+[Auth Service] --> [Redis]
+@enduml`,
+
+            state: `@startuml
+[*] --> Idle
+
+Idle --> Processing : Start
+Processing --> Completed : Success
+Processing --> Failed : Error
+Failed --> Processing : Retry
+Completed --> [*]
+Failed --> [*] : Give up
+
+state Processing {
+  [*] --> Validating
+  Validating --> Executing
+  Executing --> [*]
+}
+@enduml`,
+
+            mindmap: `@startmindmap
+* Project
+** Planning
+*** Requirements
+*** Timeline
+*** Resources
+** Development
+*** Frontend
+*** Backend
+*** Testing
+** Deployment
+*** Staging
+*** Production
+** Maintenance
+*** Monitoring
+*** Updates
+@endmindmap`
+        };
+
+        // Elements
+        const renderer    = document.getElementById('renderer');
+        const source      = document.getElementById('source');
+        const renderBtn   = document.getElementById('renderBtn');
+        const themeSelect = document.getElementById('themeSelect');
+        const status      = document.getElementById('status');
+
+        // Event handlers
+        renderer.addEventListener('plantuml-ready', () => {
+            status.textContent = 'Ready';
+            status.className = 'status ready';
+            renderBtn.disabled = false;
+
+            // Auto-render initial content
+            render();
+        });
+
+        renderer.addEventListener('plantuml-rendered', (e) => {
+            status.textContent = 'Rendered successfully';
+            status.className = 'status ready';
+        });
+
+        renderer.addEventListener('plantuml-error', (e) => {
+            status.textContent = 'Error: ' + e.detail.error.message;
+            status.className = 'status error';
+        });
+
+        renderBtn.addEventListener('click', render);
+
+        themeSelect.addEventListener('change', () => {
+            renderer.setTheme(themeSelect.value);
+        });
+
+        // Example buttons
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const example = btn.dataset.example;
+                if (examples[example]) {
+                    source.value = examples[example];
+                    render();
+                }
+            });
+        });
+
+        // Render on Ctrl+Enter
+        source.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                render();
+            }
+        });
+
+        function render() {
+            renderer.setText(source.value);
+        }
+    </script>
+</body>
+</html>

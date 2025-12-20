@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Render UI - Playground
+     v0.2.6 - Keyboard Shortcuts Support
+
+     Surgical override version - links back to v0.2.0 → v0.2.3 → v0.2.4 → v0.2.5 → v0.2.6
+
+     Changes in v0.2.6:
+     - keyboard-shortcuts.js: Event-driven keyboard shortcuts manager
+     - keyboard-shortcuts.json: Configurable shortcuts definition
+     - playground.js: Shortcut event bindings, cycling, toast notifications
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Playground v0.2.8</title>
+
+    <!-- Styles: v0.2.0 base → v0.2.4 maximize → v0.2.5 transformation -->
+    <link rel="stylesheet" href="../v0.2.0/css/common.css">
+    <link rel="stylesheet" href="../v0.2.0/css/playground.css">
+    <link rel="stylesheet" href="../v0.2.4/css/maximize.css">
+    <link rel="stylesheet" href="../v0.2.5/css/transformation.css">
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation -->
+        <top-nav></top-nav>
+
+        <!-- Main Content -->
+        <main class="playground-main">
+            <!-- Left Panel: Input & Config -->
+            <aside class="left-panel">
+                <!-- URL Input -->
+                <url-input></url-input>
+
+                <!-- HTML Input -->
+                <html-input></html-input>
+
+                <!-- Configuration -->
+                <config-panel></config-panel>
+            </aside>
+
+            <!-- Right Panel: Graph Canvas -->
+            <section class="right-panel">
+                <!-- Stats Toolbar -->
+                <stats-toolbar></stats-toolbar>
+
+                <!-- Graph Canvas -->
+                <graph-canvas></graph-canvas>
+            </section>
+        </main>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         API Client: v0.2.0 base → v0.2.3 native formats → v0.2.5 transformations
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <script src="../v0.2.0/js/services/api-client.js"></script>
+    <script src="../v0.2.3/js/services/api-client.js"></script>
+    <script src="../v0.2.5/js/services/api-client.js"></script>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         Components (from v0.2.0 base - unchanged)
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <script src="../v0.2.0/components/top-nav/top-nav.js"></script>
+    <script src="../v0.2.0/components/html-input/html-input.js"></script>
+    <script src="../v0.2.0/components/config-panel/config-panel.js"></script>
+    <script src="../v0.2.0/components/stats-panel/stats-panel.js"></script>
+    <script src="../v0.2.0/components/graph-canvas/graph-canvas.js"></script>
+    <script src="../v0.2.0/components/url-input/url-input.js"></script>
+    <script src="../v0.2.0/components/stats-toolbar/stats-toolbar.js"></script>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         Renderers: v0.2.0 base → v0.2.3 native format overrides
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <script src="../v0.2.0/components/dot-renderer/dot-renderer.js"></script>
+
+    <script src="../v0.2.0/components/vis-renderer/vis-renderer.js"></script>
+    <script src="../v0.2.3/components/vis-renderer/vis-renderer.js"></script>
+
+    <script src="../v0.2.0/components/d3-renderer/d3-renderer.js"></script>
+    <script src="../v0.2.3/components/d3-renderer/d3-renderer.js"></script>
+    <script src="../v0.2.8/components/d3-renderer/d3-renderer.js"></script>
+
+    <script src="../v0.2.0/components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    <script src="../v0.2.3/components/cytoscape-renderer/cytoscape-renderer.js"></script>
+
+    <script src="../v0.2.0/components/mermaid-renderer/mermaid-renderer.js"></script>
+    <script src="../v0.2.3/components/mermaid-renderer/mermaid-renderer.js"></script>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         Keyboard Shortcuts: v0.2.6 (NEW)
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <script src="../v0.2.6/js/keyboard-shortcuts.js"></script>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         Playground: v0.2.0 base → v0.2.3 routing → v0.2.4 maximize → v0.2.5 transforms → v0.2.6 shortcuts
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <script src="../v0.2.0/js/playground.js"></script>
+    <script src="../v0.2.3/js/playground.js"></script>
+    <script src="../v0.2.4/js/playground.js"></script>
+    <script src="../v0.2.5/js/playground.js"></script>
+    <script src="../v0.2.6/js/playground.js"></script>
+
+    <!-- Invisible renderer components -->
+    <dot-renderer></dot-renderer>
+    <vis-renderer></vis-renderer>
+    <d3-renderer></d3-renderer>
+    <cytoscape-renderer></cytoscape-renderer>
+    <mermaid-renderer></mermaid-renderer>
+</body>
+</html>

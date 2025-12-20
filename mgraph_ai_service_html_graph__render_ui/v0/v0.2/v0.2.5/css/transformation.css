@@ -1,0 +1,73 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Transformation UI Styles
+   v0.2.5 - Styling for transformation mode controls
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Transformation dropdown styling (same as renderer dropdown) */
+.transformation-select {
+    background: #2d2d44;
+    border: 1px solid #444;
+    /*color: #e0e0e0;*/
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.transformation-select:hover {
+    border-color: #666;
+}
+
+.transformation-select:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+/* Refresh button styling */
+#max-refresh-transforms {
+    padding: 6px 8px;
+    font-size: 14px;
+}
+
+#max-refresh-transforms:hover {
+    background: #3d3d5c;
+}
+
+/* Transformation indicator in stats */
+.max-stats .transformation-badge {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+/* Compact toolbar layout for extra controls */
+.maximize-toolbar-left {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.maximize-toolbar-left::-webkit-scrollbar {
+    height: 4px;
+}
+
+.maximize-toolbar-left::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.maximize-toolbar-left::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 2px;
+}
+
+/* Label for transformation dropdown (optional) */
+.max-toolbar-label {
+    color: #888;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+}

@@ -1,0 +1,81 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Stats Toolbar Styles
+   v0.2.1 - Component-specific styles only
+   
+   Shared patterns (buttons, badges, error-banner) are in components-shared.css
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.stats-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.stats-toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.stats-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+/* Timing Group */
+.timing-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.8em;
+    color: var(--color-text-muted);
+}
+
+.timing-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.timing-value {
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+/* Error Banner Specifics */
+.error-content {
+    flex: 1;
+}
+
+.error-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.error-detail {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.error-hint {
+    margin-top: var(--spacing-xs);
+    font-size: 0.85em;
+    color: var(--color-text-secondary);
+}
+
+.error-hint code {
+    font-size: 0.85em;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 3px;
+    word-break: break-all;
+}
