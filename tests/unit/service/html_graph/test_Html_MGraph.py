@@ -52,7 +52,7 @@ class test_Html_MGraph(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════════
 
     def test_to_html_dict__returns_dict(self):                                  # Test to_html_dict returns dict
-        result = self.html_graph_simple.to_html_dict()
+        result = self.html_graph_simple.to__html_dict()
 
         assert type(result) is dict
         assert 'tag'        in result
@@ -61,12 +61,12 @@ class test_Html_MGraph(TestCase):
         assert 'text_nodes' in result
 
     def test_to_html_dict__preserves_tag(self):                                 # Test to_html_dict preserves tag
-        result = self.html_graph_simple.to_html_dict()
+        result = self.html_graph_simple.to__html_dict()
 
         assert result['tag'] == 'div'
 
     def test_to_html_dict__preserves_attrs(self):                               # Test to_html_dict preserves attributes
-        result = self.html_graph_simple.to_html_dict()
+        result = self.html_graph_simple.to__html_dict()
 
         assert result['attrs']['class'] == 'main'
         assert result['attrs']['id']    == 'content'

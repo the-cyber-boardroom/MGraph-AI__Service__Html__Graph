@@ -10,7 +10,7 @@ from osbot_utils.utils.Files                                                    
 from tests.qa.dev.test_QA__Dev__Consolidate_Nodes                                                               import HTML__USE_CASE_3
 
 
-class test_Html_Use_Case__2(TestCase):
+class test_Html_Use_Case__2__create_screenshot(TestCase):
     @classmethod
     def setUpClass(cls):                                                                            # One-time setup for all tests
         if not get_env("URL__MGRAPH_DB_SERVERLESS"):

@@ -1,7 +1,12 @@
-from typing                                                                                      import Dict, Any
+from typing import Dict, Any, List
 from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__To__Html_MGraph                  import Schema__Config__Html_Dict__To__Html_MGraph
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph                                 import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base import Graph_Transformation__Base
+from mgraph_db.mgraph.schemas.Schema__MGraph__Node import Schema__MGraph__Node
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id import Node_Id
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
 
 
 class Html_Use_Case__2(Graph_Transformation__Base):
@@ -43,14 +48,14 @@ class Html_Use_Case__2(Graph_Transformation__Base):
 
     # ---- Graph Traversal Utilities ----
 
-    def get_parent_node_id(self, html_mgraph, node_id):
-        index = html_mgraph.mgraph.index()
-        incoming_edges = index.get_node_id_incoming_edges(node_id)
-        if incoming_edges:
-            edge_id = next(iter(incoming_edges))
-            from_node_id, _ = index.edges_to_nodes()[edge_id]
-            return from_node_id
-        return None
+    # def get_parent_node_id(self, html_mgraph, node_id):
+    #     index = html_mgraph.mgraph.index()
+    #     incoming_edges = index.get_node_id_incoming_edges(node_id)
+    #     if incoming_edges:
+    #         edge_id = next(iter(incoming_edges))
+    #         from_node_id, _ = index.edges_to_nodes()[edge_id]
+    #         return from_node_id
+    #     return None
 
     def get_incoming_edge_path(self, html_mgraph, node_id):
         index = html_mgraph.mgraph.index()
@@ -145,16 +150,18 @@ class Html_Use_Case__2(Graph_Transformation__Base):
             parent_id = self.get_parent_node_id(html_mgraph, node.node_id)
             if parent_id:
                 parent_ids.add(parent_id)
-        return parent_ids
+        return sorted(parent_ids)
 
     def create_merged_text_node(self, html_mgraph, parent_node_id, merged_value):
         """Create a new text node with merged value and link to parent."""
         edit = html_mgraph.mgraph.edit()
-        new_node = edit.new_value(merged_value)
+        node_path = 'text'
+        edge_path = '0'
+        new_node = edit.new_value(merged_value, node_path=node_path)
         edit.new_edge(
             from_node_id = parent_node_id,
             to_node_id   = new_node.node_id,
-            edge_path    = '0'
+            edge_path    = edge_path
         )
         return new_node
 
@@ -172,6 +179,7 @@ class Html_Use_Case__2(Graph_Transformation__Base):
 
             # Concatenate values in order
             merged_value = ''.join(child['value'] for child in children)
+            merged_value  = merged_value.strip()                                     # todo: see if we should make this configurable (the trimming of the new text value)
 
             # Collect node IDs to delete
             nodes_to_delete = [child['node_id'] for child in children]
@@ -189,8 +197,13 @@ class Html_Use_Case__2(Graph_Transformation__Base):
     def nodes(self, html_mgraph):
         return html_mgraph.mgraph.graph.model.data.nodes.values()
 
-    def text_nodes(self, html_mgraph):
-        return [node for node in self.nodes(html_mgraph) if node.node_path=='text']
+    @type_safe
+    def text_nodes(self, html_mgraph) -> List[Schema__MGraph__Node]:        # todo: BUG is OSBot_Utils , this should be: Type_Safe__List[Schema__MGraph__Node]
+        text_nodes = Type_Safe__List(expected_type=Schema__MGraph__Node)
+        for node in self.nodes(html_mgraph):
+            if node.node_path=='text':
+                text_nodes.append(node)
+        return text_nodes
 
     def get_parent_node_id(self, html_mgraph, text_node_id):
         index = html_mgraph.mgraph.index()
