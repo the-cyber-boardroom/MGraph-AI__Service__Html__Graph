@@ -1,7 +1,5 @@
 from typing                                                                     import Dict, Any, List, Optional
-
-from osbot_utils.helpers.html.transformers.Html_Dict__To__Html import Html_Dict__To__Html
-from osbot_utils.testing.__helpers import obj
+from osbot_utils.testing.__helpers                                              import obj
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__To__Html_Dict import Html_MGraph__To__Html_Dict
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
@@ -9,7 +7,6 @@ from osbot_utils.type_safe.Type_Safe                                            
 from mgraph_db.mgraph.MGraph                                                    import MGraph
 from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__To__Html_MGraph import Html_Dict__To__Html_MGraph, Schema__Config__Html_Dict__To__Html_MGraph
 from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph__Path          import Html_MGraph__Path
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html import Safe_Str__Html
 
 
 class Html_MGraph(Type_Safe):                                                   # Main interface for HTML Graph operations
