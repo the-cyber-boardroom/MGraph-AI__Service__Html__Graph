@@ -94,6 +94,7 @@ class QA__Dev__Consolidate_Nodes(Type_Safe):
                 _.add_tag_nodes       = False
                 _.add_attribute_nodes = False
         return self
+
     def print_json(self):
 
         json_data = self.mgraph().export().to__json()

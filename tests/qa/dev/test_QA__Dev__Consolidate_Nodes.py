@@ -39,14 +39,14 @@ class test_QA__Dev__Consolidate_Nodes(TestCase):
         with self.consolidate_nodes as _:
             print()
             print()
-            print(self.html)
+            #print(self.html)
 
             #_.html_mgraph().print_obj()
 
             #_.print_tree__as_text()
             #_.print_tree()
             _.configure_mgraph()
-            _.print_json()
+            #_.print_json()
 
 
             #_.create_png__from__html_mgraph()

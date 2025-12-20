@@ -28,7 +28,7 @@ class Html_Use_Case__1(Graph_Transformation__Base):
 
     # Phase 4: MGraph Transformation
     def transform_mgraph(self, html_mgraph):
-        print()
+        #print()
         nodes = html_mgraph.mgraph.graph.model.data.nodes
         for node_id, node in nodes.items():
             if node.node_path == 'text':

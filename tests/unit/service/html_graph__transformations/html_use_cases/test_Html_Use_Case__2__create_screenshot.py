@@ -32,4 +32,4 @@ class test_Html_Use_Case__2__create_screenshot(TestCase):
             _.save_to(png_file)
             _.create_screenshot__from__dot_code(dot_code=dot_code)
 
-        html_mgraph.mgraph.export().to__json__print()
+        #html_mgraph.mgraph.export().to__json__print()
