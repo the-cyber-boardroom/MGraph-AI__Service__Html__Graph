@@ -1,5 +1,4 @@
 from unittest                                                                            import TestCase
-from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response             import Schema__Graph__Dot__Response
 from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Stats                     import Schema__Graph__Stats
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request       import Schema__Graph__From_Html__Request
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service import Html_Graph__Export__Service
@@ -37,6 +36,22 @@ class test_Html_Graph__Export__Service(TestCase):                               
         html_mgraph = self.service.html_to_mgraph(html)
 
         assert html_mgraph.attrs_graph is not None
+
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # Transformation Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
+
+    def test__list_transformations(self):                                                 # Test list_transformations returns list
+        transformations = self.service.list_transformations()
+
+        assert type(transformations) is list
+
+    def test__html_to_mgraph_with_transformation(self):                                   # Test transformation pipeline
+        html        = '<div><p>Test</p></div>'
+        html_mgraph = self.service.html_to_mgraph_with_transformation(html, 'default')
+
+        assert html_mgraph is not None
+        assert type(html_mgraph) is Html_MGraph
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Config Creation Tests
@@ -88,12 +103,16 @@ class test_Html_Graph__Export__Service(TestCase):                               
         request = Schema__Graph__From_Html__Request(html='<div>Test</div>')
         result  = self.service.to_dot(request)
 
-        assert type(result) is Schema__Graph__Dot__Response
-
-
-        assert result.dot is not None
-        assert 'digraph' in result.dot
+        assert result.dot_string is not None
+        assert 'digraph' in result.dot_string
         assert result.dot_size > 0
+
+    def test__to_dot__with_transformation(self):                                          # Test DOT export with transformation
+        request = Schema__Graph__From_Html__Request(html='<div>Test</div>')
+        result  = self.service.to_dot(request, transformation='default')
+
+        assert result.dot_string is not None
+        assert result.transformation == 'default'
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # vis.js Export Tests

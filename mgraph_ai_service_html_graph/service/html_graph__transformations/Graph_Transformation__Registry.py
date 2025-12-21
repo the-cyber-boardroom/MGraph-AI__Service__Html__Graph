@@ -5,18 +5,18 @@
 
 from typing                                                                                                             import Dict, List, Type
 from enum                                                                                                               import Enum
-from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__1                   import Html_Use_Case__1
-from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__2                   import Html_Use_Case__2
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__1                   import Html_Use_Case__1
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__2                   import Html_Use_Case__2
 from osbot_utils.type_safe.Type_Safe                                                                                    import Type_Safe
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base                        import Graph_Transformation__Base
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Consolidate_Text            import Graph_Transformation__Consolidate_Text
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Add_Consolidated_Text_Node  import Graph_Transformation__Add_Consolidated_Text_Node
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Strip_Inline_Tags           import Graph_Transformation__Strip_Inline_Tags
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Collapse_Single_Child       import Graph_Transformation__Collapse_Single_Child
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Text_Blocks_Only            import Graph_Transformation__Text_Blocks_Only
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Collapse_Text               import Graph_Transformation__Collapse_Text
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Elements_Only               import Graph_Transformation__Elements_Only
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Body_Only                   import Graph_Transformation__Body_Only
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Consolidate_Text            import Graph_Transformation__Consolidate_Text
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Add_Consolidated_Text_Node  import Graph_Transformation__Add_Consolidated_Text_Node
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Strip_Inline_Tags           import Graph_Transformation__Strip_Inline_Tags
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Collapse_Single_Child       import Graph_Transformation__Collapse_Single_Child
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Text_Blocks_Only            import Graph_Transformation__Text_Blocks_Only
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Collapse_Text               import Graph_Transformation__Collapse_Text
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Elements_Only               import Graph_Transformation__Elements_Only
+# from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Body_Only                   import Graph_Transformation__Body_Only
 
 
 class Graph_Transformation__Registry(Type_Safe):
@@ -46,17 +46,18 @@ class Graph_Transformation__Registry(Type_Safe):
     
     def _register_all(self) -> None:                                                # Register all built-in transformations
 
-        self.register(Html_Use_Case__1                                )
-        self.register(Html_Use_Case__2                                )
+        # self.register(Html_Use_Case__1                                )
+        # self.register(Html_Use_Case__2                                )
         self.register(Graph_Transformation__Base                      )
-        self.register(Graph_Transformation__Collapse_Text             )
-        self.register(Graph_Transformation__Elements_Only             )
-        self.register(Graph_Transformation__Body_Only                 )
-        self.register(Graph_Transformation__Consolidate_Text          )                         # Destructive: merge text fragments
-        self.register(Graph_Transformation__Add_Consolidated_Text_Node)                         # Non-destructive: add sibling nodes
-        self.register(Graph_Transformation__Strip_Inline_Tags         )                         # Remove inline formatting tags
-        self.register(Graph_Transformation__Collapse_Single_Child     )                         # Collapse single-child chains
-        self.register(Graph_Transformation__Text_Blocks_Only          )                         # Show only text-bearing elements
+        # self.register(Graph_Transformation__Collapse_Text             )
+        # self.register(Graph_Transformation__Elements_Only             )
+        # self.register(Graph_Transformation__Body_Only                 )
+        # self.register(Graph_Transformation__Consolidate_Text          )                         # Destructive: merge text fragments
+        # self.register(Graph_Transformation__Add_Consolidated_Text_Node)                         # Non-destructive: add sibling nodes
+        # self.register(Graph_Transformation__Strip_Inline_Tags         )                         # Remove inline formatting tags
+        # self.register(Graph_Transformation__Collapse_Single_Child     )                         # Collapse single-child chains
+        # self.register(Graph_Transformation__Text_Blocks_Only          )                         # Show only text-bearing elements
+        pass
 
     
     # ═══════════════════════════════════════════════════════════════════════════
