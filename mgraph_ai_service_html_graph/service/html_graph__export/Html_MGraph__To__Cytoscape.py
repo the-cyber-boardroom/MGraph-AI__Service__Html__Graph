@@ -4,30 +4,19 @@
 # https://js.cytoscape.org/
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from typing                                                                             import List, Dict, Any
-from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
-from mgraph_db.mgraph.MGraph                                                            import MGraph
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config       import Html_MGraph__Render__Config
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__Data__Extractor import (
-    Html_MGraph__Data__Extractor, Extracted__Node, Extracted__Edge
-)
+from typing                                                                               import List, Dict, Any
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__Export__Base    import Html_MGraph__Export__Base
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_MGraph__Data__Extractor import Extracted__Node, Extracted__Edge
 
 
-class Html_MGraph__To__Cytoscape(Type_Safe):                                            # Converts Html_MGraph to Cytoscape format
-    mgraph : MGraph
-    config : Html_MGraph__Render__Config = None
+class Html_MGraph__To__Cytoscape(Html_MGraph__Export__Base):                              # Converts Html_MGraph to Cytoscape format
 
-    def export(self) -> Dict[str, Any]:                                                 # Export to Cytoscape format
-        extractor = Html_MGraph__Data__Extractor(mgraph=self.mgraph, config=self.config)
-        extractor.extract()
+    def export(self) -> Dict[str, Any]:                                                   # Export to Cytoscape format
+        return { 'elements' : { 'nodes' : self._convert_nodes(self.nodes) ,
+                                'edges' : self._convert_edges(self.edges) },
+                 'rootId'   : self.root_id                                 }
 
-        return { 'elements' : {
-                     'nodes' : self._convert_nodes(extractor.nodes) ,
-                     'edges' : self._convert_edges(extractor.edges)
-                 },
-                 'rootId' : extractor.root_id                       }
-
-    def _convert_nodes(self, nodes: List[Extracted__Node]) -> List[Dict]:               # Convert to Cytoscape node format
+    def _convert_nodes(self, nodes: List[Extracted__Node]) -> List[Dict]:                 # Convert to Cytoscape node format
         result = []
         for node in nodes:
             cy_node = {
@@ -37,11 +26,11 @@ class Html_MGraph__To__Cytoscape(Type_Safe):                                    
                     'color'       : node.fill_color               ,
                     'fontColor'   : node.font_color               ,
                     'borderColor' : node.border_color             ,
-                    # Semantic metadata
                     'nodeType'    : node.node_type                ,
                     'domPath'     : node.dom_path                 ,
                     'category'    : node.category                 ,
-                    'depth'       : node.depth
+                    'depth'       : node.depth                    ,
+                    'graphSource' : node.graph_source
                 },
                 'group': 'nodes'
             }
@@ -50,17 +39,18 @@ class Html_MGraph__To__Cytoscape(Type_Safe):                                    
             result.append(cy_node)
         return result
 
-    def _convert_edges(self, edges: List[Extracted__Edge]) -> List[Dict]:               # Convert to Cytoscape edge format
+    def _convert_edges(self, edges: List[Extracted__Edge]) -> List[Dict]:                 # Convert to Cytoscape edge format
         result = []
         for edge in edges:
             cy_edge = {
                 'data': {
-                    'id'        : edge.id                         ,
-                    'source'    : edge.source                     ,
-                    'target'    : edge.target                     ,
-                    'color'     : edge.color                      ,
-                    'dashed'    : edge.dashed                     ,
-                    'predicate' : edge.predicate
+                    'id'          : edge.id                       ,
+                    'source'      : edge.source                   ,
+                    'target'      : edge.target                   ,
+                    'color'       : edge.color                    ,
+                    'dashed'      : edge.dashed                   ,
+                    'predicate'   : edge.predicate                ,
+                    'graphSource' : edge.graph_source
                 },
                 'group': 'edges'
             }

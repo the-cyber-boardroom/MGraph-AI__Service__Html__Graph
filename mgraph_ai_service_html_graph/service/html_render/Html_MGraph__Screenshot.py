@@ -1,37 +1,30 @@
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 from mgraph_db.mgraph.actions.MGraph__Screenshot                                  import MGraph__Screenshot
-from mgraph_db.mgraph.MGraph                                                      import MGraph
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                 import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config import Html_MGraph__Render__Config, Enum__Html_Render__Preset
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors import Enum__Html_Render__Color_Scheme
 
 
 class Html_MGraph__Screenshot(Type_Safe):                                                   # Screenshot generation for HTML MGraph with semantic styling
-    mgraph      : MGraph                                                                    # The MGraph to visualize
+    html_mgraph : Html_MGraph                                                               # The Html_MGraph to visualize
     config      : Html_MGraph__Render__Config                                               # Rendering configuration
     screenshot  : MGraph__Screenshot           = None                                       # The underlying screenshot instance
     target_file : str                          = None                                       # Target file path for saving
     png_bytes   : bytes                        = None                                       # Generated PNG bytes
 
     def setup(self) -> 'Html_MGraph__Screenshot':                                           # Initialize the screenshot with HTML-aware configuration
-        if self.mgraph is None:
-            raise ValueError("mgraph must be provided")
+        if self.html_mgraph is None:
+            raise ValueError("html_mgraph must be provided")
 
-        self.screenshot = MGraph__Screenshot(graph=self.mgraph.graph)                       # Create base screenshot
+        # todo: add option to take screenshot of specific graphs or event the full html_mgraph
+        body_graph = self.html_mgraph.body_graph                                            # Use body graph for visualization
+        if body_graph is None:
+            raise ValueError("html_mgraph.body_graph is not available")
+        domain_mgraph = body_graph.mgraph.graph                                             # MGraph__Screenshot needs Domain__MGraph__Graph
+        self.screenshot = MGraph__Screenshot(graph=domain_mgraph)                            # Create base screenshot from body graph
 
         with self.screenshot.export().export_dot() as dot:                                  # Configure DOT exporter with HTML-aware settings
             self.config.configure_dot_export(dot)
-            #self.show_attrs(False)
-            #self.show_text(False)
-
-            # dot.set_graph__layout_engine__fdp()
-            # dot.set_graph__splines__line()
-            # dot.set_graph__spring_constant(0.7)
-
-            #dot.set_graph__overlap__scale()
-            # self.structure_only()
-            # dot.set_graph__node_sep(2.0)   # More horizontal space
-            # dot.set_graph__rank_sep(2.5)   # More vertical space
-            # dot.set_graph__overlap__ortho()
 
         return self
 

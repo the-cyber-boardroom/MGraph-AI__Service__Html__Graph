@@ -1,15 +1,14 @@
-from unittest                                                            import TestCase
-
-from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Head
+from unittest                                                                   import TestCase
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph              import Schema__Html_MGraph__Stats__Head
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Head  import Html_MGraph__Head
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import Node_Path
-from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
-from osbot_utils.testing.__ import __
-from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id        import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id         import Obj_Id
-from osbot_utils.utils.Objects                                           import base_classes
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
+from mgraph_db.utils.testing.mgraph_test_ids                                    import mgraph_test_ids
+from osbot_utils.testing.__                                                     import __
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                import Obj_Id
+from osbot_utils.utils.Objects                                                  import base_classes
 
 
 class test_Html_MGraph__Head(TestCase):                                         # Test head graph for <head> element structure

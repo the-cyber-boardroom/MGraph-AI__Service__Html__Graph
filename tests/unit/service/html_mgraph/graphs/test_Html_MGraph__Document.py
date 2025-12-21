@@ -1,13 +1,12 @@
-from unittest                                                                           import TestCase
-
-from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Styles, Schema__Html_MGraph__Stats__Document
-from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document   import Html__To__Html_MGraph__Document
-from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document   import SCRIPT_TAGS, STYLE_TAGS
-from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document             import Html_MGraph__Document
-from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
-from osbot_utils.testing.__ import __
-from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
-from osbot_utils.utils.Objects                                                          import base_classes
+from unittest                                                                                       import TestCase
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                                  import Schema__Html_MGraph__Stats__Document
+from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document    import Html__To__Html_MGraph__Document
+from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document    import SCRIPT_TAGS, STYLE_TAGS
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document                  import Html_MGraph__Document
+from mgraph_db.utils.testing.mgraph_test_ids                                                        import mgraph_test_ids
+from osbot_utils.testing.__                                                                         import __
+from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
+from osbot_utils.utils.Objects                                                                      import base_classes
 
 
 class test_Html__To__Html_MGraph__Document(TestCase):                           # Test HTML to multi-graph conversion

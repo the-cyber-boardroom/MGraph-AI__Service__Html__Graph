@@ -1,10 +1,9 @@
 from unittest                                                                       import TestCase
-
-from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Document
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                  import Schema__Html_MGraph__Stats__Document
 from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                   import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document  import Html_MGraph__Document
 from mgraph_db.utils.testing.mgraph_test_ids                                        import mgraph_test_ids
-from osbot_utils.testing.__ import __
+from osbot_utils.testing.__                                                         import __
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.utils.Objects                                                      import base_classes
 
