@@ -1,4 +1,6 @@
 from typing                                                                     import Dict, Any, List, Optional
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Scripts
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                             import Edge_Path
@@ -104,6 +106,13 @@ class Html_MGraph__Scripts(Html_MGraph__Base):                                  
     def is_external_script(self, node_id: Node_Id) -> bool:                     # Check if script is external (no content)
         return self.get_script_content(node_id) is None
 
+    def is_script_anchor(self, node_id: Node_Id) -> bool:                      # Check if node is a script anchor (registered script element)
+        node_path = self.node_path(node_id)
+        if node_path:
+            path_str = str(node_path)
+            return path_str.startswith('script:')                               # Script anchors have path like "script:{node_id}"
+        return False
+
     def get_all_scripts(self) -> List[Node_Id]:                                 # Get all script element node_ids in order
         scripts = []
         edges   = self.outgoing_edges(self.root_id)
@@ -126,17 +135,36 @@ class Html_MGraph__Scripts(Html_MGraph__Base):                                  
         return [node_id for node_id in self.get_all_scripts()
                 if self.is_external_script(node_id)]
 
+    # todo: see how this can be implemented since this graph doesn't have access to the scripts attributes
+    # def get_script_src(self, node_id: Node_Id) -> Optional[str]:                # Get src attribute for external script
+    #     for edge in self.outgoing_edges(node_id):
+    #         edge_path = self.edge_path(edge)
+    #         if edge_path and str(edge_path) == 'src':                           # Edge labeled 'src' points to src value
+    #             target_id = edge.edge.data.to_node_id
+    #             return self.node_value(target_id)
+    #     return None
+
     # ═══════════════════════════════════════════════════════════════════════════
     # Stats Methods (override base)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def stats(self) -> Dict[str, Any]:                                          # Get statistics about the scripts graph
-        base_stats      = super().stats()
-        all_scripts     = self.get_all_scripts()
-        inline_scripts  = self.get_inline_scripts()
-        external_scripts = self.get_external_scripts()
+    def stats(self) -> Schema__Html_MGraph__Stats__Scripts:                     # Get statistics about the scripts graph
+        total_scripts    = 0
+        inline_scripts   = 0
+        external_scripts = 0
 
-        base_stats['total_scripts']    = len(all_scripts)
-        base_stats['inline_scripts']   = len(inline_scripts)
-        base_stats['external_scripts'] = len(external_scripts)
-        return base_stats
+        for node_id in self.nodes_ids():
+            if self.is_script_anchor(node_id):
+                total_scripts += 1
+                if self.get_script_content(node_id):                            # Has inline content
+                    inline_scripts += 1
+                elif self.is_external_script(node_id):                              # Has external src
+                    external_scripts += 1
+
+        return Schema__Html_MGraph__Stats__Scripts(
+            total_nodes      = len(list(self.mgraph.data().nodes_ids())) ,
+            total_edges      = len(list(self.mgraph.data().edges_ids())) ,
+            root_id          = self.root_id                              ,
+            total_scripts    = total_scripts                             ,
+            inline_scripts   = inline_scripts                            ,
+            external_scripts = external_scripts                          )

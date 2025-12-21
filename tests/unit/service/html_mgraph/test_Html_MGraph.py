@@ -1,7 +1,10 @@
 from unittest                                                                       import TestCase
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Document
 from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                   import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document  import Html_MGraph__Document
 from mgraph_db.utils.testing.mgraph_test_ids                                        import mgraph_test_ids
+from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.utils.Objects                                                      import base_classes
 
@@ -268,16 +271,43 @@ class test_Html_MGraph(TestCase):                                               
 
     def test_stats(self):                                                       # Test statistics
         html   = '<html><head><title>Test</title></head><body><div>Content</div></body></html>'
-        mgraph = Html_MGraph.from_html(html)
+        with mgraph_test_ids():
+            mgraph = Html_MGraph.from_html(html)
 
-        stats = mgraph.stats()
+            stats = mgraph.stats()
+            assert type(stats) is Schema__Html_MGraph__Stats__Document
+            assert stats.obj() == __(document=__(total_nodes=6,
+                                                 total_edges=5,
+                                                 root_id='c0000001'),
+                                     head=__(element_nodes=2,
+                                             text_nodes=1,
+                                             total_nodes=4,
+                                             total_edges=2,
+                                             root_id='c0000016'),
+                                     body=__(element_nodes=2,
+                                             text_nodes=1,
+                                             total_nodes=4,
+                                             total_edges=2,
+                                             root_id='c0000021'),
+                                     attributes=__(registered_elements=5,
+                                                   total_attributes=0,
+                                                   unique_tags=5,
+                                                   total_nodes=12,
+                                                   total_edges=10,
+                                                   root_id='c0000005'),
+                                     scripts=__(total_scripts=0,
+                                                inline_scripts=0,
+                                                external_scripts=0,
+                                                total_nodes=2,
+                                                total_edges=0,
+                                                root_id='c0000007'),
+                                     styles=__(total_styles=0,
+                                               inline_styles=0,
+                                               external_styles=0,
+                                               total_nodes=2,
+                                               total_edges=0,
+                                               root_id='c0000009'))
 
-        assert 'root_id'    in stats
-        assert 'head'       in stats
-        assert 'body'       in stats
-        assert 'attributes' in stats
-        assert 'scripts'    in stats
-        assert 'styles'     in stats
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Element Info Tests

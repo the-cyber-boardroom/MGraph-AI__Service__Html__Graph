@@ -1,11 +1,13 @@
-from unittest                                                               import TestCase
-from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Styles   import Html_MGraph__Styles
-from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base     import Html_MGraph__Base
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                         import Node_Path
-from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id           import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id            import Obj_Id
-from osbot_utils.utils.Objects                                              import base_classes
+from unittest                                                                       import TestCase
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Styles    import Html_MGraph__Styles
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base      import Html_MGraph__Base
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                                 import Node_Path
+from mgraph_db.utils.testing.mgraph_test_ids                                        import mgraph_test_ids
+from osbot_utils.testing.__                                                         import __
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
+from osbot_utils.utils.Objects                                                      import base_classes
 
 
 class test_Html_MGraph__Styles(TestCase):                                       # Test styles graph for CSS content
@@ -319,26 +321,32 @@ class test_Html_MGraph__Styles(TestCase):                                       
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_stats(self):                                                       # Test statistics with mixed styles
-        with Html_MGraph__Styles().setup() as _:
-            _.register_style(Node_Id(Obj_Id()), content="/* 1 */")
-            _.register_style(Node_Id(Obj_Id()), content="/* 2 */")
-            _.register_link(Node_Id(Obj_Id()))
-            _.register_link(Node_Id(Obj_Id()))
-            _.register_link(Node_Id(Obj_Id()))
+        with mgraph_test_ids():
+            with Html_MGraph__Styles().setup() as _:
+                _.register_style(Node_Id(Obj_Id()), content="/* 1 */")
+                _.register_style(Node_Id(Obj_Id()), content="/* 2 */")
+                _.register_link(Node_Id(Obj_Id()))
+                _.register_link(Node_Id(Obj_Id()))
+                _.register_link(Node_Id(Obj_Id()))
 
-            stats = _.stats()
-
-            assert stats['total_styles']    == 5
-            assert stats['inline_styles']   == 2
-            assert stats['external_styles'] == 3
+                stats = _.stats()
+            assert stats.obj() == __(total_styles   = 5 ,
+                                     inline_styles  = 2 ,
+                                     external_styles= 3 ,
+                                     total_nodes    = 9 ,
+                                     total_edges    = 7 ,
+                                     root_id        = 'c0000002')
+            assert stats.total_styles    == 5
+            assert stats.inline_styles   == 2
+            assert stats.external_styles == 3
 
     def test_stats__empty(self):                                                # Test statistics with no styles
         with Html_MGraph__Styles().setup() as _:
             stats = _.stats()
 
-            assert stats['total_styles']    == 0
-            assert stats['inline_styles']   == 0
-            assert stats['external_styles'] == 0
+            assert stats.total_styles    == 0
+            assert stats.inline_styles   == 0
+            assert stats.external_styles == 0
 
     def test_stats__only_inline(self):                                          # Test statistics with only inline styles
         with Html_MGraph__Styles().setup() as _:
@@ -347,9 +355,9 @@ class test_Html_MGraph__Styles(TestCase):                                       
 
             stats = _.stats()
 
-            assert stats['total_styles']    == 2
-            assert stats['inline_styles']   == 2
-            assert stats['external_styles'] == 0
+            assert stats.total_styles    == 2
+            assert stats.inline_styles   == 2
+            assert stats.external_styles == 0
 
     def test_stats__only_external(self):                                        # Test statistics with only external styles
         with Html_MGraph__Styles().setup() as _:
@@ -358,19 +366,22 @@ class test_Html_MGraph__Styles(TestCase):                                       
 
             stats = _.stats()
 
-            assert stats['total_styles']    == 2
-            assert stats['inline_styles']   == 0
-            assert stats['external_styles'] == 2
+            assert stats.total_styles    == 2
+            assert stats.inline_styles   == 0
+            assert stats.external_styles == 2
 
     def test_stats__base_stats_included(self):                                  # Test base stats are included
-        with Html_MGraph__Styles().setup() as _:
-            _.register_style(Node_Id(Obj_Id()), content="test")
+        with mgraph_test_ids():
+            with Html_MGraph__Styles().setup() as _:
+                _.register_style(Node_Id(Obj_Id()), content="test")
 
-            stats = _.stats()
-
-            assert 'total_nodes' in stats
-            assert 'total_edges' in stats
-            assert 'root_id'     in stats
+                stats = _.stats()
+                assert stats.obj() == __(total_styles=1,
+                                         inline_styles=1,
+                                         external_styles=0,
+                                         total_nodes=4,
+                                         total_edges=2,
+                                         root_id='c0000002')
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Integration Tests
@@ -411,6 +422,6 @@ class test_Html_MGraph__Styles(TestCase):                                       
 
             # Verify stats
             stats = _.stats()
-            assert stats['total_styles']    == 4
-            assert stats['inline_styles']   == 3
-            assert stats['external_styles'] == 1
+            assert stats.total_styles    == 4
+            assert stats.inline_styles   == 3
+            assert stats.external_styles == 1

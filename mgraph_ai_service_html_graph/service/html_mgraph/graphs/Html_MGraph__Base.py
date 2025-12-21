@@ -1,15 +1,16 @@
-from typing                                                              import Dict, Any, List, Optional, Type
-from mgraph_db.mgraph.MGraph                                             import MGraph
-from mgraph_db.mgraph.schemas.Schema__MGraph__Node                       import Schema__MGraph__Node
-from mgraph_db.mgraph.schemas.Schema__MGraph__Edge__Label                import Schema__MGraph__Edge__Label
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import Node_Path
-from mgraph_db.mgraph.schemas.identifiers.Edge_Path                      import Edge_Path
-from mgraph_db.mgraph.domain.Domain__MGraph__Edge                        import Domain__MGraph__Edge
-from mgraph_db.mgraph.domain.Domain__MGraph__Node                        import Domain__MGraph__Node
-from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id        import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe           import type_safe
+from typing                                                                         import Dict, Any, List, Optional, Type
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                  import Schema__Html_MGraph__Stats__Base, Schema__Html_MGraph__Json__Base
+from mgraph_db.mgraph.MGraph                                                        import MGraph
+from mgraph_db.mgraph.schemas.Schema__MGraph__Node                                  import Schema__MGraph__Node
+from mgraph_db.mgraph.schemas.Schema__MGraph__Edge__Label                           import Schema__MGraph__Edge__Label
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                                 import Node_Path
+from mgraph_db.mgraph.schemas.identifiers.Edge_Path                                 import Edge_Path
+from mgraph_db.mgraph.domain.Domain__MGraph__Edge                                   import Domain__MGraph__Edge
+from mgraph_db.mgraph.domain.Domain__MGraph__Node                                   import Domain__MGraph__Node
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                      import type_safe
 
 
 class Html_MGraph__Base(Type_Safe):                                             # Base class for all Html_MGraph specialized graphs
@@ -161,17 +162,23 @@ class Html_MGraph__Base(Type_Safe):                                             
         return [child_id for _, child_id in children_with_pos]
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Stats Methods
+    # Stats Methods - Returns Type_Safe Schema
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def stats(self) -> Dict[str, Any]:                                          # Get basic statistics about the graph
-        return { 'total_nodes' : len(list(self.mgraph.data().nodes_ids())) ,
-                 'total_edges' : len(list(self.mgraph.data().edges_ids())) ,
-                 'root_id'     : str(self.root_id) if self.root_id else None }
+    def stats(self) -> Schema__Html_MGraph__Stats__Base:                        # Get basic statistics about the graph
+        return Schema__Html_MGraph__Stats__Base(total_nodes = len(list(self.mgraph.data().nodes_ids())) ,
+                                                total_edges = len(list(self.mgraph.data().edges_ids())) ,
+                                                root_id     = self.root_id                              )
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Serialization Methods
+    # Serialization Methods - Returns Type_Safe Schema
     # ═══════════════════════════════════════════════════════════════════════════
+    def to_json(self) -> Dict:
+        return self.to_json_base().json()
 
-    def to_json(self) -> Dict[str, Any]:                                        # Export graph to JSON
-        return self.mgraph.export().to__json()
+    def to_json_base(self) -> Schema__Html_MGraph__Json__Base:                       # Export graph to JSON Schema
+        raw_json  = self.mgraph.export().to__json()
+        json_base = Schema__Html_MGraph__Json__Base(nodes   = raw_json.get('nodes', {})     ,
+                                                    edges   = raw_json.get('edges', {})     ,
+                                                    root_id = str(self.root_id) if self.root_id else None)
+        return json_base

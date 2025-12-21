@@ -1,9 +1,13 @@
 from unittest                                                            import TestCase
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Json__Base, Schema__Html_MGraph__Stats__Base
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                      import Edge_Path
 from mgraph_db.mgraph.domain.Domain__MGraph__Node                        import Domain__MGraph__Node
 from mgraph_db.mgraph.domain.Domain__MGraph__Edge                        import Domain__MGraph__Edge
+from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
+from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id        import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id         import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id
@@ -451,38 +455,54 @@ class test_Html_MGraph__Base(TestCase):                                         
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_stats(self):                                                       # Test statistics with populated graph
-        with Html_MGraph__Base().setup() as _:
-            node1 = _.new_element_node(node_path=Node_Path('node1'))
-            node2 = _.new_element_node(node_path=Node_Path('node2'))
-            _.new_edge(from_node_id=node1.node_id, to_node_id=node2.node_id)
+        with mgraph_test_ids():
+            with Html_MGraph__Base().setup() as _:
+                node1 = _.new_element_node(node_path=Node_Path('node1'))
+                node2 = _.new_element_node(node_path=Node_Path('node2'))
+                _.new_edge(from_node_id=node1.node_id, to_node_id=node2.node_id)
 
-            stats = _.stats()
-
-            assert stats['total_nodes'] == 3                                    # root + 2 created nodes
-            assert stats['total_edges'] == 1
-            assert stats['root_id']     == str(_.root_id)
+                stats = _.stats()
+                assert type(stats) is Schema__Html_MGraph__Stats__Base
+                assert stats.obj() == __(total_nodes=3, total_edges=1, root_id='c0000001')
+                assert stats.total_nodes == 3                                    # root + 2 created nodes
+                assert stats.total_edges == 1
+                assert stats.root_id     == _.root_id
 
     def test_stats__only_root(self):                                            # Test statistics with only root node
         with Html_MGraph__Base().setup() as _:
             stats = _.stats()
 
-            assert stats['total_nodes'] == 1                                    # Just root
-            assert stats['total_edges'] == 0
-            assert stats['root_id']     == str(_.root_id)
+            assert stats.total_nodes == 1                                    # Just root
+            assert stats.total_edges == 0
+            assert stats.root_id     == str(_.root_id)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Serialization Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_to_json(self):                                                     # Test JSON export
-        with Html_MGraph__Base().setup() as _:
-            node1 = _.new_element_node(node_path=Node_Path('node1'))
-            node2 = _.new_element_node(node_path=Node_Path('node2'))
-            _.new_edge(from_node_id=node1.node_id, to_node_id=node2.node_id)
+        with mgraph_test_ids():
+            with Html_MGraph__Base().setup() as _:
+                node1 = _.new_element_node(node_path=Node_Path('node1'))
+                node2 = _.new_element_node(node_path=Node_Path('node2'))
+                _.new_edge(from_node_id=node1.node_id, to_node_id=node2.node_id)
 
-            json_data = _.to_json()
+                json_data = _.to_json()
 
-            assert type(json_data) is dict
+                assert type(json_data) is dict
+                assert json_data == {'edges': {'e0000001': {'edge_id': 'e0000001',
+                                                            'edge_type': '@schema_mgraph_edge',
+                                                            'from_node_id': 'c0000002',
+                                                            'to_node_id': 'c0000003'}},
+                                     'nodes': {'c0000001': {'node_id': 'c0000001',
+                                                            'node_type': '@schema_mgraph_node'},
+                                               'c0000002': {'node_id': 'c0000002',
+                                                            'node_path': 'node1',
+                                                            'node_type': '@schema_mgraph_node'},
+                                               'c0000003': {'node_id': 'c0000003',
+                                                            'node_path': 'node2',
+                                                            'node_type': '@schema_mgraph_node'}},
+                                     'root_id': 'c0000001'                                     }
 
     def test_to_json__only_root(self):                                          # Test JSON export of graph with only root
         with Html_MGraph__Base().setup() as _:

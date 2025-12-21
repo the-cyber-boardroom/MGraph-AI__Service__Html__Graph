@@ -1,7 +1,11 @@
 from unittest                                                            import TestCase
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Head
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Head  import Html_MGraph__Head
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import Node_Path
+from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
+from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id        import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id         import Obj_Id
@@ -415,15 +419,15 @@ class test_Html_MGraph__Head(TestCase):                                         
 
             stats = _.stats()
 
-            assert stats['element_nodes'] >= 3                                  # head, meta, title + setup root
-            assert stats['text_nodes']    == 1
+            assert stats.element_nodes >= 3                                  # head, meta, title + setup root
+            assert stats.text_nodes    == 1
 
     def test_stats__empty(self):                                                # Test statistics with only root
         with Html_MGraph__Head().setup() as _:
             stats = _.stats()
 
-            assert stats['element_nodes'] == 0                                  # Just setup root
-            assert stats['text_nodes']    == 0
+            assert stats.element_nodes == 0                                  # Just setup root
+            assert stats.text_nodes    == 0
 
     def test_stats__elements_only(self):                                        # Test stats with elements but no text
         with Html_MGraph__Head().setup() as _:
@@ -433,78 +437,87 @@ class test_Html_MGraph__Head(TestCase):                                         
 
             stats = _.stats()
 
-            assert stats['element_nodes'] >= 3
-            assert stats['text_nodes']    == 0
+            assert stats.element_nodes >= 3
+            assert stats.text_nodes    == 0
 
     def test_stats__base_stats_included(self):                                  # Test base stats are included
-        with Html_MGraph__Head().setup() as _:
-            _.create_element(node_path=Node_Path('head.title'))
+        with mgraph_test_ids():
+            with Html_MGraph__Head().setup() as _:
+                _.create_element(node_path=Node_Path('head.title'))
 
-            stats = _.stats()
-
-            assert 'total_nodes' in stats
-            assert 'total_edges' in stats
-            assert 'root_id'     in stats
+                stats = _.stats()
+                assert stats.obj() == __(element_nodes=1,
+                                         text_nodes=0,
+                                         total_nodes=2,
+                                         total_edges=0,
+                                         root_id='c0000001')
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Integration Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_full_head_structure(self):                                         # Test complete head structure
-        with Html_MGraph__Head().setup() as _:
-            # Create <head> and children
-            head_id   = _.create_element(node_path=Node_Path('head'))
-            meta1_id  = _.create_element(node_path=Node_Path('head.meta[0]'))
-            meta2_id  = _.create_element(node_path=Node_Path('head.meta[1]'))
-            title_id  = _.create_element(node_path=Node_Path('head.title'))
-            link_id   = _.create_element(node_path=Node_Path('head.link'))
-            style_id  = _.create_element(node_path=Node_Path('head.style'))
-            script_id = _.create_element(node_path=Node_Path('head.script'))
+        with mgraph_test_ids():
+            with Html_MGraph__Head().setup() as _:
+                # Create <head> and children
+                head_id   = _.create_element(node_path=Node_Path('head'))
+                meta1_id  = _.create_element(node_path=Node_Path('head.meta[0]'))
+                meta2_id  = _.create_element(node_path=Node_Path('head.meta[1]'))
+                title_id  = _.create_element(node_path=Node_Path('head.title'))
+                link_id   = _.create_element(node_path=Node_Path('head.link'))
+                style_id  = _.create_element(node_path=Node_Path('head.style'))
+                script_id = _.create_element(node_path=Node_Path('head.script'))
 
-            _.set_root(head_id)
+                _.set_root(head_id)
 
-            # Build hierarchy
-            _.add_child(head_id, meta1_id , position=0)
-            _.add_child(head_id, meta2_id , position=1)
-            _.add_child(head_id, title_id , position=2)
-            _.add_child(head_id, link_id  , position=3)
-            _.add_child(head_id, style_id , position=4)
-            _.add_child(head_id, script_id, position=5)
+                # Build hierarchy
+                _.add_child(head_id, meta1_id , position=0)
+                _.add_child(head_id, meta2_id , position=1)
+                _.add_child(head_id, title_id , position=2)
+                _.add_child(head_id, link_id  , position=3)
+                _.add_child(head_id, style_id , position=4)
+                _.add_child(head_id, script_id, position=5)
 
-            # Add text to title
-            _.create_text(text='My Website', parent_id=title_id)
+                # Add text to title
+                _.create_text(text='My Website', parent_id=title_id)
 
-            # Verify structure
-            assert _.root_id == head_id
+                # Verify structure
+                assert _.root_id == head_id
 
-            head_children = _.get_element_children(head_id)
-            assert len(head_children) == 6
-            assert head_children[0] == meta1_id
-            assert head_children[2] == title_id
+                head_children = _.get_element_children(head_id)
+                assert len(head_children) == 6
+                assert head_children[0] == meta1_id
+                assert head_children[2] == title_id
 
-            # Verify title text
-            title_content = _.get_text_content(title_id)
-            assert title_content == 'My Website'
+                # Verify title text
+                title_content = _.get_text_content(title_id)
+                assert title_content == 'My Website'
 
-            # Verify node type detection
-            assert _.is_element_node(head_id)  is True
-            assert _.is_element_node(title_id) is True
+                # Verify node type detection
+                assert _.is_element_node(head_id)  is True
+                assert _.is_element_node(title_id) is True
 
-            title_text_nodes = _.get_text_nodes(title_id)
-            assert len(title_text_nodes) == 1
-            assert _.is_text_node(title_text_nodes[0]) is True
+                title_text_nodes = _.get_text_nodes(title_id)
+                assert len(title_text_nodes) == 1
+                assert _.is_text_node(title_text_nodes[0]) is True
 
-            # Verify iteration
-            all_elements = _.all_element_nodes()
-            all_texts    = _.all_text_nodes()
+                # Verify iteration
+                all_elements = _.all_element_nodes()
+                all_texts    = _.all_text_nodes()
 
-            assert len(all_elements) >= 7                                       # 7 elements + setup root
-            assert len(all_texts)    == 1
+                assert len(all_elements) >= 7                                       # 7 elements + setup root
+                assert len(all_texts)    == 1
 
-            # Verify stats
-            stats = _.stats()
-            assert stats['element_nodes'] >= 7
-            assert stats['text_nodes']    == 1
+                # Verify stats
+                stats = _.stats()
+                assert type(stats) is Schema__Html_MGraph__Stats__Head
+                assert stats.obj() == __(element_nodes=7,
+                                         text_nodes=1,
+                                         total_nodes=9,
+                                         total_edges=7,
+                                         root_id='c0000002')
+                assert stats.element_nodes == 7
+                assert stats.text_nodes    == 1
 
     def test_nested_head_elements(self):                                        # Test nested elements (e.g., noscript with content)
         with Html_MGraph__Head().setup() as _:

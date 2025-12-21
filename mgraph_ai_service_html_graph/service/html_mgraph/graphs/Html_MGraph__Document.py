@@ -1,4 +1,6 @@
 from typing                                                                             import Dict, Any, List, Optional
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Document, Schema__Html_MGraph__Stats__Base
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Attributes    import Html_MGraph__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base          import Html_MGraph__Base
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Body          import Html_MGraph__Body
@@ -175,13 +177,16 @@ class Html_MGraph__Document(Html_MGraph__Base):                                 
     # Stats Methods (override base)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def stats(self) -> Dict[str, Any]:                                          # Get comprehensive statistics
-        return { 'document'   : super().stats()                    ,
-                 'head'       : self.head_graph   .stats()         ,
-                 'body'       : self.body_graph   .stats()         ,
-                 'attributes' : self.attrs_graph  .stats()         ,
-                 'scripts'    : self.scripts_graph.stats()         ,
-                 'styles'     : self.styles_graph .stats()         }
+    def stats(self) -> Schema__Html_MGraph__Stats__Document:                    # Get comprehensive statistics
+        return Schema__Html_MGraph__Stats__Document(
+            document   = Schema__Html_MGraph__Stats__Base(total_nodes = len(list(self.mgraph.data().nodes_ids())) , # Document's own base stats
+                                                          total_edges = len(list(self.mgraph.data().edges_ids())) ,
+                                                          root_id     = self.root_id                              ),
+            head       = self.head_graph   .stats()                         ,
+            body       = self.body_graph   .stats()                         ,
+            attributes = self.attrs_graph  .stats()                         ,
+            scripts    = self.scripts_graph.stats()                         ,
+            styles     = self.styles_graph .stats()                         )
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Serialization Methods

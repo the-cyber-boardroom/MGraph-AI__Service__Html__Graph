@@ -1,4 +1,6 @@
 from typing                                                                     import Dict, Any, List, Optional
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Styles
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                             import Edge_Path
@@ -107,6 +109,13 @@ class Html_MGraph__Styles(Html_MGraph__Base):                                   
     def is_external_style(self, node_id: Node_Id) -> bool:                      # Check if style is external (no content)
         return self.get_style_content(node_id) is None
 
+    def is_style_anchor(self, node_id: Node_Id) -> bool:                       # Check if node is a style anchor
+        node_path = self.node_path(node_id)
+        if node_path:
+            path_str = str(node_path)
+            return path_str.startswith('style:')
+        return False
+
     def get_all_styles(self) -> List[Node_Id]:                                  # Get all style element node_ids in order
         styles = []
         edges  = self.outgoing_edges(self.root_id)
@@ -129,17 +138,36 @@ class Html_MGraph__Styles(Html_MGraph__Base):                                   
         return [node_id for node_id in self.get_all_styles()
                 if self.is_external_style(node_id)]
 
+    # todo: see how this can be done
+    # def get_style_href(self, node_id: Node_Id) -> Optional[str]:                # Get href attribute for external stylesheet
+    #     for edge in self.outgoing_edges(node_id):
+    #         edge_path = self.edge_path(edge)
+    #         if edge_path and str(edge_path) == 'href':
+    #             target_id = edge.edge.data.to_node_id
+    #             return self.node_value(target_id)
+    #     return None
+
     # ═══════════════════════════════════════════════════════════════════════════
     # Stats Methods (override base)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def stats(self) -> Dict[str, Any]:                                          # Get statistics about the styles graph
-        base_stats       = super().stats()
-        all_styles       = self.get_all_styles()
-        inline_styles    = self.get_inline_styles()
-        external_styles  = self.get_external_styles()
+    def stats(self) -> Schema__Html_MGraph__Stats__Styles:                      # Get statistics about the styles graph
+        total_styles    = 0
+        inline_styles   = 0
+        external_styles = 0
 
-        base_stats['total_styles']    = len(all_styles)
-        base_stats['inline_styles']   = len(inline_styles)
-        base_stats['external_styles'] = len(external_styles)
-        return base_stats
+        for node_id in self.nodes_ids():
+            if self.is_style_anchor(node_id):
+                total_styles += 1
+                if self.get_style_content(node_id):                             # Has inline content
+                    inline_styles += 1
+                elif self.is_external_style(node_id):                              # Has external href
+                    external_styles += 1
+
+        return Schema__Html_MGraph__Stats__Styles(
+            total_nodes     = len(list(self.mgraph.data().nodes_ids())) ,
+            total_edges     = len(list(self.mgraph.data().edges_ids())) ,
+            root_id         = self.root_id                              ,
+            total_styles    = total_styles                              ,
+            inline_styles   = inline_styles                             ,
+            external_styles = external_styles                           )

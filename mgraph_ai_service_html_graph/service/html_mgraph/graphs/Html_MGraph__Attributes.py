@@ -1,4 +1,6 @@
 from typing                                                                     import Dict, Any, List, Optional
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                             import Edge_Path
@@ -216,21 +218,27 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
     # Stats Methods (override base)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def stats(self) -> Dict[str, Any]:                                          # Get statistics about the attributes graph
-        base_stats     = super().stats()
+    def stats(self) -> Schema__Html_MGraph__Stats__Attributes:                  # Get statistics about the attributes graph
         tag_count      = 0
         element_count  = 0
         attr_count     = 0
+        unique_tags    = set()
 
         for node_id in self.nodes_ids():
             if self._is_tag_node(node_id):
                 tag_count += 1
+                tag_value = self.node_value(node_id)
+                if tag_value:
+                    unique_tags.add(tag_value)
             elif self._is_element_anchor(node_id):
                 element_count += 1
             elif self._is_attr_value_node(node_id):
                 attr_count += 1
 
-        base_stats['tag_nodes']     = tag_count
-        base_stats['element_nodes'] = element_count
-        base_stats['attr_nodes']    = attr_count
-        return base_stats
+        return Schema__Html_MGraph__Stats__Attributes(
+            total_nodes         = len(list(self.mgraph.data().nodes_ids())) ,
+            total_edges         = len(list(self.mgraph.data().edges_ids())) ,
+            root_id             = self.root_id                              ,
+            registered_elements = element_count                             ,
+            total_attributes    = attr_count                                ,
+            unique_tags         = len(unique_tags)                          )

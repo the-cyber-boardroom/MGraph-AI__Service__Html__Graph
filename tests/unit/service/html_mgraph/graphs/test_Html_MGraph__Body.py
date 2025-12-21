@@ -1,7 +1,11 @@
 from unittest                                                            import TestCase
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Body
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Body  import Html_MGraph__Body
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import Node_Path
+from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
+from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id        import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id         import Obj_Id
 from osbot_utils.utils.Objects                                           import base_classes
@@ -379,20 +383,20 @@ class test_Html_MGraph__Body(TestCase):                                         
 
             stats = _.stats()
 
-            assert stats['element_nodes'] == 2
-            assert stats['text_nodes']    == 2
-            assert stats['total_nodes']   == 5                                  # 2 elements + 2 text
-            assert stats['total_edges']   == 3                                  # 1 child + 2 text edges
-            assert stats['root_id']       == str(body_id)
+            assert stats.element_nodes == 2
+            assert stats.text_nodes    == 2
+            assert stats.total_nodes   == 5                                  # 2 elements + 2 text
+            assert stats.total_edges   == 3                                  # 1 child + 2 text edges
+            assert stats.root_id       == str(body_id)
 
     def test_stats__empty(self):                                                # Test statistics on empty graph
         with Html_MGraph__Body().setup() as _:
             stats = _.stats()
 
-            assert stats['element_nodes'] == 0
-            assert stats['text_nodes' ]   == 0
-            assert stats['total_nodes']   == 1
-            assert stats['total_edges']   == 0
+            assert stats.element_nodes  == 0
+            assert stats.text_nodes     == 0
+            assert stats.total_nodes    == 1
+            assert stats.total_edges    == 0
 
     def test_stats__only_elements(self):                                        # Test stats with only elements
         with Html_MGraph__Body().setup() as _:
@@ -402,8 +406,8 @@ class test_Html_MGraph__Body(TestCase):                                         
 
             stats = _.stats()
 
-            assert stats['element_nodes'] == 2
-            assert stats['text_nodes']    == 0
+            assert stats.element_nodes == 2
+            assert stats.text_nodes    == 0
 
     def test_stats__only_text(self):                                            # Test stats behavior - text always needs parent
         with Html_MGraph__Body().setup() as _:
@@ -412,8 +416,8 @@ class test_Html_MGraph__Body(TestCase):                                         
 
             stats = _.stats()
 
-            assert stats['element_nodes'] == 1                                  # Parent element
-            assert stats['text_nodes']    == 1
+            assert stats.element_nodes == 1                                  # Parent element
+            assert stats.text_nodes    == 1
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Integration Tests
@@ -435,49 +439,56 @@ class test_Html_MGraph__Body(TestCase):                                         
             assert _.get_text_content(div_id)      == 'Hello World'
 
     def test_complex_structure(self):                                           # Test complex nested structure
-        with Html_MGraph__Body().setup() as _:
-            # Build structure:
-            # body
-            #   ├── header
-            #   │   └── "Header Text"
-            #   ├── main
-            #   │   ├── article
-            #   │   │   └── "Article content"
-            #   │   └── aside
-            #   │       └── "Sidebar"
-            #   └── footer
-            #       └── "Footer Text"
+        with mgraph_test_ids():
+            with Html_MGraph__Body().setup() as _:
+                # Build structure:
+                # body
+                #   ├── header
+                #   │   └── "Header Text"
+                #   ├── main
+                #   │   ├── article
+                #   │   │   └── "Article content"
+                #   │   └── aside
+                #   │       └── "Sidebar"
+                #   └── footer
+                #       └── "Footer Text"
 
-            body    = _.create_element(node_path=Node_Path('body'))
-            header  = _.create_element(node_path=Node_Path('body.header'))
-            main    = _.create_element(node_path=Node_Path('body.main'))
-            footer  = _.create_element(node_path=Node_Path('body.footer'))
-            article = _.create_element(node_path=Node_Path('body.main.article'))
-            aside   = _.create_element(node_path=Node_Path('body.main.aside'))
+                body    = _.create_element(node_path=Node_Path('body'))
+                header  = _.create_element(node_path=Node_Path('body.header'))
+                main    = _.create_element(node_path=Node_Path('body.main'))
+                footer  = _.create_element(node_path=Node_Path('body.footer'))
+                article = _.create_element(node_path=Node_Path('body.main.article'))
+                aside   = _.create_element(node_path=Node_Path('body.main.aside'))
 
-            _.set_root(body)
-            _.add_child(body, header , position=0)
-            _.add_child(body, main   , position=1)
-            _.add_child(body, footer , position=2)
-            _.add_child(main, article, position=0)
-            _.add_child(main, aside  , position=1)
+                _.set_root(body)
+                _.add_child(body, header , position=0)
+                _.add_child(body, main   , position=1)
+                _.add_child(body, footer , position=2)
+                _.add_child(main, article, position=0)
+                _.add_child(main, aside  , position=1)
 
-            _.create_text(text='Header Text'     , parent_id=header , position=0)
-            _.create_text(text='Article content' , parent_id=article, position=0)
-            _.create_text(text='Sidebar'         , parent_id=aside  , position=0)
-            _.create_text(text='Footer Text'     , parent_id=footer , position=0)
+                _.create_text(text='Header Text'     , parent_id=header , position=0)
+                _.create_text(text='Article content' , parent_id=article, position=0)
+                _.create_text(text='Sidebar'         , parent_id=aside  , position=0)
+                _.create_text(text='Footer Text'     , parent_id=footer , position=0)
 
-            assert _.get_element_children(body) == [header, main, footer]
-            assert _.get_element_children(main) == [article, aside]
-            assert _.get_text_content(header)   == 'Header Text'
-            assert _.get_text_content(footer)   == 'Footer Text'
+                assert _.get_element_children(body) == [header, main, footer]
+                assert _.get_element_children(main) == [article, aside]
+                assert _.get_text_content(header)   == 'Header Text'
+                assert _.get_text_content(footer)   == 'Footer Text'
 
-            all_text = _.get_all_text_recursive(body)
-            assert 'Header Text'      in all_text
-            assert 'Article content'  in all_text
-            assert 'Sidebar'          in all_text
-            assert 'Footer Text'      in all_text
+                all_text = _.get_all_text_recursive(body)
+                assert 'Header Text'      in all_text
+                assert 'Article content'  in all_text
+                assert 'Sidebar'          in all_text
+                assert 'Footer Text'      in all_text
 
-            stats = _.stats()
-            assert stats['element_nodes'] == 6
-            assert stats['text_nodes']    == 4
+                stats = _.stats()
+                assert type(stats) is Schema__Html_MGraph__Stats__Body
+                assert stats.obj() == __(element_nodes=6,
+                                         text_nodes=4,
+                                         total_nodes=11,
+                                         total_edges=9,
+                                         root_id='c0000002')
+                assert stats.element_nodes == 6
+                assert stats.text_nodes    == 4

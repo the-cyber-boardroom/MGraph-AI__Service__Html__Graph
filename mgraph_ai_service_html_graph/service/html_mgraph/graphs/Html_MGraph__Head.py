@@ -1,4 +1,6 @@
 from typing                                                                     import Dict, Any, List
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Head
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                             import Edge_Path
@@ -130,11 +132,19 @@ class Html_MGraph__Head(Html_MGraph__Base):                                     
     # Stats Methods (override base)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def stats(self) -> Dict[str, Any]:                                          # Get statistics about the head graph
-        base_stats     = super().stats()
-        element_count  = len(self.all_element_nodes())
-        text_count     = len(self.all_text_nodes())
+    def stats(self) -> Schema__Html_MGraph__Stats__Head:                        # Get statistics about the head graph
+        element_count = 0
+        text_count    = 0
 
-        base_stats['element_nodes'] = element_count
-        base_stats['text_nodes']    = text_count
-        return base_stats
+        for node_id in self.nodes_ids():
+            if self.is_element_node(node_id):
+                element_count += 1
+            elif self.is_text_node(node_id):
+                text_count += 1
+
+        return Schema__Html_MGraph__Stats__Head(
+            total_nodes   = len(list(self.mgraph.data().nodes_ids())) ,
+            total_edges   = len(list(self.mgraph.data().edges_ids())) ,
+            root_id       = self.root_id                              ,
+            element_nodes = element_count                             ,
+            text_nodes    = text_count                                )

@@ -49,7 +49,7 @@ class StatsPanel extends HTMLElement {
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Tags</span>
-                        <span class="stat-value" id="stat-tag-nodes">${this.stats.tag_nodes}</span>
+                        <span class="stat-value" id="stat-tag-nodes">${this.stats.unique_tags}</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Text</span>
@@ -74,7 +74,7 @@ class StatsPanel extends HTMLElement {
         this.querySelector('#stat-total-edges').textContent = this.stats.total_edges;
         this.querySelector('#stat-element-nodes').textContent = this.stats.element_nodes;
         this.querySelector('#stat-value-nodes').textContent = this.stats.value_nodes;
-        this.querySelector('#stat-tag-nodes').textContent = this.stats.tag_nodes;
+        this.querySelector('#stat-tag-nodes').textContent = this.stats.unique_tags;
         this.querySelector('#stat-text-nodes').textContent = this.stats.text_nodes;
         this.querySelector('#stat-attr-nodes').textContent = this.stats.attr_nodes;
     }

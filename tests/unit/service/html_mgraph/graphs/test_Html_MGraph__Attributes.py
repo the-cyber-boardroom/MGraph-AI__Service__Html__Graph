@@ -1,11 +1,15 @@
-from unittest                                                                   import TestCase
-from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Attributes   import Html_MGraph__Attributes
-from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base         import Html_MGraph__Base
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
-from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                import Obj_Id
-from osbot_utils.utils.Objects                                                  import base_classes
+from unittest                                                                           import TestCase
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Attributes
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Attributes    import Html_MGraph__Attributes
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base          import Html_MGraph__Base
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                                     import Node_Path
+from mgraph_db.utils.testing.mgraph_test_ids                                            import mgraph_test_ids
+from osbot_utils.testing.__                                                             import __
+from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                       import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
+from osbot_utils.utils.Objects                                                          import base_classes
 
 
 class test_Html_MGraph__Attributes(TestCase):                                   # Test attributes graph for tags and attributes
@@ -447,30 +451,37 @@ class test_Html_MGraph__Attributes(TestCase):                                   
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_stats(self):                                                       # Test statistics with populated graph
-        with Html_MGraph__Attributes().setup() as _:
-            div_id = Node_Id(Obj_Id())
-            p_id   = Node_Id(Obj_Id())
+        with mgraph_test_ids():
+            with Html_MGraph__Attributes().setup() as _:
+                div_id = Node_Id(Obj_Id())
+                p_id   = Node_Id(Obj_Id())
 
-            _.register_element(div_id, 'div')
-            _.register_element(p_id  , 'p')
+                _.register_element(div_id, 'div')
+                _.register_element(p_id  , 'p')
 
-            _.add_attribute(div_id, 'class', 'container', position=0)
-            _.add_attribute(div_id, 'id'   , 'main'     , position=1)
-            _.add_attribute(p_id  , 'class', 'text'     , position=0)
+                _.add_attribute(div_id, 'class', 'container', position=0)
+                _.add_attribute(div_id, 'id'   , 'main'     , position=1)
+                _.add_attribute(p_id  , 'class', 'text'     , position=0)
 
-            stats = _.stats()
-
-            assert stats['tag_nodes']     == 2                                  # div, p
-            assert stats['element_nodes'] == 2                                  # 2 registered elements
-            assert stats['attr_nodes']    == 3                                  # 3 attributes
+                stats = _.stats()
+                assert type(stats) is Schema__Html_MGraph__Stats__Attributes
+                assert stats.obj() == __(registered_elements=2,
+                                         total_attributes=3,
+                                         unique_tags=2,
+                                         total_nodes=9,
+                                         total_edges=7,
+                                         root_id='c0000002')
+                assert stats.unique_tags         == 2                                  # div, p
+                assert stats.registered_elements == 2                                  # 2 registered elements
+                assert stats.total_attributes    == 3                                  # 3 attributes
 
     def test_stats__empty(self):                                                # Test statistics with no elements
         with Html_MGraph__Attributes().setup() as _:
             stats = _.stats()
 
-            assert stats['tag_nodes']     == 0
-            assert stats['element_nodes'] == 0
-            assert stats['attr_nodes']    == 0
+            assert stats.unique_tags     == 0
+            assert stats.registered_elements == 0
+            assert stats.total_attributes    == 0
 
     def test_stats__elements_only(self):                                        # Test stats with elements but no attributes
         with Html_MGraph__Attributes().setup() as _:
@@ -479,53 +490,60 @@ class test_Html_MGraph__Attributes(TestCase):                                   
 
             stats = _.stats()
 
-            assert stats['tag_nodes']     == 2
-            assert stats['element_nodes'] == 2
-            assert stats['attr_nodes']    == 0
+            assert stats.unique_tags     == 2
+            assert stats.registered_elements == 2
+            assert stats.total_attributes    == 0
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Integration Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_full_workflow(self):                                               # Test complete workflow
-        with Html_MGraph__Attributes().setup() as _:
-            # Register elements
-            html_id = Node_Id(Obj_Id())
-            head_id = Node_Id(Obj_Id())
-            body_id = Node_Id(Obj_Id())
-            div_id  = Node_Id(Obj_Id())
+        with mgraph_test_ids():
+            with Html_MGraph__Attributes().setup() as _:
+                # Register elements
+                html_id = Node_Id(Obj_Id())
+                head_id = Node_Id(Obj_Id())
+                body_id = Node_Id(Obj_Id())
+                div_id  = Node_Id(Obj_Id())
 
-            _.register_element(html_id, 'html')
-            _.register_element(head_id, 'head')
-            _.register_element(body_id, 'body')
-            _.register_element(div_id , 'div')
+                _.register_element(html_id, 'html')
+                _.register_element(head_id, 'head')
+                _.register_element(body_id, 'body')
+                _.register_element(div_id , 'div')
 
-            # Add attributes
-            _.add_attribute(html_id, 'lang' , 'en'       , position=0)
-            _.add_attribute(body_id, 'class', 'container', position=0)
-            _.add_attribute(div_id , 'class', 'content'  , position=0)
-            _.add_attribute(div_id , 'id'   , 'main'     , position=1)
+                # Add attributes
+                _.add_attribute(html_id, 'lang' , 'en'       , position=0)
+                _.add_attribute(body_id, 'class', 'container', position=0)
+                _.add_attribute(div_id , 'class', 'content'  , position=0)
+                _.add_attribute(div_id , 'id'   , 'main'     , position=1)
 
-            # Verify tags
-            assert _.get_tag(html_id) == 'html'
-            assert _.get_tag(head_id) == 'head'
-            assert _.get_tag(body_id) == 'body'
-            assert _.get_tag(div_id)  == 'div'
+                # Verify tags
+                assert _.get_tag(html_id) == 'html'
+                assert _.get_tag(head_id) == 'head'
+                assert _.get_tag(body_id) == 'body'
+                assert _.get_tag(div_id)  == 'div'
 
-            # Verify attributes
-            assert _.get_attributes(html_id) == {'lang': 'en'}
-            assert _.get_attributes(head_id) == {}
-            assert _.get_attributes(body_id) == {'class': 'container'}
-            assert _.get_attributes(div_id)  == {'class': 'content', 'id': 'main'}
+                # Verify attributes
+                assert _.get_attributes(html_id) == {'lang': 'en'}
+                assert _.get_attributes(head_id) == {}
+                assert _.get_attributes(body_id) == {'class': 'container'}
+                assert _.get_attributes(div_id)  == {'class': 'content', 'id': 'main'}
 
-            # Verify lookups
-            assert _.get_elements_by_tag('div') == [div_id]
-            assert len(_.get_all_tags())        == 4
+                # Verify lookups
+                assert _.get_elements_by_tag('div') == [div_id]
+                assert len(_.get_all_tags())        == 4
 
-            containers = _.get_elements_with_attribute('class', 'container')
-            assert containers == [body_id]
+                containers = _.get_elements_with_attribute('class', 'container')
+                assert containers == [body_id]
 
-            stats = _.stats()
-            assert stats['tag_nodes']     == 4
-            assert stats['element_nodes'] == 4
-            assert stats['attr_nodes']    == 4
+                stats = _.stats()
+                assert stats.obj() == __(registered_elements=4,
+                                         total_attributes=4,
+                                         unique_tags=4,
+                                         total_nodes=14,
+                                         total_edges=12,
+                                         root_id='c0000002')
+                assert stats.unique_tags     == 4
+                assert stats.registered_elements == 4
+                assert stats.total_attributes    == 4

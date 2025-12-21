@@ -1,11 +1,13 @@
-from typing                                                                                     import Dict, Any, List, Optional
-from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document              import Html_MGraph__Document
+from typing                                                                                            import Dict, Any, List, Optional
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document                     import Html_MGraph__Document
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document       import Html__To__Html_MGraph__Document
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html       import Html_MGraph__Document__To__Html
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html_Dict  import Html_MGraph__Document__To__Html_Dict
-from osbot_utils.helpers.html.transformers.Html_Dict__To__Html import Html_Dict__To__Html
-from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                               import Node_Id
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                                     import Schema__Html_MGraph__Stats__Document
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                                     import Schema__Html_MGraph__Element_Info
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html                                         import Html_Dict__To__Html
+from osbot_utils.type_safe.Type_Safe                                                                   import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                                      import Node_Id
 
 
 class Html_MGraph(Type_Safe):                                                   # Main public API for HTML Graph operations
@@ -190,32 +192,14 @@ class Html_MGraph(Type_Safe):                                                   
     # Statistics
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def stats(self) -> Dict[str, Any]:                                          # Get comprehensive statistics
-        doc_stats = {}
-
+    def stats(self) -> Schema__Html_MGraph__Stats__Document:                    # Get comprehensive statistics
         if self.document:
-            doc_stats['root_id'] = str(self.document.root_id) if self.document.root_id else None
-
-            if self.document.head_graph:
-                doc_stats['head'] = self.document.head_graph.stats()
-
-            if self.document.body_graph:
-                doc_stats['body'] = self.document.body_graph.stats()
-
-            if self.document.attrs_graph:
-                doc_stats['attributes'] = self.document.attrs_graph.stats()
-
-            if self.document.scripts_graph:
-                doc_stats['scripts'] = self.document.scripts_graph.stats()
-
-            if self.document.styles_graph:
-                doc_stats['styles'] = self.document.styles_graph.stats()
-
-        return doc_stats
+            return self.document.stats()
+        return Schema__Html_MGraph__Stats__Document()
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Element Info (convenience method)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def element_info(self, node_id: Node_Id) -> Dict[str, Any]:                 # Get comprehensive info about an element
+    def element_info(self, node_id: Node_Id) -> Schema__Html_MGraph__Element_Info:  # Get comprehensive info about an element
         return self.document.element_info(node_id)

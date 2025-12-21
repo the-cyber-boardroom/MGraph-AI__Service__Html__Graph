@@ -1,7 +1,11 @@
 from unittest                                                               import TestCase
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Scripts
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Scripts  import Html_MGraph__Scripts
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base     import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                         import Node_Path
+from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
+from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id           import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id            import Obj_Id
@@ -300,17 +304,17 @@ class test_Html_MGraph__Scripts(TestCase):                                      
 
             stats = _.stats()
 
-            assert stats['total_scripts']    == 5
-            assert stats['inline_scripts']   == 2
-            assert stats['external_scripts'] == 3
+            assert stats.total_scripts    == 5
+            assert stats.inline_scripts   == 2
+            assert stats.external_scripts == 3
 
     def test_stats__empty(self):                                                # Test statistics with no scripts
         with Html_MGraph__Scripts().setup() as _:
             stats = _.stats()
 
-            assert stats['total_scripts']    == 0
-            assert stats['inline_scripts']   == 0
-            assert stats['external_scripts'] == 0
+            assert stats.total_scripts    == 0
+            assert stats.inline_scripts   == 0
+            assert stats.external_scripts == 0
 
     def test_stats__only_inline(self):                                          # Test statistics with only inline scripts
         with Html_MGraph__Scripts().setup() as _:
@@ -319,9 +323,9 @@ class test_Html_MGraph__Scripts(TestCase):                                      
 
             stats = _.stats()
 
-            assert stats['total_scripts']    == 2
-            assert stats['inline_scripts']   == 2
-            assert stats['external_scripts'] == 0
+            assert stats.total_scripts    == 2
+            assert stats.inline_scripts   == 2
+            assert stats.external_scripts == 0
 
     def test_stats__only_external(self):                                        # Test statistics with only external scripts
         with Html_MGraph__Scripts().setup() as _:
@@ -330,59 +334,70 @@ class test_Html_MGraph__Scripts(TestCase):                                      
 
             stats = _.stats()
 
-            assert stats['total_scripts']    == 2
-            assert stats['inline_scripts']   == 0
-            assert stats['external_scripts'] == 2
+            assert stats.total_scripts    == 2
+            assert stats.inline_scripts   == 0
+            assert stats.external_scripts == 2
 
     def test_stats__base_stats_included(self):                                  # Test base stats are included
-        with Html_MGraph__Scripts().setup() as _:
-            _.register_script(Node_Id(Obj_Id()), content="test")
+        with mgraph_test_ids():
+            with Html_MGraph__Scripts().setup() as _:
+                _.register_script(Node_Id(Obj_Id()), content="test")
 
-            stats = _.stats()
-
-            assert 'total_nodes' in stats
-            assert 'total_edges' in stats
-            assert 'root_id'     in stats
+                stats = _.stats()
+                assert stats.obj() == __(total_scripts=1,
+                                         inline_scripts=1,
+                                         external_scripts=0,
+                                         total_nodes=4,
+                                         total_edges=2,
+                                         root_id='c0000002')
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Integration Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_full_workflow(self):                                               # Test complete workflow
-        with Html_MGraph__Scripts().setup() as _:
-            # Register various scripts
-            init_script_id    = Node_Id(Obj_Id())
-            app_script_id     = Node_Id(Obj_Id())
-            external_lib_id   = Node_Id(Obj_Id())
-            analytics_id      = Node_Id(Obj_Id())
+        with mgraph_test_ids():
+            with Html_MGraph__Scripts().setup() as _:
+                # Register various scripts
+                init_script_id    = Node_Id(Obj_Id())
+                app_script_id     = Node_Id(Obj_Id())
+                external_lib_id   = Node_Id(Obj_Id())
+                analytics_id      = Node_Id(Obj_Id())
 
-            _.register_script(init_script_id   , content="window.APP = {};")
-            _.register_script(app_script_id    , content="APP.init = function() { console.log('init'); };")
-            _.register_script(external_lib_id  , content=None)                  # External library
-            _.register_script(analytics_id     , content="ga('send', 'pageview');")
+                _.register_script(init_script_id   , content="window.APP = {};")
+                _.register_script(app_script_id    , content="APP.init = function() { console.log('init'); };")
+                _.register_script(external_lib_id  , content=None)                  # External library
+                _.register_script(analytics_id     , content="ga('send', 'pageview');")
 
-            # Verify content retrieval
-            assert _.get_script_content(init_script_id)   == "window.APP = {};"
-            assert _.get_script_content(app_script_id)    == "APP.init = function() { console.log('init'); };"
-            assert _.get_script_content(external_lib_id)  is None
-            assert _.get_script_content(analytics_id)     == "ga('send', 'pageview');"
+                # Verify content retrieval
+                assert _.get_script_content(init_script_id)   == "window.APP = {};"
+                assert _.get_script_content(app_script_id)    == "APP.init = function() { console.log('init'); };"
+                assert _.get_script_content(external_lib_id)  is None
+                assert _.get_script_content(analytics_id)     == "ga('send', 'pageview');"
 
-            # Verify type detection
-            assert _.is_inline_script(init_script_id)     is True
-            assert _.is_external_script(external_lib_id)  is True
+                # Verify type detection
+                assert _.is_inline_script(init_script_id)     is True
+                assert _.is_external_script(external_lib_id)  is True
 
-            # Verify ordering
-            all_scripts = _.get_all_scripts()
-            assert all_scripts == [init_script_id, app_script_id, external_lib_id, analytics_id]
+                # Verify ordering
+                all_scripts = _.get_all_scripts()
+                assert all_scripts == [init_script_id, app_script_id, external_lib_id, analytics_id]
 
-            # Verify filtered lists
-            inline_scripts   = _.get_inline_scripts()
-            external_scripts = _.get_external_scripts()
-            assert len(inline_scripts)   == 3
-            assert len(external_scripts) == 1
+                # Verify filtered lists
+                inline_scripts   = _.get_inline_scripts()
+                external_scripts = _.get_external_scripts()
+                assert len(inline_scripts)   == 3
+                assert len(external_scripts) == 1
 
-            # Verify stats
-            stats = _.stats()
-            assert stats['total_scripts']    == 4
-            assert stats['inline_scripts']   == 3
-            assert stats['external_scripts'] == 1
+                # Verify stats
+                stats = _.stats()
+                assert type(stats) is Schema__Html_MGraph__Stats__Scripts
+                assert stats.obj() == __(total_scripts=4,
+                                         inline_scripts=3,
+                                         external_scripts=1,
+                                         total_nodes=9,
+                                         total_edges=7,
+                                         root_id='c0000002')
+                assert stats.total_scripts    == 4
+                assert stats.inline_scripts   == 3
+                assert stats.external_scripts == 1

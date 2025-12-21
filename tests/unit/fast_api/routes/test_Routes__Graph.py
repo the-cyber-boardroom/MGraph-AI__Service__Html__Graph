@@ -64,7 +64,7 @@ class test_Routes__Graph(TestCase):
                                                     preset = Enum__Html_Render__Preset.FULL_DETAIL)
         result  = self.to_dot(request)
 
-        assert result.stats.tag_nodes >= 1
+        assert result.stats.unique_tags >= 1
 
     def test__from_html_to_dot__preset_structure_only(self):
         request = Schema__Graph__From_Html__Request(html   = self.simple_html,
@@ -322,7 +322,7 @@ class test_Routes__Graph(TestCase):
         assert stats.total_edges   > 0
         assert stats.element_nodes > 0
         assert stats.value_nodes   >= 0
-        assert stats.tag_nodes     >= 0
+        assert stats.unique_tags     >= 0
         assert stats.text_nodes    >= 0
         assert stats.attr_nodes    >= 0
 

@@ -1,7 +1,11 @@
 from unittest                                                                           import TestCase
+
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Styles, Schema__Html_MGraph__Stats__Document
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document   import Html__To__Html_MGraph__Document
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document   import SCRIPT_TAGS, STYLE_TAGS
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document             import Html_MGraph__Document
+from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
+from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.utils.Objects                                                          import base_classes
 
@@ -763,7 +767,8 @@ class test_Html__To__Html_MGraph__Document(TestCase):                           
         </html>
         """
         with Html__To__Html_MGraph__Document() as converter:
-            doc = converter.convert(html)
+            with mgraph_test_ids():
+                doc = converter.convert(html)
 
             # Verify document structure
             assert doc.root_id is not None
@@ -812,9 +817,35 @@ class test_Html__To__Html_MGraph__Document(TestCase):                           
 
             # Verify stats work
             stats = doc.stats()
-            assert 'document'   in stats
-            assert 'body'       in stats
-            assert 'head'       in stats
-            assert 'attributes' in stats
-            assert 'scripts'    in stats
-            assert 'styles'     in stats
+            assert type(stats) == Schema__Html_MGraph__Stats__Document
+            assert stats.obj() == __(document=__(total_nodes=6,
+                                                 total_edges=5,
+                                                 root_id='c0000001'),
+                                     head=__(element_nodes=6,
+                                             text_nodes=1,
+                                             total_nodes=8,
+                                             total_edges=6,
+                                             root_id='c0000017'),
+                                     body=__(element_nodes=11,
+                                             text_nodes=5,
+                                             total_nodes=17,
+                                             total_edges=15,
+                                             root_id='c0000035'),
+                                     attributes=__(registered_elements=18,
+                                                   total_attributes=7,
+                                                   unique_tags=15,
+                                                   total_nodes=42,
+                                                   total_edges=41,
+                                                   root_id='c0000005'),
+                                     scripts=__(total_scripts=3,
+                                                inline_scripts=2,
+                                                external_scripts=1,
+                                                total_nodes=7,
+                                                total_edges=5,
+                                                root_id='c0000007'),
+                                     styles=__(total_styles=2,
+                                               inline_styles=1,
+                                               external_styles=1,
+                                               total_nodes=5,
+                                               total_edges=3,
+                                               root_id='c0000009'))
