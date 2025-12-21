@@ -1,539 +1,820 @@
-from unittest                                                               import TestCase
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Document import Html_MGraph__Document
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Base     import Html_MGraph__Base
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Head     import Html_MGraph__Head
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Body     import Html_MGraph__Body
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Attributes import Html_MGraph__Attributes
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Scripts  import Html_MGraph__Scripts
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Styles   import Html_MGraph__Styles
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                         import Node_Path
-from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id           import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id            import Obj_Id
-from osbot_utils.utils.Objects                                              import base_classes
+from unittest                                                                           import TestCase
+from mgraph_ai_service_html_graph.service.html_mgraph.Html__To__Html_MGraph__Document   import Html__To__Html_MGraph__Document
+from mgraph_ai_service_html_graph.service.html_mgraph.Html__To__Html_MGraph__Document   import SCRIPT_TAGS, STYLE_TAGS
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Document             import Html_MGraph__Document
+from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
+from osbot_utils.utils.Objects                                                          import base_classes
 
 
-class test_Html_MGraph__Document(TestCase):                                     # Test document orchestrator
+class test_Html__To__Html_MGraph__Document(TestCase):                           # Test HTML to multi-graph conversion
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Initialization Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test__init__(self):                                                     # Test default initialization
-        with Html_MGraph__Document() as _:
-            assert type(_)          is Html_MGraph__Document
-            assert base_classes(_)  == [Html_MGraph__Base, Type_Safe, object]
-            assert _.head_graph     is None
-            assert _.body_graph     is None
-            assert _.attrs_graph    is None
-            assert _.scripts_graph  is None
-            assert _.styles_graph   is None
-            assert _.PREDICATE_GRAPH is not None
-            assert _.PATH_HTML       == 'html'
+        with Html__To__Html_MGraph__Document() as _:
+            assert type(_)         is Html__To__Html_MGraph__Document
+            assert base_classes(_) == [Type_Safe, object]
 
-    def test_setup(self):                                                       # Test setup initializes all graphs
-        with Html_MGraph__Document().setup() as _:
-            assert _.mgraph is not None
-            assert _.root_id is not None
-
-    def test_setup_initializes_all_graphs(self):                                # Test setup creates all component graphs
-        with Html_MGraph__Document().setup() as _:
-            assert _.head_graph     is not None
-            assert _.body_graph     is not None
-            assert _.attrs_graph    is not None
-            assert _.scripts_graph  is not None
-            assert _.styles_graph   is not None
-
-            assert type(_.head_graph)    is Html_MGraph__Head
-            assert type(_.body_graph)    is Html_MGraph__Body
-            assert type(_.attrs_graph)   is Html_MGraph__Attributes
-            assert type(_.scripts_graph) is Html_MGraph__Scripts
-            assert type(_.styles_graph)  is Html_MGraph__Styles
-
-    def test_setup_initializes_component_roots(self):                           # Test each component graph has its root
-        with Html_MGraph__Document().setup() as _:
-            assert _.head_graph   .root_id is not None
-            assert _.body_graph   .root_id is not None
-            assert _.attrs_graph  .root_id is not None
-            assert _.scripts_graph.root_id is not None
-            assert _.styles_graph .root_id is not None
-
-    def test_setup_registers_html_element(self):                                # Test setup registers <html> in attrs_graph
-        with Html_MGraph__Document().setup() as _:
-            tag = _.attrs_graph.get_tag(_.root_id)
-            assert tag == 'html'
-
-    def test_setup_creates_graph_links(self):                                   # Test setup creates edges to component graphs
-        with Html_MGraph__Document().setup() as _:
-            outgoing = _.outgoing_edges(_.root_id)
-            assert len(outgoing) == 5                                           # head, body, attrs, scripts, styles
+    def test_constants(self):                                                   # Test module constants
+        assert SCRIPT_TAGS == {'script'}
+        assert STYLE_TAGS  == {'style', 'link'}
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Cross-Graph Query Tests - Tags
+    # Convert Tests - Basic HTML
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test_get_tag(self):                                                     # Test getting tag via document
-        with Html_MGraph__Document().setup() as _:
-            node_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(node_id, 'div')
+    def test_convert_minimal_html(self):                                        # Test minimal HTML conversion
+        html = "<html><head></head><body></body></html>"
 
-            assert _.get_tag(node_id) == 'div'
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-    def test_get_tag__html_root(self):                                          # Test getting tag for document root
-        with Html_MGraph__Document().setup() as _:
-            assert _.get_tag(_.root_id) == 'html'
+            assert type(doc)  is Html_MGraph__Document
+            assert doc.root_id is not None
 
-    def test_get_tag__not_found(self):                                          # Test getting tag for non-registered element
-        with Html_MGraph__Document().setup() as _:
-            fake_id = Node_Id(Obj_Id())
-            assert _.get_tag(fake_id) is None
+    def test_convert_simple_html(self):                                         # Test simple HTML conversion
+        html = """
+        <html lang="en">
+            <head>
+                <title>Test Page</title>
+            </head>
+            <body class="container">
+                <div id="main">Hello World</div>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            assert doc.root_id is not None                                      # Document has root
+            assert doc.head_graph.root_id is not None                           # Head graph populated
+            assert doc.body_graph.root_id is not None                           # Body graph populated
+
+    def test_convert_html_with_lang_attribute(self):                            # Test <html> attributes are captured
+        html = '<html lang="en" dir="ltr"><head></head><body></body></html>'
+
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            attrs = doc.get_attributes(doc.root_id)
+            assert attrs.get('lang') == 'en'
+            assert attrs.get('dir')  == 'ltr'
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Cross-Graph Query Tests - Attributes
+    # Convert Tests - Head Section
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test_get_attributes(self):                                              # Test getting attributes via document
-        with Html_MGraph__Document().setup() as _:
-            node_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(node_id, 'div')
-            _.attrs_graph.add_attribute(node_id, 'class', 'container', position=0)
-            _.attrs_graph.add_attribute(node_id, 'id'   , 'main'     , position=1)
+    def test_convert_head_with_meta(self):                                      # Test <head> with meta tags
+        html = """
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width">
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            attrs = _.get_attributes(node_id)
-            assert attrs == {'class': 'container', 'id': 'main'}
+            metas = doc.get_elements_by_tag('meta')
+            assert len(metas) == 2
 
-    def test_get_attributes__empty(self):                                       # Test getting attributes when none set
-        with Html_MGraph__Document().setup() as _:
-            node_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(node_id, 'br')
+            charset_found = False
+            for meta_id in metas:
+                if doc.get_attribute(meta_id, 'charset') == 'utf-8':
+                    charset_found = True
+            assert charset_found
 
-            attrs = _.get_attributes(node_id)
-            assert attrs == {}
+    def test_convert_head_with_title(self):                                     # Test <head> with title and text
+        html = """
+        <html>
+            <head>
+                <title>My Page Title</title>
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-    def test_get_attribute(self):                                               # Test getting single attribute
-        with Html_MGraph__Document().setup() as _:
-            node_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(node_id, 'a')
-            _.attrs_graph.add_attribute(node_id, 'href', 'https://test.com', position=0)
+            titles = doc.get_elements_by_tag('title')
+            assert len(titles) == 1
 
-            assert _.get_attribute(node_id, 'href') == 'https://test.com'
+            title_id = titles[0]
+            content  = doc.get_text_content(title_id, in_head=True)
+            assert content == 'My Page Title'
 
-    def test_get_attribute__not_found(self):                                    # Test getting non-existent attribute
-        with Html_MGraph__Document().setup() as _:
-            node_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(node_id, 'div')
+    def test_convert_head_with_style(self):                                     # Test <head> with inline style
+        html = """
+        <html>
+            <head>
+                <style>.container { display: flex; }</style>
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            assert _.get_attribute(node_id, 'nonexistent') is None
+            styles = doc.styles_graph.get_all_styles()
+            assert len(styles) == 1
 
-    def test_get_elements_by_tag(self):                                         # Test getting elements by tag
-        with Html_MGraph__Document().setup() as _:
-            div1 = Node_Id(Obj_Id())
-            div2 = Node_Id(Obj_Id())
-            p1   = Node_Id(Obj_Id())
+            style_id = styles[0]
+            content  = doc.get_style_content(style_id)
+            assert 'display: flex' in content
 
-            _.attrs_graph.register_element(div1, 'div')
-            _.attrs_graph.register_element(div2, 'div')
-            _.attrs_graph.register_element(p1  , 'p')
+    def test_convert_head_with_link(self):                                      # Test <head> with external stylesheet link
+        html = """
+        <html>
+            <head>
+                <link rel="stylesheet" href="styles.css">
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            divs = _.get_elements_by_tag('div')
+            links = doc.get_elements_by_tag('link')
+            assert len(links) == 1
+
+            link_id = links[0]
+            assert doc.get_attribute(link_id, 'rel')  == 'stylesheet'
+            assert doc.get_attribute(link_id, 'href') == 'styles.css'
+
+            assert doc.styles_graph.is_external_style(link_id) is True          # Registered in styles graph
+
+    def test_convert_head_with_script(self):                                    # Test <head> with inline script
+        html = """
+        <html>
+            <head>
+                <script>console.log('head script');</script>
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            scripts = doc.scripts_graph.get_all_scripts()
+            assert len(scripts) == 1
+
+            script_id = scripts[0]
+            content   = doc.get_script_content(script_id)
+            assert "console.log('head script')" in content
+
+    def test_convert_head_attributes(self):                                     # Test <head> element attributes
+        html = """
+        <html>
+            <head data-theme="dark">
+                <title>Test</title>
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            head_id = doc.head_graph.root_id
+            attrs   = doc.get_attributes(head_id)
+            assert attrs.get('data-theme') == 'dark'
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Convert Tests - Body Section
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def test_convert_body_with_div(self):                                       # Test <body> with div elements
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <div id="container" class="main">
+                    <div id="nested">Content</div>
+                </div>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            divs = doc.get_elements_by_tag('div')
             assert len(divs) == 2
-            assert div1 in divs
-            assert div2 in divs
 
-    def test_get_elements_by_tag__not_found(self):                              # Test getting elements for non-existent tag
-        with Html_MGraph__Document().setup() as _:
-            result = _.get_elements_by_tag('nonexistent')
-            assert result == []
+            container_found = False
+            nested_found    = False
+            for div_id in divs:
+                if doc.get_attribute(div_id, 'id') == 'container':
+                    container_found = True
+                    assert doc.get_attribute(div_id, 'class') == 'main'
+                if doc.get_attribute(div_id, 'id') == 'nested':
+                    nested_found = True
+            assert container_found
+            assert nested_found
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Cross-Graph Query Tests - Scripts
-    # ═══════════════════════════════════════════════════════════════════════════
+    def test_convert_body_with_text(self):                                      # Test <body> with text content
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <p>Hello World</p>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-    def test_get_script_content(self):                                          # Test getting script content
-        with Html_MGraph__Document().setup() as _:
-            script_id = Node_Id(Obj_Id())
-            _.scripts_graph.register_script(script_id, content="console.log('test');")
+            ps = doc.get_elements_by_tag('p')
+            assert len(ps) == 1
 
-            content = _.get_script_content(script_id)
-            assert content == "console.log('test');"
-
-    def test_get_script_content__external(self):                                # Test getting content for external script
-        with Html_MGraph__Document().setup() as _:
-            script_id = Node_Id(Obj_Id())
-            _.scripts_graph.register_script(script_id, content=None)
-
-            content = _.get_script_content(script_id)
-            assert content is None
-
-    def test_get_script_content__not_found(self):                               # Test getting content for non-registered script
-        with Html_MGraph__Document().setup() as _:
-            fake_id = Node_Id(Obj_Id())
-            content = _.get_script_content(fake_id)
-            assert content is None
-
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Cross-Graph Query Tests - Styles
-    # ═══════════════════════════════════════════════════════════════════════════
-
-    def test_get_style_content(self):                                           # Test getting style content
-        with Html_MGraph__Document().setup() as _:
-            style_id = Node_Id(Obj_Id())
-            _.styles_graph.register_style(style_id, content=".container { display: flex; }")
-
-            content = _.get_style_content(style_id)
-            assert content == ".container { display: flex; }"
-
-    def test_get_style_content__external(self):                                 # Test getting content for external stylesheet
-        with Html_MGraph__Document().setup() as _:
-            link_id = Node_Id(Obj_Id())
-            _.styles_graph.register_link(link_id)
-
-            content = _.get_style_content(link_id)
-            assert content is None
-
-    def test_get_style_content__not_found(self):                                # Test getting content for non-registered style
-        with Html_MGraph__Document().setup() as _:
-            fake_id = Node_Id(Obj_Id())
-            content = _.get_style_content(fake_id)
-            assert content is None
-
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Cross-Graph Query Tests - Text Content
-    # ═══════════════════════════════════════════════════════════════════════════
-
-    def test_get_text_content__body(self):                                      # Test getting text content from body
-        with Html_MGraph__Document().setup() as _:
-            div_id = Node_Id(Obj_Id())
-            _.body_graph.create_element(node_path=Node_Path('body.div'), node_id=div_id)
-            _.body_graph.create_text(text='Hello World', parent_id=div_id)
-
-            content = _.get_text_content(div_id, in_head=False)
+            p_id    = ps[0]
+            content = doc.get_text_content(p_id)
             assert content == 'Hello World'
 
-    def test_get_text_content__head(self):                                      # Test getting text content from head
-        with Html_MGraph__Document().setup() as _:
-            title_id = Node_Id(Obj_Id())
-            _.head_graph.create_element(node_path=Node_Path('head.title'), node_id=title_id)
-            _.head_graph.create_text(text='Page Title', parent_id=title_id)
+    def test_convert_body_with_script(self):                                    # Test <body> with inline script
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <script>console.log('test');</script>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            content = _.get_text_content(title_id, in_head=True)
-            assert content == 'Page Title'
+            scripts = doc.scripts_graph.get_all_scripts()
+            assert len(scripts) == 1
 
-    def test_get_text_content__empty(self):                                     # Test getting text when none exists
-        with Html_MGraph__Document().setup() as _:
-            div_id = Node_Id(Obj_Id())
-            _.body_graph.create_element(node_path=Node_Path('body.div'), node_id=div_id)
+            script_id = scripts[0]
+            content   = doc.get_script_content(script_id)
+            assert 'console.log' in content
 
-            content = _.get_text_content(div_id)
-            assert content == ''
+    def test_convert_body_attributes(self):                                     # Test <body> element attributes
+        html = """
+        <html>
+            <head></head>
+            <body class="container" data-page="home">
+                <div>Content</div>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Element Info Tests
-    # ═══════════════════════════════════════════════════════════════════════════
+            body_id = doc.body_graph.root_id
+            assert doc.get_tag(body_id) == 'body'
 
-    def test_element_info(self):                                                # Test getting element info
-        with Html_MGraph__Document().setup() as _:
-            node_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(node_id, 'div')
-            _.attrs_graph.add_attribute(node_id, 'class', 'container', position=0)
+            attrs = doc.get_attributes(body_id)
+            assert attrs.get('class')     == 'container'
+            assert attrs.get('data-page') == 'home'
 
-            info = _.element_info(node_id)
+    def test_convert_body_with_multiple_same_tags(self):                        # Test multiple same tags get indexed paths
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <div>First</div>
+                <div>Second</div>
+                <div>Third</div>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            assert info['node_id']    == str(node_id)
-            assert info['tag']        == 'div'
-            assert info['attributes'] == {'class': 'container'}
+            divs = doc.get_elements_by_tag('div')
+            assert len(divs) == 3
 
-    def test_element_info__script_with_content(self):                           # Test element info for script with content
-        with Html_MGraph__Document().setup() as _:
-            script_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(script_id, 'script')
-            _.scripts_graph.register_script(script_id, content="alert('hi');")
+    def test_convert_body_nested_structure(self):                               # Test deeply nested body structure
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <div class="level1">
+                    <div class="level2">
+                        <p class="level3">Deep content</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            info = _.element_info(script_id)
+            divs = doc.get_elements_by_tag('div')
+            assert len(divs) == 2
 
-            assert info['tag']            == 'script'
-            assert info['script_content'] == "alert('hi');"
+            ps = doc.get_elements_by_tag('p')
+            assert len(ps) == 1
 
-    def test_element_info__script_external(self):                               # Test element info for external script (no content)
-        with Html_MGraph__Document().setup() as _:
-            script_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(script_id, 'script')
-            _.attrs_graph.add_attribute(script_id, 'src', 'app.js', position=0)
-            _.scripts_graph.register_script(script_id, content=None)
-
-            info = _.element_info(script_id)
-
-            assert info['tag']             == 'script'
-            assert 'script_content' not in info                                 # No content for external
-
-    def test_element_info__style_with_content(self):                            # Test element info for style with content
-        with Html_MGraph__Document().setup() as _:
-            style_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(style_id, 'style')
-            _.styles_graph.register_style(style_id, content="body { margin: 0; }")
-
-            info = _.element_info(style_id)
-
-            assert info['tag']           == 'style'
-            assert info['style_content'] == "body { margin: 0; }"
-
-    def test_element_info__style_external(self):                                # Test element info for external style (no content)
-        with Html_MGraph__Document().setup() as _:
-            link_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(link_id, 'style')
-            _.styles_graph.register_style(link_id, content=None)
-
-            info = _.element_info(link_id)
-
-            assert info['tag']            == 'style'
-            assert 'style_content' not in info
-
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Tree Traversal Tests - Body
-    # ═══════════════════════════════════════════════════════════════════════════
-
-    def test_get_body_children(self):                                           # Test getting body children
-        with Html_MGraph__Document().setup() as _:
-            body_root = _.body_graph.root_id
-            div_id    = Node_Id(Obj_Id())
-
-            _.body_graph.create_element(node_path=Node_Path('body.div'), node_id=div_id)
-            _.body_graph.add_child(body_root, div_id, position=0)
-
-            children = _.get_body_children(body_root)
-            assert children == [div_id]
-
-    def test_get_body_children__empty(self):                                    # Test getting body children when none exist
-        with Html_MGraph__Document().setup() as _:
-            body_root = _.body_graph.root_id
-            children  = _.get_body_children(body_root)
-            assert children == []
-
-    def test_walk_body(self):                                                   # Test walking body tree
-        with Html_MGraph__Document().setup() as _:
-            body_root = _.body_graph.root_id
-            div_id    = Node_Id(Obj_Id())
-            p_id      = Node_Id(Obj_Id())
-
-            _.body_graph.create_element(node_path=Node_Path('body.div'), node_id=div_id)
-            _.body_graph.create_element(node_path=Node_Path('body.div.p'), node_id=p_id)
-            _.body_graph.add_child(body_root, div_id, position=0)
-            _.body_graph.add_child(div_id   , p_id  , position=0)
-
-            _.attrs_graph.register_element(div_id, 'div')
-            _.attrs_graph.register_element(p_id  , 'p')
-
-            result = _.walk_body()
-
-            assert len(result) == 3                                             # body root, div, p
-            tags = [item['tag'] for item in result if item['tag']]
-            assert 'div' in tags
-            assert 'p'   in tags
-
-    def test_walk_body__from_node(self):                                        # Test walking body from specific node
-        with Html_MGraph__Document().setup() as _:
-            div_id = Node_Id(Obj_Id())
-            span_id = Node_Id(Obj_Id())
-
-            _.body_graph.create_element(node_path=Node_Path('body.div'), node_id=div_id)
-            _.body_graph.create_element(node_path=Node_Path('body.div.span'), node_id=span_id)
-            _.body_graph.add_child(_.body_graph.root_id, div_id, position=0)
-            _.body_graph.add_child(div_id, span_id, position=0)
-
-            _.attrs_graph.register_element(div_id , 'div')
-            _.attrs_graph.register_element(span_id, 'span')
-
-            result = _.walk_body(div_id)
-
-            assert len(result) == 2                                             # div, span
-            tags = [item['tag'] for item in result]
-            assert 'div'  in tags
-            assert 'span' in tags
+            p_id    = ps[0]
+            content = doc.get_text_content(p_id)
+            assert content == 'Deep content'
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Tree Traversal Tests - Head
+    # Convert Tests - Scripts and Styles
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test_get_head_children(self):                                           # Test getting head children
-        with Html_MGraph__Document().setup() as _:
-            head_root = _.head_graph.root_id
-            meta_id   = Node_Id(Obj_Id())
+    def test_convert_with_script(self):                                         # Test script content extraction
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <script>console.log('test');</script>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            _.head_graph.create_element(node_path=Node_Path('head.meta'), node_id=meta_id)
-            _.head_graph.add_child(head_root, meta_id, position=0)
+            scripts = doc.scripts_graph.get_all_scripts()
+            assert len(scripts) == 1
 
-            children = _.get_head_children(head_root)
-            assert children == [meta_id]
+            script_id = scripts[0]
+            content   = doc.get_script_content(script_id)
+            assert 'console.log' in content
 
-    def test_get_head_children__empty(self):                                    # Test getting head children when none exist
-        with Html_MGraph__Document().setup() as _:
-            head_root = _.head_graph.root_id
-            children  = _.get_head_children(head_root)
-            assert children == []
+    def test_convert_with_external_script(self):                                # Test external script (no content)
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <script src="app.js"></script>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-    def test_walk_head(self):                                                   # Test walking head tree
-        with Html_MGraph__Document().setup() as _:
-            head_root = _.head_graph.root_id
-            meta_id   = Node_Id(Obj_Id())
-            title_id  = Node_Id(Obj_Id())
+            scripts = doc.scripts_graph.get_all_scripts()
+            assert len(scripts) == 1
 
-            _.head_graph.create_element(node_path=Node_Path('head.meta') , node_id=meta_id)
-            _.head_graph.create_element(node_path=Node_Path('head.title'), node_id=title_id)
-            _.head_graph.add_child(head_root, meta_id , position=0)
-            _.head_graph.add_child(head_root, title_id, position=1)
+            script_id = scripts[0]
+            assert doc.get_attribute(script_id, 'src') == 'app.js'
+            assert doc.scripts_graph.is_external_script(script_id) is True
 
-            _.attrs_graph.register_element(meta_id , 'meta')
-            _.attrs_graph.register_element(title_id, 'title')
+    def test_convert_with_style(self):                                          # Test style content extraction
+        html = """
+        <html>
+            <head>
+                <style>.container { display: flex; }</style>
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            result = _.walk_head()
+            styles = doc.styles_graph.get_all_styles()
+            assert len(styles) == 1
 
-            assert len(result) == 3                                             # head root, meta, title
-            tags = [item['tag'] for item in result if item['tag']]
-            assert 'meta'  in tags
-            assert 'title' in tags
+            style_id = styles[0]
+            content  = doc.get_style_content(style_id)
+            assert 'display: flex' in content
 
-    def test_walk_head__from_node(self):                                        # Test walking head from specific node
-        with Html_MGraph__Document().setup() as _:
-            title_id = Node_Id(Obj_Id())
+    def test_convert_with_multiple_scripts(self):                               # Test multiple scripts
+        html = """
+        <html>
+            <head>
+                <script>var a = 1;</script>
+            </head>
+            <body>
+                <script>var b = 2;</script>
+                <script src="external.js"></script>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            _.head_graph.create_element(node_path=Node_Path('head.title'), node_id=title_id)
-            _.head_graph.add_child(_.head_graph.root_id, title_id, position=0)
+            scripts = doc.scripts_graph.get_all_scripts()
+            assert len(scripts) == 3
 
-            _.attrs_graph.register_element(title_id, 'title')
+            inline_scripts = doc.scripts_graph.get_inline_scripts()
+            assert len(inline_scripts) == 2
 
-            result = _.walk_head(title_id)
+            external_scripts = doc.scripts_graph.get_external_scripts()
+            assert len(external_scripts) == 1
 
-            assert len(result) == 1
-            assert result[0]['tag'] == 'title'
+    def test_convert_with_multiple_styles(self):                                # Test multiple styles
+        html = """
+        <html>
+            <head>
+                <style>/* style 1 */</style>
+                <link rel="stylesheet" href="main.css">
+                <style>/* style 2 */</style>
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            styles = doc.styles_graph.get_all_styles()
+            assert len(styles) == 3
+
+            inline_styles = doc.styles_graph.get_inline_styles()
+            assert len(inline_styles) == 2
+
+            external_styles = doc.styles_graph.get_external_styles()
+            assert len(external_styles) == 1
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Stats Tests
+    # Convert From Dict Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test_stats(self):                                                       # Test comprehensive stats
-        with Html_MGraph__Document().setup() as _:
-            stats = _.stats()
+    def test_convert_from_dict(self):                                           # Test conversion from dict directly
+        html_dict = {
+            'tag'  : 'html',
+            'attrs': {'lang': 'en'},
+            'nodes': [
+                {'tag': 'head', 'attrs': {}, 'nodes': []},
+                {'tag': 'body', 'attrs': {'class': 'main'}, 'nodes': [
+                    {'tag': 'div', 'attrs': {'id': 'content'}, 'nodes': [
+                        {'type': 'TEXT', 'data': 'Hello'}
+                    ]}
+                ]}
+            ]
+        }
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert_from_dict(html_dict)
 
-            assert 'document'   in stats
-            assert 'head'       in stats
-            assert 'body'       in stats
-            assert 'attributes' in stats
-            assert 'scripts'    in stats
-            assert 'styles'     in stats
+            assert doc.root_id is not None
+            assert doc.get_attribute(doc.root_id, 'lang') == 'en'
 
-    def test_stats__document_section(self):                                     # Test document section of stats
-        with Html_MGraph__Document().setup() as _:
-            stats = _.stats()
+            divs = doc.get_elements_by_tag('div')
+            assert len(divs) == 1
 
-            doc_stats = stats['document']
-            assert 'total_nodes' in doc_stats
-            assert 'total_edges' in doc_stats
-            assert doc_stats['root_id'] == str(_.root_id)
+    def test_convert_from_dict__empty_head_body(self):                          # Test dict with empty head/body
+        html_dict = {
+            'tag'  : 'html',
+            'attrs': {},
+            'nodes': [
+                {'tag': 'head', 'attrs': {}, 'nodes': []},
+                {'tag': 'body', 'attrs': {}, 'nodes': []}
+            ]
+        }
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert_from_dict(html_dict)
 
-    def test_stats__component_sections(self):                                   # Test component sections have expected keys
-        with Html_MGraph__Document().setup() as _:
-            div_id = Node_Id(Obj_Id())
-            _.attrs_graph.register_element(div_id, 'div')
-            _.attrs_graph.add_attribute(div_id, 'class', 'test', position=0)
+            assert doc.root_id is not None
+            assert doc.head_graph.root_id is not None
+            assert doc.body_graph.root_id is not None
 
-            stats = _.stats()
+    def test_convert_from_dict__no_head(self):                                  # Test dict without head section
+        html_dict = {
+            'tag'  : 'html',
+            'attrs': {},
+            'nodes': [
+                {'tag': 'body', 'attrs': {}, 'nodes': []}
+            ]
+        }
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert_from_dict(html_dict)
 
-            assert stats['attributes']['tag_nodes']     >= 1
-            assert stats['attributes']['element_nodes'] >= 1
-            assert stats['attributes']['attr_nodes']    >= 1
+            assert doc.root_id is not None
+
+    def test_convert_from_dict__no_body(self):                                  # Test dict without body section
+        html_dict = {
+            'tag'  : 'html',
+            'attrs': {},
+            'nodes': [
+                {'tag': 'head', 'attrs': {}, 'nodes': []}
+            ]
+        }
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert_from_dict(html_dict)
+
+            assert doc.root_id is not None
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Serialization Tests
+    # _extract_head_body Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test_to_json(self):                                                     # Test JSON export
-        with Html_MGraph__Document().setup() as _:
-            json_data = _.to_json()
+    def test__extract_head_body(self):                                          # Test head/body extraction
+        html_dict = {
+            'nodes': [
+                {'tag': 'head', 'data': 'head_content'},
+                {'tag': 'body', 'data': 'body_content'}
+            ]
+        }
+        with Html__To__Html_MGraph__Document() as converter:
+            head, body = converter._extract_head_body(html_dict)
 
-            assert type(json_data)    is dict
-            assert 'document'         in json_data
-            assert 'head'             in json_data
-            assert 'body'             in json_data
-            assert 'attributes'       in json_data
-            assert 'scripts'          in json_data
-            assert 'styles'           in json_data
+            assert head is not None
+            assert body is not None
+            assert head.get('tag') == 'head'
+            assert body.get('tag') == 'body'
 
-    def test_to_json__all_dicts(self):                                          # Test all sections are dicts
-        with Html_MGraph__Document().setup() as _:
-            json_data = _.to_json()
+    def test__extract_head_body__case_insensitive(self):                        # Test extraction is case insensitive
+        html_dict = {
+            'nodes': [
+                {'tag': 'HEAD'},
+                {'tag': 'BODY'}
+            ]
+        }
+        with Html__To__Html_MGraph__Document() as converter:
+            head, body = converter._extract_head_body(html_dict)
 
-            assert type(json_data['document'])   is dict
-            assert type(json_data['head'])       is dict
-            assert type(json_data['body'])       is dict
-            assert type(json_data['attributes']) is dict
-            assert type(json_data['scripts'])    is dict
-            assert type(json_data['styles'])     is dict
+            assert head is not None
+            assert body is not None
+
+    def test__extract_head_body__empty_nodes(self):                             # Test extraction with empty nodes
+        html_dict = {'nodes': []}
+
+        with Html__To__Html_MGraph__Document() as converter:
+            head, body = converter._extract_head_body(html_dict)
+
+            assert head is None
+            assert body is None
+
+    def test__extract_head_body__no_nodes_key(self):                            # Test extraction without nodes key
+        html_dict = {}
+
+        with Html__To__Html_MGraph__Document() as converter:
+            head, body = converter._extract_head_body(html_dict)
+
+            assert head is None
+            assert body is None
+
+    def test__extract_head_body__non_dict_nodes(self):                          # Test extraction with non-dict nodes
+        html_dict = {
+            'nodes': [
+                "text node",                                                    # Not a dict
+                {'tag': 'body'}
+            ]
+        }
+        with Html__To__Html_MGraph__Document() as converter:
+            head, body = converter._extract_head_body(html_dict)
+
+            assert head is None
+            assert body is not None
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Helper Method Tests
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def test__generate_node_id(self):                                           # Test node ID generation
+        with Html__To__Html_MGraph__Document() as converter:
+            id1 = converter._generate_node_id()
+            id2 = converter._generate_node_id()
+
+            assert id1 is not None
+            assert id2 is not None
+            assert id1 != id2                                                   # Each ID should be unique
+
+    def test__is_text_node__type_text(self):                                    # Test text node detection with type=TEXT
+        with Html__To__Html_MGraph__Document() as converter:
+            node = {'type': 'TEXT', 'data': 'some text'}
+            assert converter._is_text_node(node) is True
+
+    def test__is_text_node__data_only(self):                                    # Test text node detection with data only
+        with Html__To__Html_MGraph__Document() as converter:
+            node = {'data': 'some text'}                                        # No tag, has data
+            assert converter._is_text_node(node) is True
+
+    def test__is_text_node__element(self):                                      # Test text node detection returns False for element
+        with Html__To__Html_MGraph__Document() as converter:
+            node = {'tag': 'div', 'data': 'some text'}                          # Has tag, so not text
+            assert converter._is_text_node(node) is False
+
+    def test__is_text_node__no_data(self):                                      # Test text node detection with no data
+        with Html__To__Html_MGraph__Document() as converter:
+            node = {'attrs': {}}                                                # No data, no tag
+            assert converter._is_text_node(node) is False
+
+    def test__extract_text_content(self):                                       # Test text content extraction
+        with Html__To__Html_MGraph__Document() as converter:
+            node = {
+                'nodes': [
+                    {'type': 'TEXT', 'data': 'Hello '},
+                    {'type': 'TEXT', 'data': 'World'}
+                ]
+            }
+            content = converter._extract_text_content(node)
+            assert content == 'Hello World'
+
+    def test__extract_text_content__empty(self):                                # Test text extraction with no text nodes
+        with Html__To__Html_MGraph__Document() as converter:
+            node = {'nodes': [{'tag': 'span'}]}
+            content = converter._extract_text_content(node)
+            assert content is None
+
+    def test__extract_text_content__whitespace_only(self):                      # Test text extraction skips whitespace
+        with Html__To__Html_MGraph__Document() as converter:
+            node = {
+                'nodes': [
+                    {'type': 'TEXT', 'data': '   '},
+                    {'type': 'TEXT', 'data': '\n\t'}
+                ]
+            }
+            content = converter._extract_text_content(node)
+            assert content is None
+
+    def test__extract_text_content__mixed(self):                                # Test text extraction with mixed nodes
+        with Html__To__Html_MGraph__Document() as converter:
+            node = {
+                'nodes': [
+                    {'type': 'TEXT', 'data': 'Text1'},
+                    {'tag': 'span'},                                            # Element node (ignored)
+                    {'type': 'TEXT', 'data': 'Text2'}
+                ]
+            }
+            content = converter._extract_text_content(node)
+            assert content == 'Text1Text2'
+
+    def test__count_tags(self):                                                 # Test tag counting
+        with Html__To__Html_MGraph__Document() as converter:
+            nodes = [
+                {'tag': 'div'},
+                {'tag': 'div'},
+                {'tag': 'p'},
+                {'tag': 'DIV'},                                                 # Case insensitive
+                {'data': 'text'}                                                # Not a tag
+            ]
+            counts = converter._count_tags(nodes)
+
+            assert counts.get('div') == 3
+            assert counts.get('p')   == 1
+
+    def test__count_tags__empty(self):                                          # Test tag counting with empty list
+        with Html__To__Html_MGraph__Document() as converter:
+            counts = converter._count_tags([])
+            assert counts == {}
+
+    def test__count_tags__no_tags(self):                                        # Test tag counting with no tag nodes
+        with Html__To__Html_MGraph__Document() as converter:
+            nodes = [
+                {'data': 'text1'},
+                {'data': 'text2'}
+            ]
+            counts = converter._count_tags(nodes)
+            assert counts == {}
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Shared Node IDs Tests
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def test_shared_node_ids(self):                                             # Test that node IDs are shared across graphs
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <div class="main">Content</div>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            divs_in_attrs = doc.attrs_graph.get_elements_by_tag('div')          # Get div from attributes graph
+            assert len(divs_in_attrs) == 1
+            div_id = divs_in_attrs[0]
+
+            tag = doc.get_tag(div_id)                                           # Cross-graph lookup
+            assert tag == 'div'
+
+            attrs = doc.get_attributes(div_id)
+            assert attrs.get('class') == 'main'
+
+    def test_shared_node_ids__script(self):                                     # Test script node ID shared between graphs
+        html = """
+        <html>
+            <head></head>
+            <body>
+                <script type="module">export default {};</script>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            scripts = doc.scripts_graph.get_all_scripts()
+            assert len(scripts) == 1
+            script_id = scripts[0]
+
+            tag = doc.get_tag(script_id)                                        # Tag from attrs_graph
+            assert tag == 'script'
+
+            attrs = doc.get_attributes(script_id)                               # Attrs from attrs_graph
+            assert attrs.get('type') == 'module'
+
+            content = doc.get_script_content(script_id)                         # Content from scripts_graph
+            assert 'export default' in content
+
+    def test_shared_node_ids__style(self):                                      # Test style node ID shared between graphs
+        html = """
+        <html>
+            <head>
+                <style type="text/css">body { margin: 0; }</style>
+            </head>
+            <body></body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+            styles = doc.styles_graph.get_all_styles()
+            assert len(styles) == 1
+            style_id = styles[0]
+
+            tag = doc.get_tag(style_id)
+            assert tag == 'style'
+
+            attrs = doc.get_attributes(style_id)
+            assert attrs.get('type') == 'text/css'
+
+            content = doc.get_style_content(style_id)
+            assert 'margin: 0' in content
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Integration Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test_full_document_workflow(self):                                      # Test complete document workflow
-        with Html_MGraph__Document().setup() as _:
-            # Register elements in attrs_graph
-            html_id  = _.root_id                                                # Already registered in setup
-            head_id  = _.head_graph.root_id
-            body_id  = _.body_graph.root_id
-            meta_id  = Node_Id(Obj_Id())
-            title_id = Node_Id(Obj_Id())
-            div_id   = Node_Id(Obj_Id())
-            script_id = Node_Id(Obj_Id())
+    def test_full_html_document(self):                                          # Test complete HTML document
+        html = """
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <title>Test Document</title>
+                <link rel="stylesheet" href="styles.css">
+                <style>.highlight { color: red; }</style>
+                <script>window.APP_CONFIG = {};</script>
+            </head>
+            <body class="page" data-page="home">
+                <header id="header">
+                    <nav>Navigation</nav>
+                </header>
+                <main>
+                    <article>
+                        <h1>Title</h1>
+                        <p>First paragraph</p>
+                        <p>Second paragraph</p>
+                    </article>
+                </main>
+                <footer>Footer content</footer>
+                <script src="app.js"></script>
+                <script>console.log('inline');</script>
+            </body>
+        </html>
+        """
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
 
-            # Register tags
-            _.attrs_graph.register_element(meta_id  , 'meta')
-            _.attrs_graph.register_element(title_id , 'title')
-            _.attrs_graph.register_element(div_id   , 'div')
-            _.attrs_graph.register_element(script_id, 'script')
+            # Verify document structure
+            assert doc.root_id is not None
+            assert doc.get_tag(doc.root_id) == 'html'
+            assert doc.get_attribute(doc.root_id, 'lang') == 'en'
 
-            # Add attributes
-            _.attrs_graph.add_attribute(_.root_id, 'lang', 'en', position=0)
-            _.attrs_graph.add_attribute(meta_id  , 'charset', 'utf-8', position=0)
-            _.attrs_graph.add_attribute(div_id   , 'class', 'container', position=0)
-            _.attrs_graph.add_attribute(script_id, 'src', 'app.js', position=0)
+            # Verify head elements
+            titles = doc.get_elements_by_tag('title')
+            assert len(titles) == 1
+            assert doc.get_text_content(titles[0], in_head=True) == 'Test Document'
 
-            # Build head structure
-            _.head_graph.create_element(node_path=Node_Path('head.meta') , node_id=meta_id)
-            _.head_graph.create_element(node_path=Node_Path('head.title'), node_id=title_id)
-            _.head_graph.add_child(head_id, meta_id , position=0)
-            _.head_graph.add_child(head_id, title_id, position=1)
-            _.head_graph.create_text(text='My Page', parent_id=title_id)
+            metas = doc.get_elements_by_tag('meta')
+            assert len(metas) >= 1
 
-            # Build body structure
-            _.body_graph.create_element(node_path=Node_Path('body.div'), node_id=div_id)
-            _.body_graph.create_element(node_path=Node_Path('body.script'), node_id=script_id)
-            _.body_graph.add_child(body_id, div_id   , position=0)
-            _.body_graph.add_child(body_id, script_id, position=1)
-            _.body_graph.create_text(text='Hello World', parent_id=div_id)
+            # Verify body structure
+            body_id = doc.body_graph.root_id
+            assert doc.get_tag(body_id) == 'body'
+            assert doc.get_attribute(body_id, 'class') == 'page'
 
-            # Register script
-            _.scripts_graph.register_script(script_id, content=None)            # External script
+            # Verify nested elements
+            headers  = doc.get_elements_by_tag('header')
+            articles = doc.get_elements_by_tag('article')
+            ps       = doc.get_elements_by_tag('p')
 
-            # Verify cross-graph queries
-            assert _.get_tag(_.root_id)        == 'html'
-            assert _.get_tag(div_id)           == 'div'
-            assert _.get_attribute(_.root_id, 'lang') == 'en'
-            assert _.get_attribute(meta_id, 'charset') == 'utf-8'
+            assert len(headers)  == 1
+            assert len(articles) == 1
+            assert len(ps)       == 2
 
-            # Verify text content
-            assert _.get_text_content(title_id, in_head=True) == 'My Page'
-            assert _.get_text_content(div_id, in_head=False)  == 'Hello World'
+            # Verify scripts
+            scripts         = doc.scripts_graph.get_all_scripts()
+            inline_scripts  = doc.scripts_graph.get_inline_scripts()
+            external_scripts = doc.scripts_graph.get_external_scripts()
 
-            # Verify element info
-            div_info = _.element_info(div_id)
-            assert div_info['tag']        == 'div'
-            assert div_info['attributes'] == {'class': 'container'}
+            assert len(scripts)          == 3                                   # 1 in head, 2 in body
+            assert len(inline_scripts)   == 2
+            assert len(external_scripts) == 1
 
-            # Verify tree walking
-            head_elements = _.walk_head()
-            body_elements = _.walk_body()
-            assert len(head_elements) >= 3                                      # head, meta, title
-            assert len(body_elements) >= 3                                      # body, div, script
+            # Verify styles
+            styles         = doc.styles_graph.get_all_styles()
+            inline_styles  = doc.styles_graph.get_inline_styles()
+            external_styles = doc.styles_graph.get_external_styles()
 
-            # Verify stats
-            stats = _.stats()
-            assert stats['attributes']['tag_nodes'] >= 4                        # meta, title, div, script (html is also there)
+            assert len(styles)          == 2                                    # 1 link, 1 style
+            assert len(inline_styles)   == 1
+            assert len(external_styles) == 1
+
+            # Verify stats work
+            stats = doc.stats()
+            assert 'document'   in stats
+            assert 'body'       in stats
+            assert 'head'       in stats
+            assert 'attributes' in stats
+            assert 'scripts'    in stats
+            assert 'styles'     in stats

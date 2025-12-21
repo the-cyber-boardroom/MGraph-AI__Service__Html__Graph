@@ -99,7 +99,8 @@ class test_Html_Use_Case__2(TestCase):
                                                                     nodes_to_outgoing_edges_by_type=__(c0000001=__(Schema__MGraph__Edge=['e0000003'])))) != __()
 
 
-            assert _.mgraph.index().values_index.obj() ==   __(index_data = __(hash_to_node   = __( _61cd2df4ff = 'c0000003'             ),
+            assert _.mgraph.index().values_index.obj() ==   __(enabled=True,
+                                                               index_data = __(hash_to_node   = __( _61cd2df4ff = 'c0000003'             ),
                                                                                node_to_hash   = __( c0000003     = '61cd2df4ff'           ),
                                                                                values_by_type = __( builtins_str = ['61cd2df4ff']         ),
                                                                                type_by_value  = __( _61cd2df4ff  = 'builtins.str'         )))
@@ -143,10 +144,11 @@ class test_Html_Use_Case__2(TestCase):
                                                                     nodes_to_incoming_edges_by_type=__(c0000006=__(Schema__MGraph__Edge=['e0000006'])),
                                                                     nodes_to_outgoing_edges_by_type=__(c0000001=__(Schema__MGraph__Edge=['e0000006'])))) != __()
 
-            assert _.mgraph.index().values_index.obj()  == __(index_data=__(hash_to_node=__(_0a6e86a075='c0000006'),
-                                                             node_to_hash=__(c0000006='0a6e86a075'),
-                                                             values_by_type=__(builtins_str=['0a6e86a075']),
-                                                             type_by_value=__(_0a6e86a075='builtins.str')))
+            assert _.mgraph.index().values_index.obj()  == __(enabled    = True,
+                                                              index_data = __(hash_to_node=__(_0a6e86a075='c0000006'),
+                                                                              node_to_hash=__(c0000006='0a6e86a075'),
+                                                                              values_by_type=__(builtins_str=['0a6e86a075']),
+                                                                              type_by_value=__(_0a6e86a075='builtins.str')))
 
     # before: """<div>A <b>B</b> C <i>D</i> E</div>"""
     # after : """<div>A B C D E</div>"""
@@ -190,7 +192,8 @@ class test_Html_Use_Case__2(TestCase):
                                                                      nodes_to_incoming_edges_by_type=__(c0000009=__(Schema__MGraph__Edge=['e0000010'])),
                                                                      nodes_to_outgoing_edges_by_type=__(c0000001=__(Schema__MGraph__Edge=['e0000010']))))
 
-            assert _.mgraph.index().values_index.obj()  == __(index_data = __(hash_to_node   = __( b0e3ea2e69 = 'c0000009'             ),
+            assert _.mgraph.index().values_index.obj()  == __(enabled=True,
+                                                              index_data = __(hash_to_node   = __( b0e3ea2e69 = 'c0000009'             ),
                                                                               node_to_hash   = __( c0000009     = 'b0e3ea2e69'           ),
                                                                               values_by_type = __( builtins_str = ['b0e3ea2e69']         ),
                                                                               type_by_value  = __( b0e3ea2e69  = 'builtins.str'         )))
@@ -342,11 +345,12 @@ class test_Html_Use_Case__2(TestCase):
                                                                                                        c0000003=__(Schema__MGraph__Edge=['e0000018']),
                                                                                                        c0000011=__(Schema__MGraph__Edge=['e0000019']))))
 
-            assert _.mgraph.index().values_index.obj() == __(index_data=__(hash_to_node=__(_7a6cd9baa8='c0000016', c13b272fc6='c0000017'),
-                 node_to_hash=__(c0000016='7a6cd9baa8', c0000017='c13b272fc6'),
-                 values_by_type=__(builtins_str=['7a6cd9baa8', 'c13b272fc6']),
-                 type_by_value=__(_7a6cd9baa8='builtins.str',
-                                  c13b272fc6='builtins.str')))
+            assert _.mgraph.index().values_index.obj() == __(enabled   = True,
+                                                             index_data = __(hash_to_node=__(_7a6cd9baa8='c0000016', c13b272fc6='c0000017'),
+                                                                             node_to_hash=__(c0000016='7a6cd9baa8', c0000017='c13b272fc6'),
+                                                                             values_by_type=__(builtins_str=['7a6cd9baa8', 'c13b272fc6']),
+                                                                             type_by_value=__(_7a6cd9baa8='builtins.str',
+                                                                                              c13b272fc6='builtins.str')))
 
 
 
@@ -401,7 +405,8 @@ class test_Html_Use_Case__2(TestCase):
                                                                     nodes_to_outgoing_edges_by_type=__(c0000001=__(Schema__MGraph__Edge=['e0000003'])))) != __()
 
 
-            assert _.mgraph.index().values_index.obj() ==   __(index_data = __(hash_to_node   = __( _61cd2df4ff = 'c0000003'             ),
+            assert _.mgraph.index().values_index.obj() ==   __(enabled    = True,
+                                                               index_data = __(hash_to_node   = __( _61cd2df4ff = 'c0000003'             ),
                                                                                node_to_hash   = __( c0000003     = '61cd2df4ff'           ),
                                                                                values_by_type = __( builtins_str = ['61cd2df4ff']         ),
                                                                                type_by_value  = __( _61cd2df4ff  = 'builtins.str'         )))

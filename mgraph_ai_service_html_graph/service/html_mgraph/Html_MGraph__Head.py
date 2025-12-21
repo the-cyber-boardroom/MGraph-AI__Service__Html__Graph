@@ -95,12 +95,18 @@ class Html_MGraph__Head(Html_MGraph__Base):                                     
         return ''.join(texts)
 
     def is_text_node(self, node_id: Node_Id) -> bool:                           # Check if node is a text value node
-        path = self.node_path(node_id)
-        return path and str(path) == self.PATH_TEXT
+        path   = self.node_path(node_id)
+        if path and str(path) == self.PATH_TEXT:
+            return True
+        else:
+            return False
 
     def is_element_node(self, node_id: Node_Id) -> bool:                        # Check if node is an element node
         path = self.node_path(node_id)
-        return path and str(path) != self.PATH_TEXT
+        if path and str(path) != self.PATH_TEXT:
+            return True
+        else:
+            return False
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Element Iteration
