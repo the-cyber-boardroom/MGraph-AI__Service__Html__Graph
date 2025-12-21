@@ -1,7 +1,7 @@
 from unittest                                                                           import TestCase
-from mgraph_ai_service_html_graph.service.html_mgraph.Html__To__Html_MGraph__Document   import Html__To__Html_MGraph__Document
-from mgraph_ai_service_html_graph.service.html_mgraph.Html__To__Html_MGraph__Document   import SCRIPT_TAGS, STYLE_TAGS
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Document             import Html_MGraph__Document
+from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document   import Html__To__Html_MGraph__Document
+from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document   import SCRIPT_TAGS, STYLE_TAGS
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document             import Html_MGraph__Document
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.utils.Objects                                                          import base_classes
 

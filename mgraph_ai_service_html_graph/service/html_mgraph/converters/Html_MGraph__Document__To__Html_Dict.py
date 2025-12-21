@@ -1,7 +1,7 @@
-from typing                                                                     import Dict, Any, List, Optional
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Document     import Html_MGraph__Document
-from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
+from typing                                                                             import Dict, Any, List, Optional
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document      import Html_MGraph__Document
+from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                       import Node_Id
 
 
 class Html_MGraph__Document__To__Html_Dict(Type_Safe):                          # Convert Html_MGraph__Document to OSBot Html_Dict format

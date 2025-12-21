@@ -1,15 +1,15 @@
-from typing                                                                     import Dict, Any, List, Optional
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Attributes   import Html_MGraph__Attributes
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Base         import Html_MGraph__Base
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Body         import Html_MGraph__Body
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Head         import Html_MGraph__Head
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Scripts      import Html_MGraph__Scripts
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Styles       import Html_MGraph__Styles
-from mgraph_db.mgraph.MGraph                                                    import MGraph
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
-from mgraph_db.mgraph.schemas.identifiers.Edge_Path                             import Edge_Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               import Safe_Id
+from typing                                                                             import Dict, Any, List, Optional
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Attributes    import Html_MGraph__Attributes
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base          import Html_MGraph__Base
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Body          import Html_MGraph__Body
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Head          import Html_MGraph__Head
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Scripts       import Html_MGraph__Scripts
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Styles        import Html_MGraph__Styles
+from mgraph_db.mgraph.MGraph                                                            import MGraph
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                                     import Node_Path
+from mgraph_db.mgraph.schemas.identifiers.Edge_Path                                     import Edge_Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                       import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
 
 
 class Html_MGraph__Document(Html_MGraph__Base):                                 # Orchestrator graph holding references to all component graphs

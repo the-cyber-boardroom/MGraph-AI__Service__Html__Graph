@@ -1,5 +1,5 @@
 from unittest                                                            import TestCase
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Base  import Html_MGraph__Base
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                      import Edge_Path
 from mgraph_db.mgraph.domain.Domain__MGraph__Node                        import Domain__MGraph__Node

@@ -1,10 +1,10 @@
-from typing                                                                 import Dict, Any, List, Optional, Tuple, Set
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Document import Html_MGraph__Document
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                         import Node_Path
-from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id           import Node_Id
-from osbot_utils.helpers.html.transformers.Html__To__Html_Dict              import Html__To__Html_Dict
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id import Obj_Id
+from typing                                                                         import Dict, Any, List, Optional, Tuple, Set
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document  import Html_MGraph__Document
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                                 import Node_Path
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                      import Html__To__Html_Dict
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
 
 SCRIPT_TAGS : Set = {'script'}                                              # Tags that go to Scripts graph
 STYLE_TAGS  : Set = {'style', 'link'}                                       # Tags that go to Styles graph

@@ -1,18 +1,19 @@
-from typing                                                              import Dict, Any, List
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Base  import Html_MGraph__Base
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import Node_Path
-from mgraph_db.mgraph.schemas.identifiers.Edge_Path                      import Edge_Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id        import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe           import type_safe
+from typing                                                                     import Dict, Any, List
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
+from mgraph_db.mgraph.schemas.identifiers.Edge_Path                             import Edge_Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               import Safe_Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
 
 
-class Html_MGraph__Head(Html_MGraph__Base):                                     # Graph for <head> element structure and text content
-    """Represents the <head> section of an HTML document.
+
+class Html_MGraph__Body(Html_MGraph__Base):                                     # Graph for <body> element structure and text content
+    """Represents the <body> section of an HTML document.
     
     Contains:
-    - Element nodes (meta, title, link, script, style) with node_path like "head.meta"
-    - Text value nodes for title content (node_path "text")
+    - Element nodes (div, p, span, etc.) with node_path like "body.div.p"
+    - Text value nodes with node_path "text"
     - Child edges (predicate: 'child', edge_path: position)
     - Text edges (predicate: 'text', edge_path: position)
     
@@ -39,7 +40,7 @@ class Html_MGraph__Head(Html_MGraph__Base):                                     
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def create_element(self, node_path : Node_Path         ,                    # DOM path for element (e.g., "head.meta")
+    def create_element(self, node_path : Node_Path         ,                    # DOM path for element (e.g., "body.div")
                              node_id   : Node_Id    = None                      # Optional specific node_id (for shared IDs)
                       ) -> Node_Id:                                             # Create an element node
         node = self.new_element_node(node_path = node_path ,
@@ -47,7 +48,7 @@ class Html_MGraph__Head(Html_MGraph__Base):                                     
         return node.node_id
 
     @type_safe
-    def create_text(self, text       : str            ,                         # Text content (typically for <title>)
+    def create_text(self, text       : str            ,                         # Text content
                           parent_id  : Node_Id        ,                         # Parent element node_id
                           position   : int      = 0                             # Position among siblings
                    ) -> Node_Id:                                                # Create a text value node and link to parent
@@ -72,7 +73,7 @@ class Html_MGraph__Head(Html_MGraph__Base):                                     
                       edge_path    = Edge_Path(str(position)) )
 
     @type_safe
-    def set_root(self, node_id: Node_Id) -> None:                               # Set the root node (should be <head> element)
+    def set_root(self, node_id: Node_Id) -> None:                               # Set the root node (should be <body> element)
         self.root_id = node_id
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -94,19 +95,36 @@ class Html_MGraph__Head(Html_MGraph__Base):                                     
                 texts.append(value)
         return ''.join(texts)
 
+    def get_all_text_recursive(self, node_id: Node_Id) -> str:                  # Get all text content including descendants
+        items = []
+
+        text_ids  = self.get_text_nodes(node_id)                                # Get direct text nodes
+        child_ids = self.get_element_children(node_id)                          # Get child elements
+
+        all_items = []                                                          # Combine with positions for ordering
+        for edge in self.outgoing_edges(node_id):
+            predicate = self.edge_predicate(edge)
+            edge_path = self.edge_path(edge)
+            position  = int(str(edge_path)) if edge_path else 0
+            target_id = edge.edge.data.to_node_id
+
+            if predicate == self.PREDICATE_TEXT:
+                value = self.node_value(target_id)
+                all_items.append((position, value or ''))
+            elif predicate == self.PREDICATE_CHILD:
+                child_text = self.get_all_text_recursive(target_id)
+                all_items.append((position, child_text))
+
+        all_items.sort(key=lambda x: x[0])
+        return ''.join(item[1] for item in all_items)
+
     def is_text_node(self, node_id: Node_Id) -> bool:                           # Check if node is a text value node
-        path   = self.node_path(node_id)
-        if path and str(path) == self.PATH_TEXT:
-            return True
-        else:
-            return False
+        path = self.node_path(node_id)
+        return path and str(path) == self.PATH_TEXT
 
     def is_element_node(self, node_id: Node_Id) -> bool:                        # Check if node is an element node
         path = self.node_path(node_id)
-        if path and str(path) != self.PATH_TEXT:
-            return True
-        else:
-            return False
+        return path and str(path) != self.PATH_TEXT
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Element Iteration
@@ -130,7 +148,7 @@ class Html_MGraph__Head(Html_MGraph__Base):                                     
     # Stats Methods (override base)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def stats(self) -> Dict[str, Any]:                                          # Get statistics about the head graph
+    def stats(self) -> Dict[str, Any]:                                          # Get statistics about the body graph
         base_stats     = super().stats()
         element_count  = len(self.all_element_nodes())
         text_count     = len(self.all_text_nodes())

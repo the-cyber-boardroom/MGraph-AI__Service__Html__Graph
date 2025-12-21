@@ -1,10 +1,10 @@
-from typing                                                              import Dict, Any, List, Optional
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph__Base  import Html_MGraph__Base
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import Node_Path
-from mgraph_db.mgraph.schemas.identifiers.Edge_Path                      import Edge_Path
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id        import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe           import type_safe
+from typing                                                                     import Dict, Any, List, Optional
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
+from mgraph_db.mgraph.schemas.identifiers.Edge_Path                             import Edge_Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               import Safe_Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
 
 
 class Html_MGraph__Scripts(Html_MGraph__Base):                                  # Graph for JavaScript content from <script> elements
