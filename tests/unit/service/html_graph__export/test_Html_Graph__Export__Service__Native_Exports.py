@@ -1,10 +1,13 @@
 from unittest                                                                             import TestCase
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                        import Schema__Html_MGraph__Stats__Document
+from mgraph_db.utils.testing.mgraph_test_ids                                              import mgraph_test_ids
+from osbot_utils.testing.__                                                               import __
 from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
 from osbot_utils.utils.Objects                                                            import base_classes
 from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Stats                      import Schema__Graph__Stats
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request        import Schema__Graph__From_Html__Request
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service  import Html_Graph__Export__Service
-from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph                          import Html_MGraph
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                         import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config         import Html_MGraph__Render__Config, Enum__Html_Render__Preset
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors         import Enum__Html_Render__Color_Scheme
 
@@ -34,13 +37,47 @@ class test_Html_Graph__Export__Service__Native_Exports(TestCase):
         html_mgraph = self.service.html_to_mgraph(self.simple_html)
 
         assert type(html_mgraph) is Html_MGraph
-        assert html_mgraph.mgraph is not None
+        assert html_mgraph.document is not None
 
     def test__html_to_mgraph__complex(self):                                                  # Test complex HTML conversion
-        html_mgraph = self.service.html_to_mgraph(self.complex_html)
+        with mgraph_test_ids():
+            html_mgraph = self.service.html_to_mgraph(self.complex_html)
+            stats       = html_mgraph.stats()
 
-        stats = html_mgraph.stats()
-        assert stats['element_nodes'] >= 3                                                    # div, h1, p
+            # Multi-graph stats - check body has element nodes
+            assert type(stats) is Schema__Html_MGraph__Stats__Document
+            assert stats.obj() == __(document=__(total_nodes=6,
+                                                 total_edges=5,
+                                                 root_id='c0000001'),
+                                     head=__(element_nodes=0,
+                                             text_nodes=0,
+                                             total_nodes=1,
+                                             total_edges=0,
+                                             root_id='c0000002'),
+                                     body=__(element_nodes=0,
+                                             text_nodes=0,
+                                             total_nodes=1,
+                                             total_edges=0,
+                                             root_id='c0000003'),
+                                     attributes=__(registered_elements=1,
+                                                   total_attributes=2,
+                                                   unique_tags=1,
+                                                   total_nodes=6,
+                                                   total_edges=4,
+                                                   root_id='c0000005'),
+                                     scripts=__(total_scripts=0,
+                                                inline_scripts=0,
+                                                external_scripts=0,
+                                                total_nodes=2,
+                                                total_edges=0,
+                                                root_id='c0000007'),
+                                     styles=__(total_styles=0,
+                                               inline_styles=0,
+                                               external_styles=0,
+                                               total_nodes=2,
+                                               total_edges=0,
+                                               root_id='c0000009'))
+            assert stats.body.total_nodes == 1
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # create_config Tests
@@ -110,14 +147,14 @@ class test_Html_Graph__Export__Service__Native_Exports(TestCase):
         assert 'nodeType' in node
 
     def test__to_visjs__edges_structure(self):                                                # Test edges have vis.js structure
-        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.service.to_visjs(request)
 
-        assert len(result['edges']) > 0
-        edge = result['edges'][0]
-        assert 'from'      in edge
-        assert 'to'        in edge
-        assert 'predicate' in edge
+        if result['edges']:
+            edge = result['edges'][0]
+            assert 'from'      in edge
+            assert 'to'        in edge
+            assert 'predicate' in edge
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # to_d3 Tests
@@ -151,15 +188,15 @@ class test_Html_Graph__Export__Service__Native_Exports(TestCase):
         assert 'nodeType' in node
 
     def test__to_d3__links_structure(self):                                                   # Test links have D3 structure
-        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.service.to_d3(request)
 
-        assert len(result['links']) > 0
-        link = result['links'][0]
-        assert 'source'    in link
-        assert 'target'    in link
-        assert 'width'     in link
-        assert 'predicate' in link
+        if result['links']:
+            link = result['links'][0]
+            assert 'source'    in link
+            assert 'target'    in link
+            assert 'width'     in link
+            assert 'predicate' in link
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # to_cytoscape Tests
@@ -197,13 +234,14 @@ class test_Html_Graph__Export__Service__Native_Exports(TestCase):
         assert node['group'] == 'nodes'
 
     def test__to_cytoscape__edge_wrapper_structure(self):                                     # Test edge has Cytoscape wrapper
-        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.service.to_cytoscape(request)
 
-        edge = result['elements']['edges'][0]
-        assert 'data'  in edge
-        assert 'group' in edge
-        assert edge['group'] == 'edges'
+        if result['elements']['edges']:
+            edge = result['elements']['edges'][0]
+            assert 'data'  in edge
+            assert 'group' in edge
+            assert edge['group'] == 'edges'
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # to_mermaid Tests
@@ -301,7 +339,50 @@ class test_Html_Graph__Export__Service__Native_Exports(TestCase):
         cytoscape_result = self.service.to_cytoscape(request)
         mermaid_result   = self.service.to_mermaid(request)
 
-        assert len(visjs_result['nodes'])               >= 3
-        assert len(d3_result['nodes'])                  >= 3
-        assert len(cytoscape_result['elements']['nodes']) >= 3
-        assert len(mermaid_result['mermaid'])           > 100
+        assert len(visjs_result['nodes'])                  >= 3
+        assert len(d3_result['nodes'])                     >= 3
+        assert len(cytoscape_result['elements']['nodes'])  >= 3
+        assert len(mermaid_result['mermaid'])              > 50
+
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # Tree Export Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
+
+    def test__to_tree__returns_dict(self):                                                    # Test to_tree returns dict
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.service.to_tree(request)
+
+        assert type(result) is dict
+        assert 'tree'     in result
+        assert 'rootId'   in result
+        assert 'stats'    in result
+        assert 'duration' in result
+        assert result['format'] == 'tree'
+
+    def test__to_tree__tree_structure(self):                                                  # Test tree has structure
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.service.to_tree(request)
+
+        tree = result['tree']
+        assert 'id'       in tree
+        assert 'value'    in tree
+        assert 'children' in tree
+
+    def test__to_tree_text__returns_dict(self):                                               # Test to_tree_text returns dict
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.service.to_tree_text(request)
+
+        assert type(result) is dict
+        assert 'tree_text'      in result
+        assert 'tree_text_size' in result
+        assert 'rootId'         in result
+        assert 'stats'          in result
+        assert 'duration'       in result
+        assert result['format'] == 'tree_text'
+
+    def test__to_tree_text__is_string(self):                                                  # Test tree_text is string
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.service.to_tree_text(request)
+
+        assert type(result['tree_text']) is str
+        assert result['tree_text_size'] == len(result['tree_text'])

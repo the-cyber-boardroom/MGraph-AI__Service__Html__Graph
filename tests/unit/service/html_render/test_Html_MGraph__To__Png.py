@@ -3,13 +3,10 @@ import pytest
 from unittest                                                                        import TestCase
 from osbot_utils.helpers.duration.decorators.capture_duration                        import capture_duration
 from osbot_utils.helpers.duration.decorators.print_duration                          import print_duration
-from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                       import Html__To__Html_Dict
 from osbot_utils.utils.Files                                                         import path_combine, file_exists
 from osbot_utils.utils.Env                                                           import load_dotenv, env_var_set
-from mgraph_ai_service_html_graph.service.html_graph.Html_MGraph                     import Html_MGraph
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                    import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__To__Png           import Html_MGraph__To__Png
-from mgraph_ai_service_html_graph.service.html_graph.Html_Dict__OSBot__To__Html_Dict import Html_Dict__OSBot__To__Html_Dict
-from tests.unit.service.html_graph.test_Html_MGraph                                  import SIMPLE_HTML_DICT, NESTED_HTML_DICT
 
 
 class test_Html_MGraph__To__Png(TestCase):
@@ -20,15 +17,13 @@ class test_Html_MGraph__To__Png(TestCase):
         if env_var_set('URL__MGRAPH_DB_SERVERLESS') is False:
             pytest.skip('skipping create_screenshot test, because we need the URL__MGRAPH_DB_SERVERLESS to be configured')
 
-        cls.html_mgraph_simple         = Html_MGraph.from_html_dict(SIMPLE_HTML_DICT)
-        cls.html_mgraph_nested         = Html_MGraph.from_html_dict(NESTED_HTML_DICT)
+        cls.html_mgraph_simple         = Html_MGraph.from_html(SIMPLE_HTML)
+        cls.html_mgraph_nested         = Html_MGraph.from_html(NESTED_HTML)
         cls.target_folder              = path_combine(__file__         ,'../pngs'             )
-        cls.target_file                = path_combine(cls.target_folder,'html-mgraph.png')   # '/tmp/test.png'
+        cls.target_file                = path_combine(cls.target_folder,'tests__html-mgraph__to_png.png')
 
         cls.html_mgraph_to_png__simple = Html_MGraph__To__Png(html_mgraph=cls.html_mgraph_simple, target_file=cls.target_file)
         cls.html_mgraph_to_png__nested = Html_MGraph__To__Png(html_mgraph=cls.html_mgraph_nested, target_file=cls.target_file)
-
-
 
     def test_to_png__html_mgraph_simple(self):
         with self.html_mgraph_to_png__simple as _:
@@ -41,23 +36,16 @@ class test_Html_MGraph__To__Png(TestCase):
             assert file_exists(self.target_file)
 
     def test_html__to__png(self):
-        html_dict__osbot__with_one_paragraph   = Html__To__Html_Dict(html=HTML__WITH_ONE_PARAGRAPH).convert()
-        html_dict__with_one_paragraph          = Html_Dict__OSBot__To__Html_Dict().convert(html_dict__osbot__with_one_paragraph)
-        html_mgraph__with_one_paragraph        = Html_MGraph.from_html_dict(html_dict__with_one_paragraph)
+        html_mgraph__with_one_paragraph        = Html_MGraph.from_html(HTML__WITH_ONE_PARAGRAPH)
         html_mgraph_to_png__with_one_paragraph = Html_MGraph__To__Png(html_mgraph = html_mgraph__with_one_paragraph,
                                                                       target_file = self.target_file               )
 
-        #html_mgraph_to_png__with_one_paragraph.to_png()
-
-        html_dict__osbot__with_some_tags    = Html__To__Html_Dict(html=HTML__WITH_SOME_TAGS    ).convert()
-        html_dict__with_some_tags           = Html_Dict__OSBot__To__Html_Dict().convert(html_dict__osbot__with_some_tags    )
-        html_mgraph__with_some_tags         = Html_MGraph.from_html_dict(html_dict__with_some_tags)
+        html_mgraph__with_some_tags         = Html_MGraph.from_html(HTML__WITH_SOME_TAGS)
         html_mgraph_to_png__with_some_tags  = Html_MGraph__To__Png(html_mgraph = html_mgraph__with_some_tags,
                                                                    target_file = self.target_file           )
-        #html_mgraph_to_png__with_some_tags.to_png()
 
     def test_from_html(self):
-        html = HTML__BOOTSTRAP_EXAMPLE # HTML__WITH_SOME_TAGS
+        html = HTML__BOOTSTRAP_EXAMPLE
         kwargs = dict(html        = html,
                       target_file = self.target_file)
         with Html_MGraph__To__Png.from_html(**kwargs) as _:
@@ -65,15 +53,10 @@ class test_Html_MGraph__To__Png(TestCase):
 
     def test_url_to_png(self):
         url, file_name  = "https://www.google.com/404" , "html-mgraph__google-404.png"
-        #url, file_name  = "https://www.google.com/"    , "html-mgraph__google.png"
-        #url, file_name  = "https://akeia.ai"          , "html-mgraph__akeia_ai.png"
-        #url, file_name  = "https://text.npr.org/"          , "html-mgraph__text.npr.org.png"
-        #url, file_name  = "https://news.bbc.co.uk/404"     , "html-mgraph__bbc-404.png"
         file_name = "layout-tests.png"
         target_file = path_combine(self.target_folder, file_name)
         with print_duration(action_name="get html"):
             html = requests.get(url).text
-        #print(html)
 
         kwargs = dict(html        = html,
                       target_file = target_file)
@@ -83,173 +66,40 @@ class test_Html_MGraph__To__Png(TestCase):
                 _.to_png()
 
     def test_url_to_dot_code(self):
-        url  = "https://www.google.com/404"
-        url  = "https://www.google.com/"
-        url  = "https://akeia.ai"
-        url  = "https://text.npr.org/"
-        #url, file_name  = "https://news.bbc.co.uk/404"     , "html-mgraph__bbc-404.png"
-        url = "https://news.bbc.co.uk"
-        #url = "https://www.theregister.com/"
-        #target_file = path_combine(self.target_folder)
+        url = "https://www.google.com/404"
         with print_duration(action_name="got html"):
             html = requests.get(url).text
-        #print(html)
 
         html = HTML__WITH_SOME_TAGS
 
         with capture_duration(action_name="create dot_code") as duration:
-            with Html_MGraph__To__Png.from_html(html= html) as _:
+            with Html_MGraph__To__Png.from_html(html=html) as _:
                 dot_code = _.to_dot_code()
 
-        print(dot_code)
+        #print(dot_code)
 
-        data_stats = _.html_mgraph.mgraph.data().stats()
+        stats = _.html_mgraph.stats()
         print()
         print(f"url     : " + url)
         print(f"duration: {duration.seconds}")
         print(f"size    : {len(dot_code)}")
-        print(f"status  : {data_stats}")
+        print(f"stats   : {stats}")
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Test Data
+# ═══════════════════════════════════════════════════════════════════════════════
 
-    def test_html__to__html_dict__using_osbot_utils(self):
+SIMPLE_HTML = '<div class="main" id="content">Hello World</div>'
 
-        html_dict__osbot__with_one_paragraph = {'attrs': {},
-                                         'nodes': [{'attrs': {},
-                                                    'nodes': [{'attrs': {},
-                                                               'nodes': [{'data': 'an paragraph', 'type': 'TEXT'}],
-                                                               'tag': 'p'}],
-                                                    'tag': 'body'}],
-                                         'tag': 'html'}
-        html_dict__osbot__with_some_tags     = {'attrs': {'lang': 'en'},
-                                         'nodes': [{'attrs': {},
-                                                    'nodes': [{'attrs': {'charset': 'UTF-8'},
-                                                               'nodes': [],
-                                                               'tag': 'meta'},
-                                                              {'attrs': {},
-                                                               'nodes': [{'data': 'Test Page', 'type': 'TEXT'}],
-                                                               'tag': 'title'}],
-                                                    'tag': 'head'},
-                                                   {'attrs': {},
-                                                    'nodes': [{'attrs': {},
-                                                               'nodes': [{'data': 'Hello World', 'type': 'TEXT'}],
-                                                               'tag': 'h1'},
-                                                              {'attrs': {},
-                                                               'nodes': [{'attrs': {},
-                                                                          'nodes': [{'data': 'This is a test '
-                                                                                             'paragraph.',
-                                                                                     'type': 'TEXT'}],
-                                                                          'tag': 'p'},
-                                                                         {'attrs': {},
-                                                                          'nodes': [{'data': 'This is the 2nd '
-                                                                                             'paragraph.',
-                                                                                     'type': 'TEXT'}],
-                                                                          'tag': 'p'}],
-                                                               'tag': 'div'},
-                                                              {'attrs': {},
-                                                               'nodes': [{'data': '\n            another div with ',
-                                                                          'type': 'TEXT'},
-                                                                         {'attrs': {},
-                                                                          'nodes': [{'data': 'a bold', 'type': 'TEXT'}],
-                                                                          'tag': 'b'},
-                                                                         {'data': ' element\n        ',
-                                                                          'type': 'TEXT'}],
-                                                               'tag': 'div'}],
-                                                    'tag': 'body'}],
-                                         'tag': 'html'}
-
-        html_dict__with_one_paragraph = Html_Dict__OSBot__To__Html_Dict().convert(html_dict__osbot__with_one_paragraph)
-        html_dict__with_some_tags     = Html_Dict__OSBot__To__Html_Dict().convert(html_dict__osbot__with_some_tags    )
-
-        assert Html__To__Html_Dict(html=HTML__WITH_ONE_PARAGRAPH).convert() == html_dict__osbot__with_one_paragraph
-        assert Html__To__Html_Dict(html=HTML__WITH_SOME_TAGS    ).convert() == html_dict__osbot__with_some_tags
-
-        assert html_dict__with_one_paragraph == {'attrs': {},
-                                                 'child_nodes': [{'attrs': {},
-                                                                  'child_nodes': [{'attrs': {},
-                                                                                   'child_nodes': [],
-                                                                                   'position': 0,
-                                                                                   'tag': 'p',
-                                                                                   'text_nodes': [{'data': 'an paragraph',
-                                                                                                   'position': 0}]}],
-                                                                  'position': 0,
-                                                                  'tag': 'body',
-                                                                  'text_nodes': []}],
-                                                 'tag': 'html',
-                                                 'text_nodes': []}
-
-        assert html_dict__with_some_tags == {'attrs': {'lang': 'en'},
-                                             'child_nodes': [{'attrs': {},
-                                                              'child_nodes': [{'attrs': {'charset': 'UTF-8'},
-                                                                               'child_nodes': [],
-                                                                               'position': 0,
-                                                                               'tag': 'meta',
-                                                                               'text_nodes': []},
-                                                                              {'attrs': {},
-                                                                               'child_nodes': [],
-                                                                               'position': 1,
-                                                                               'tag': 'title',
-                                                                               'text_nodes': [{'data': 'Test Page',
-                                                                                               'position': 0}]}],
-                                                              'position': 0,
-                                                              'tag': 'head',
-                                                              'text_nodes': []},
-                                                             {'attrs': {},
-                                                              'child_nodes': [{'attrs': {},
-                                                                               'child_nodes': [],
-                                                                               'position': 0,
-                                                                               'tag': 'h1',
-                                                                               'text_nodes': [{'data': 'Hello World',
-                                                                                               'position': 0}]},
-                                                                              {'attrs': {},
-                                                                               'child_nodes': [{'attrs': {},
-                                                                                                'child_nodes': [],
-                                                                                                'position': 0,
-                                                                                                'tag': 'p',
-                                                                                                'text_nodes': [{'data': 'This '
-                                                                                                                        'is '
-                                                                                                                        'a '
-                                                                                                                        'test '
-                                                                                                                        'paragraph.',
-                                                                                                                'position': 0}]},
-                                                                                               {'attrs': {},
-                                                                                                'child_nodes': [],
-                                                                                                'position': 1,
-                                                                                                'tag': 'p',
-                                                                                                'text_nodes': [{'data': 'This '
-                                                                                                                        'is '
-                                                                                                                        'the '
-                                                                                                                        '2nd '
-                                                                                                                        'paragraph.',
-                                                                                                                'position': 0}]}],
-                                                                               'position': 1,
-                                                                               'tag': 'div',
-                                                                               'text_nodes': []},
-                                                                              {'attrs': {},
-                                                                               'child_nodes': [{'attrs': {},
-                                                                                                'child_nodes': [],
-                                                                                                'position': 1,
-                                                                                                'tag': 'b',
-                                                                                                'text_nodes': [{'data': 'a '
-                                                                                                                        'bold',
-                                                                                                                'position': 0}]}],
-                                                                               'position': 2,
-                                                                               'tag': 'div',
-                                                                               'text_nodes': [{'data': '\n'
-                                                                                                       '            '
-                                                                                                       'another div with ',
-                                                                                               'position': 0},
-                                                                                              {'data': ' element\n        ',
-                                                                                               'position': 2}]}],
-                                                              'position': 1,
-                                                              'tag': 'body',
-                                                              'text_nodes': []}],
-                                             'tag': 'html',
-                                             'text_nodes': []}
-
+NESTED_HTML = '''<div class="main" id="content">
+    <h1>Title</h1>
+    <p>Paragraph</p>
+</div>'''
 
 HTML__WITH_ONE_PARAGRAPH = "<html><body><p>an paragraph</p></body></html>"
-HTML__WITH_SOME_TAGS     = """<!DOCTYPE html>
+
+HTML__WITH_SOME_TAGS = """<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />

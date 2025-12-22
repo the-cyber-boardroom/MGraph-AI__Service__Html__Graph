@@ -1,74 +1,77 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# MGraph HTML Graph - Core Data Extractor (v2)
-# Extracts semantic data from Html_MGraph using MGraph-DB APIs
+# MGraph HTML Graph - Core Data Extractor (v3)
+# Updated for multi-graph architecture (Html_MGraph facade)
 #
-# Uses MGraph-DB v1.4.7 features:
-# - node_path / edge_path for DOM path identification
-# - edge_label.predicate for semantic relationships
-# - mgraph.data() for node/edge access
-# - mgraph.index() for efficient lookups
+# Extracts semantic data from:
+# - Body graph (elements + text)
+# - Head graph (elements + text)
+# - Attributes graph (tags + attributes)
+# - Scripts graph (script content)
+# - Styles graph (style content)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from typing                                                                       import Dict, List, Optional, Set
-from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
-from mgraph_db.mgraph.MGraph                                                      import MGraph
-from mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value                         import Schema__MGraph__Node__Value
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config import Html_MGraph__Render__Config
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors import Html_MGraph__Render__Colors
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Labels import Html_MGraph__Render__Labels
+from typing                                                                               import Dict, List, Optional, Set
+from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                         import Html_MGraph
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config         import Html_MGraph__Render__Config
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Colors         import Html_MGraph__Render__Colors
+from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Labels         import Html_MGraph__Render__Labels
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Classes for Extracted Nodes and Edges
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class Extracted__Node(Type_Safe):                                                 # Extracted node with all semantic data
-    id           : str                                                            # Node ID
-    label        : str              = ''                                          # Display label
-    node_type    : str              = 'element'                                   # element, tag, attr, text
-    dom_path     : str              = ''                                          # DOM path (e.g., "html.body.div")
-    value        : Optional[str]    = None                                        # Value for value nodes
-    depth        : int              = 0                                           # DOM depth level
-    category     : str              = ''                                          # Tag category (structural, text, form, etc.)
-    fill_color   : str              = '#E8E8E8'                                   # Node background color
-    font_color   : str              = '#333333'                                   # Node text color
-    border_color : str              = '#CCCCCC'                                   # Node border color
-    shape        : str              = 'box'                                       # Node shape
+class Extracted__Node(Type_Safe):                                                         # Extracted node with all semantic data
+    id           : str                                                                    # Node ID
+    label        : str              = ''                                                  # Display label
+    node_type    : str              = 'element'                                           # element, tag, attr, text, script, style
+    dom_path     : str              = ''                                                  # DOM path (e.g., "html.body.div")
+    value        : Optional[str]    = None                                                # Value for value nodes
+    depth        : int              = 0                                                   # DOM depth level
+    category     : str              = ''                                                  # Tag category (structural, text, form, etc.)
+    graph_source : str              = ''                                                  # Which graph: body, head, attrs, scripts, styles
+    fill_color   : str              = '#E8E8E8'                                           # Node background color
+    font_color   : str              = '#333333'                                           # Node text color
+    border_color : str              = '#CCCCCC'                                           # Node border color
+    shape        : str              = 'box'                                               # Node shape
 
 
-class Extracted__Edge(Type_Safe):                                                 # Extracted edge with semantic data
-    id           : str                                                            # Edge ID
-    source       : str                                                            # Source node ID
-    target       : str                                                            # Target node ID
-    predicate    : str              = ''                                          # Relationship type: child, tag, attr, text
-    position     : Optional[int]    = None                                        # Position among siblings
-    color        : str              = '#888888'                                   # Edge color
-    dashed       : bool             = False                                       # Whether edge is dashed
+class Extracted__Edge(Type_Safe):                                                         # Extracted edge with semantic data
+    id           : str                                                                    # Edge ID
+    source       : str                                                                    # Source node ID
+    target       : str                                                                    # Target node ID
+    predicate    : str              = ''                                                  # Relationship type: child, tag, attr, text
+    position     : Optional[int]    = None                                                # Position among siblings
+    graph_source : str              = ''                                                  # Which graph this edge came from
+    color        : str              = '#888888'                                           # Edge color
+    dashed       : bool             = False                                               # Whether edge is dashed
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Main Extractor Class
+# Main Extractor Class - Updated for Multi-Graph Architecture
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class Html_MGraph__Data__Extractor(Type_Safe):                                    # Extracts structured data from Html_MGraph
-    mgraph          : MGraph                                                      # The MGraph to extract from
-    config          : Html_MGraph__Render__Config = None                          # Render configuration
-    colors          : Html_MGraph__Render__Colors = None                          # Color scheme
-    labels          : Html_MGraph__Render__Labels = None                          # Label utilities
+class Html_MGraph__Data__Extractor(Type_Safe):                                            # Extracts structured data from Html_MGraph
+    html_mgraph     : Html_MGraph                    = None                               # The Html_MGraph facade
+    config          : Html_MGraph__Render__Config   = None                               # Render configuration
+    colors          : Html_MGraph__Render__Colors   = None                               # Color scheme
+    labels          : Html_MGraph__Render__Labels   = None                               # Label utilities
 
     # Results
-    nodes           : List[Extracted__Node]       = None
-    edges           : List[Extracted__Edge]       = None
-    root_id         : Optional[str]               = None
+    nodes           : List[Extracted__Node]         = None
+    edges           : List[Extracted__Edge]         = None
+    root_id         : Optional[str]                 = None
 
     # Internal state
-    _excluded_nodes : Set[str]                    = None                          # Node IDs to exclude from edges
+    _extracted_ids  : Set[str]                      = None                               # Track extracted node IDs
+    _excluded_nodes : Set[str]                      = None                               # Node IDs to exclude from edges
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._init_defaults()
 
-    def _init_defaults(self):                                                     # Initialize default values
+    def _init_defaults(self):                                                             # Initialize default values
         if self.colors is None:
             self.colors = Html_MGraph__Render__Colors()
         if self.labels is None:
@@ -79,6 +82,8 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
             self.nodes = []
         if self.edges is None:
             self.edges = []
+        if self._extracted_ids is None:
+            self._extracted_ids = set()
         if self._excluded_nodes is None:
             self._excluded_nodes = set()
 
@@ -86,180 +91,187 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
     # Main Extraction Method
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def extract(self) -> 'Html_MGraph__Data__Extractor':                          # Extract all data from the MGraph
-        self.nodes = []
-        self.edges = []
+    def extract(self) -> 'Html_MGraph__Data__Extractor':                                  # Extract all data from the Html_MGraph
+        self.nodes           = []
+        self.edges           = []
+        self._extracted_ids  = set()
         self._excluded_nodes = set()
 
-        self._extract_nodes()                                                     # Extract nodes first
-        self._extract_edges()                                                     # Then extract edges
-        self._find_root()                                                         # Find root node
+        if self.html_mgraph is None:
+            return self
+
+        self._extract_from_body_graph()                                                   # Extract body structure
+        self._extract_from_head_graph()                                                   # Extract head structure
+        self._extract_from_attrs_graph()                                                  # Extract tags and attributes
+        self._extract_from_scripts_graph()                                                # Extract script content
+        self._extract_from_styles_graph()                                                 # Extract style content
+        self._find_root()                                                                 # Find root node
 
         return self
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Node Extraction - Using MGraph-DB APIs
+    # Body Graph Extraction
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _extract_nodes(self):                                                     # Extract all nodes using MGraph data access
-        mgraph_data = self.mgraph.data()
+    def _extract_from_body_graph(self):                                                   # Extract elements and text from body graph
+        body_graph = self.html_mgraph.body_graph
+        if not body_graph or not body_graph.mgraph:
+            return
 
-        for node_id in mgraph_data.nodes_ids():
-            domain_node = mgraph_data.node(node_id)
-            if not domain_node:
+        for node_id in body_graph.nodes_ids():
+            if str(node_id) in self._extracted_ids:
                 continue
 
-            extracted = self._extract_single_node(domain_node, node_id)
+            node_path = body_graph.node_path(node_id)
+            path_str  = str(node_path) if node_path else ''
 
-            if extracted:
-                if self._should_include_node(extracted):
+            if path_str == 'text' or path_str.startswith('text:'):                        # Text node
+                value = body_graph.node_value(node_id)
+                extracted = self._create_text_node(str(node_id), value, 'body')
+            else:                                                                         # Element node
+                tag = self.html_mgraph.get_tag(node_id) or self._extract_tag(path_str)
+                extracted = self._create_element_node(str(node_id), path_str, tag, 'body')
+
+            if extracted and self._should_include_node(extracted):
+                self.nodes.append(extracted)
+                self._extracted_ids.add(str(node_id))
+            elif extracted:
+                self._excluded_nodes.add(str(node_id))
+
+        self._extract_edges_from_graph(body_graph, 'body')                                # Extract body edges
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Head Graph Extraction
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _extract_from_head_graph(self):                                                   # Extract elements and text from head graph
+        head_graph = self.html_mgraph.head_graph
+        if not head_graph or not head_graph.mgraph:
+            return
+
+        for node_id in head_graph.nodes_ids():
+            if str(node_id) in self._extracted_ids:
+                continue
+
+            node_path = head_graph.node_path(node_id)
+            path_str  = str(node_path) if node_path else ''
+
+            if path_str == 'text' or path_str.startswith('text:'):                        # Text node
+                value = head_graph.node_value(node_id)
+                extracted = self._create_text_node(str(node_id), value, 'head')
+            else:                                                                         # Element node
+                tag = self.html_mgraph.get_tag(node_id) or self._extract_tag(path_str)
+                extracted = self._create_element_node(str(node_id), path_str, tag, 'head')
+
+            if extracted and self._should_include_node(extracted):
+                self.nodes.append(extracted)
+                self._extracted_ids.add(str(node_id))
+            elif extracted:
+                self._excluded_nodes.add(str(node_id))
+
+        self._extract_edges_from_graph(head_graph, 'head')                                # Extract head edges
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Attributes Graph Extraction
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _extract_from_attrs_graph(self):                                                  # Extract tags and attributes from attrs graph
+        attrs_graph = self.html_mgraph.attrs_graph
+        if not attrs_graph or not attrs_graph.mgraph:
+            return
+
+        for node_id in attrs_graph.nodes_ids():
+            if str(node_id) in self._extracted_ids:
+                continue
+
+            node_path = attrs_graph.node_path(node_id)
+            path_str  = str(node_path) if node_path else ''
+            value     = attrs_graph.node_value(node_id)
+
+            if path_str.startswith('tag:'):                                               # Tag node
+                extracted = self._create_tag_node(str(node_id), path_str, value, 'attrs')
+            elif path_str.startswith('attr:'):                                            # Attribute node
+                extracted = self._create_attr_node(str(node_id), path_str, value, 'attrs')
+            else:
+                continue                                                                  # Skip anchor nodes (already in body/head)
+
+            if extracted and self._should_include_node(extracted):
+                self.nodes.append(extracted)
+                self._extracted_ids.add(str(node_id))
+            elif extracted:
+                self._excluded_nodes.add(str(node_id))
+
+        self._extract_edges_from_graph(attrs_graph, 'attrs')                              # Extract attr edges
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Scripts Graph Extraction
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _extract_from_scripts_graph(self):                                                # Extract script content from scripts graph
+        scripts_graph = self.html_mgraph.scripts_graph
+        if not scripts_graph or not scripts_graph.mgraph:
+            return
+
+        for node_id in scripts_graph.nodes_ids():
+            if str(node_id) in self._extracted_ids:
+                continue
+
+            node_path = scripts_graph.node_path(node_id)
+            path_str  = str(node_path) if node_path else ''
+            value     = scripts_graph.node_value(node_id)
+
+            if path_str.startswith('content:'):                                           # Script content node
+                extracted = self._create_script_node(str(node_id), value, 'scripts')
+                if extracted and self._should_include_node(extracted):
                     self.nodes.append(extracted)
-                else:
-                    self._excluded_nodes.add(str(node_id))                        # Track excluded nodes
+                    self._extracted_ids.add(str(node_id))
 
-    def _extract_single_node(self, domain_node, node_id) -> Optional[Extracted__Node]:
-        """Extract data from a single MGraph node using proper accessors"""
-        node_id_str = str(node_id)
-
-        # Get node_path from the schema data
-        node_path = self._get_node_path(domain_node)
-
-        # Check if this is a value node (has value data)
-        value = self._get_node_value(domain_node)
-
-        # Determine node type from path pattern
-        if node_path.startswith('tag:'):
-            return self._create_tag_node(node_id_str, node_path, value)
-        elif node_path.startswith('attr:'):
-            return self._create_attr_node(node_id_str, node_path, value)
-        elif node_path == 'text':
-            return self._create_text_node(node_id_str, value)
-        else:
-            return self._create_element_node(node_id_str, node_path)
-
-    def _get_node_path(self, domain_node) -> str:                                 # Extract node_path using MGraph-DB pattern
-        try:
-            # MGraph-DB: domain_node.node.data.node_path
-            if hasattr(domain_node, 'node') and domain_node.node:
-                node_data = domain_node.node.data
-                if hasattr(node_data, 'node_path') and node_data.node_path:
-                    return str(node_data.node_path)
-        except Exception:
-            pass
-        return ''
-
-    def _get_node_value(self, domain_node) -> Optional[str]:                      # Extract value from value nodes
-        try:
-            # Check if it's a value node (Schema__MGraph__Node__Value)
-            if hasattr(domain_node, 'node') and domain_node.node:
-                node_data = domain_node.node.data
-                if hasattr(node_data, 'node_data'):
-                    value_data = node_data.node_data
-                    if hasattr(value_data, 'value'):
-                        return str(value_data.value)
-        except Exception:
-            pass
-        return None
+        self._extract_edges_from_graph(scripts_graph, 'scripts')
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Node Type Factories
+    # Styles Graph Extraction
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _create_element_node(self, node_id: str, node_path: str) -> Extracted__Node:
-        depth      = self._calculate_depth(node_path)
-        tag        = self._extract_tag(node_path)
-        category   = self.colors.get_tag_category(tag) if tag else ''
-        fill_color = self.colors.get_element_color(depth)
-        font_color = self.colors.get_font_color('element')
-        label      = self.labels.label_for_element_node(node_path) if self.labels else node_path
+    def _extract_from_styles_graph(self):                                                 # Extract style content from styles graph
+        styles_graph = self.html_mgraph.styles_graph
+        if not styles_graph or not styles_graph.mgraph:
+            return
 
-        return Extracted__Node(id           = node_id                     ,
-                               label        = label                       ,
-                               node_type    = 'element'                   ,
-                               dom_path     = node_path                   ,
-                               depth        = depth                       ,
-                               category     = category                    ,
-                               fill_color   = fill_color                  ,
-                               font_color   = font_color                  ,
-                               border_color = self._darken(fill_color)    ,
-                               shape        = self.config.element_shape   )
+        for node_id in styles_graph.nodes_ids():
+            if str(node_id) in self._extracted_ids:
+                continue
 
-    def _create_tag_node(self, node_id: str, node_path: str, value: Optional[str]) -> Extracted__Node:
-        tag_name   = node_path[4:] if node_path.startswith('tag:') else ''
-        category   = self.colors.get_tag_category(tag_name)
-        fill_color = self.colors.get_tag_color(tag_name)
-        font_color = self.colors.get_font_color('tag')
-        label      = self.labels.label_for_tag_node(node_path, value) if self.labels else f'<{tag_name}>'
+            node_path = styles_graph.node_path(node_id)
+            path_str  = str(node_path) if node_path else ''
+            value     = styles_graph.node_value(node_id)
 
-        return Extracted__Node(id           = node_id                     ,
-                               label        = label                       ,
-                               node_type    = 'tag'                       ,
-                               dom_path     = node_path                   ,
-                               value        = value                       ,
-                               category     = category                    ,
-                               fill_color   = fill_color                  ,
-                               font_color   = font_color                  ,
-                               border_color = self._darken(fill_color)    ,
-                               shape        = self.config.tag_shape       )
+            if path_str.startswith('content:'):                                           # Style content node
+                extracted = self._create_style_node(str(node_id), value, 'styles')
+                if extracted and self._should_include_node(extracted):
+                    self.nodes.append(extracted)
+                    self._extracted_ids.add(str(node_id))
 
-    def _create_attr_node(self, node_id: str, node_path: str, value: Optional[str]) -> Extracted__Node:
-        fill_color = self.colors.get_attr_color()
-        font_color = self.colors.get_font_color('attr')
-        label      = self.labels.label_for_attr_node(node_path, value) if self.labels else node_path
-
-        return Extracted__Node(id           = node_id                     ,
-                               label        = label                       ,
-                               node_type    = 'attr'                      ,
-                               dom_path     = node_path                   ,
-                               value        = value                       ,
-                               fill_color   = fill_color                  ,
-                               font_color   = font_color                  ,
-                               border_color = self._darken(fill_color)    ,
-                               shape        = self.config.attr_shape      )
-
-    def _create_text_node(self, node_id: str, value: Optional[str]) -> Extracted__Node:
-        fill_color = self.colors.get_text_color()
-        font_color = self.colors.get_font_color('text')
-        label      = self.labels.label_for_text_node(value) if self.labels else (value or '')
-
-        return Extracted__Node(id           = node_id                     ,
-                               label        = label                       ,
-                               node_type    = 'text'                      ,
-                               dom_path     = 'text'                      ,
-                               value        = value                       ,
-                               fill_color   = fill_color                  ,
-                               font_color   = font_color                  ,
-                               border_color = self._darken(fill_color)    ,
-                               shape        = self.config.text_shape      )
-
-    def _should_include_node(self, node: Extracted__Node) -> bool:                # Check visibility config
-        if node.node_type == 'tag'  and not self.config.show_tag_nodes:
-            return False
-        if node.node_type == 'attr' and not self.config.show_attr_nodes:
-            return False
-        if node.node_type == 'text' and not self.config.show_text_nodes:
-            return False
-        return True
+        self._extract_edges_from_graph(styles_graph, 'styles')
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Edge Extraction - Using MGraph-DB APIs
+    # Edge Extraction
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _extract_edges(self):                                                     # Extract all edges using MGraph data access
-        mgraph_data = self.mgraph.data()
+    def _extract_edges_from_graph(self, graph, graph_source: str):                        # Extract edges from a specific graph
+        if not graph or not graph.mgraph:
+            return
 
+        mgraph_data = graph.mgraph.data()
         for edge_id in mgraph_data.edges_ids():
             domain_edge = mgraph_data.edge(edge_id)
             if not domain_edge:
                 continue
 
-            extracted = self._extract_single_edge(domain_edge, edge_id)
-
+            extracted = self._extract_single_edge(domain_edge, edge_id, graph_source)
             if extracted and self._should_include_edge(extracted):
                 self.edges.append(extracted)
 
-    def _extract_single_edge(self, domain_edge, edge_id) -> Optional[Extracted__Edge]:
-        """Extract data from a single MGraph edge using proper accessors"""
+    def _extract_single_edge(self, domain_edge, edge_id, graph_source: str) -> Optional[Extracted__Edge]:
         try:
             edge_data = domain_edge.edge.data
 
@@ -269,20 +281,20 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
             predicate   = self._get_edge_predicate(edge_data)
             position    = self._get_edge_position(edge_data)
             color       = self.colors.get_edge_color(predicate) if self.colors else '#888888'
-            dashed      = predicate in ('tag', 'attr')                            # Non-structural edges are dashed
+            dashed      = predicate in ('tag', 'attr', 'script', 'style')                 # Non-structural edges are dashed
 
-            return Extracted__Edge(id        = edge_id_str ,
-                                   source    = source      ,
-                                   target    = target      ,
-                                   predicate = predicate   ,
-                                   position  = position    ,
-                                   color     = color       ,
-                                   dashed    = dashed      )
+            return Extracted__Edge(id           = edge_id_str   ,
+                                   source       = source        ,
+                                   target       = target        ,
+                                   predicate    = predicate     ,
+                                   position     = position      ,
+                                   graph_source = graph_source  ,
+                                   color        = color         ,
+                                   dashed       = dashed        )
         except Exception:
             return None
 
-    def _get_edge_predicate(self, edge_data) -> str:                              # Extract predicate from edge_label
-        """MGraph-DB stores semantic relationships in edge_label.predicate"""
+    def _get_edge_predicate(self, edge_data) -> str:                                      # Extract predicate from edge_label
         try:
             if hasattr(edge_data, 'edge_label') and edge_data.edge_label:
                 label = edge_data.edge_label
@@ -292,8 +304,7 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
             pass
         return ''
 
-    def _get_edge_position(self, edge_data) -> Optional[int]:                     # Extract position from edge_path
-        """Html_MGraph uses edge_path to store child position"""
+    def _get_edge_position(self, edge_data) -> Optional[int]:                             # Extract position from edge_path
         try:
             if hasattr(edge_data, 'edge_path') and edge_data.edge_path:
                 return int(edge_data.edge_path)
@@ -301,8 +312,8 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
             pass
         return None
 
-    def _should_include_edge(self, edge: Extracted__Edge) -> bool:                # Check if edge should be included
-        if edge.target in self._excluded_nodes:                                   # Skip edges to excluded nodes
+    def _should_include_edge(self, edge: Extracted__Edge) -> bool:                        # Check if edge should be included
+        if edge.source in self._excluded_nodes or edge.target in self._excluded_nodes:
             return False
 
         predicate = edge.predicate
@@ -318,11 +329,134 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
         return True
 
     # ═══════════════════════════════════════════════════════════════════════════
+    # Node Creation Methods
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _create_element_node(self, node_id: str, node_path: str, tag: str, graph_source: str) -> Extracted__Node:
+        depth      = self._calculate_depth(node_path)
+        category   = self.colors.get_tag_category(tag) if self.colors and tag else ''
+        fill_color = self.colors.get_element_color(depth) if self.colors else '#E8E8E8'
+        font_color = self.colors.get_font_color('element') if self.colors else '#333333'
+        label      = self.labels.label_for_element_node(node_path) if self.labels else (tag or node_path)
+
+        return Extracted__Node(id           = node_id                     ,
+                               label        = label                       ,
+                               node_type    = 'element'                   ,
+                               dom_path     = node_path                   ,
+                               depth        = depth                       ,
+                               category     = category                    ,
+                               graph_source = graph_source                ,
+                               fill_color   = fill_color                  ,
+                               font_color   = font_color                  ,
+                               border_color = self._darken(fill_color)    ,
+                               shape        = self.config.element_shape if self.config else 'box')
+
+    def _create_tag_node(self, node_id: str, node_path: str, value: Optional[str], graph_source: str) -> Extracted__Node:
+        tag_name   = node_path[4:] if node_path.startswith('tag:') else ''
+        category   = self.colors.get_tag_category(tag_name) if self.colors else ''
+        fill_color = self.colors.get_tag_color(tag_name) if self.colors else '#4A90D9'
+        font_color = self.colors.get_font_color('tag') if self.colors else '#FFFFFF'
+        label      = self.labels.label_for_tag_node(node_path, value) if self.labels else f'<{tag_name}>'
+
+        return Extracted__Node(id           = node_id                     ,
+                               label        = label                       ,
+                               node_type    = 'tag'                       ,
+                               dom_path     = node_path                   ,
+                               value        = value                       ,
+                               category     = category                    ,
+                               graph_source = graph_source                ,
+                               fill_color   = fill_color                  ,
+                               font_color   = font_color                  ,
+                               border_color = self._darken(fill_color)    ,
+                               shape        = self.config.tag_shape if self.config else 'ellipse')
+
+    def _create_attr_node(self, node_id: str, node_path: str, value: Optional[str], graph_source: str) -> Extracted__Node:
+        fill_color = self.colors.get_attr_color() if self.colors else '#B39DDB'
+        font_color = self.colors.get_font_color('attr') if self.colors else '#333333'
+        label      = self.labels.label_for_attr_node(node_path, value) if self.labels else (value or node_path)
+
+        return Extracted__Node(id           = node_id                     ,
+                               label        = label                       ,
+                               node_type    = 'attr'                      ,
+                               dom_path     = node_path                   ,
+                               value        = value                       ,
+                               graph_source = graph_source                ,
+                               fill_color   = fill_color                  ,
+                               font_color   = font_color                  ,
+                               border_color = self._darken(fill_color)    ,
+                               shape        = self.config.attr_shape if self.config else 'box')
+
+    def _create_text_node(self, node_id: str, value: Optional[str], graph_source: str) -> Extracted__Node:
+        fill_color = self.colors.get_text_color() if self.colors else '#FFFACD'
+        font_color = self.colors.get_font_color('text') if self.colors else '#333333'
+        label      = self.labels.label_for_text_node(value) if self.labels else (value or '')
+
+        return Extracted__Node(id           = node_id                     ,
+                               label        = label                       ,
+                               node_type    = 'text'                      ,
+                               dom_path     = 'text'                      ,
+                               value        = value                       ,
+                               graph_source = graph_source                ,
+                               fill_color   = fill_color                  ,
+                               font_color   = font_color                  ,
+                               border_color = self._darken(fill_color)    ,
+                               shape        = self.config.text_shape if self.config else 'box')
+
+    def _create_script_node(self, node_id: str, value: Optional[str], graph_source: str) -> Extracted__Node:
+        fill_color = '#FCE4EC'                                                            # Light pink for scripts
+        font_color = '#333333'
+        label      = (value or '')[:30] + '...' if value and len(value) > 30 else (value or '')
+
+        return Extracted__Node(id           = node_id                     ,
+                               label        = f'script: {label}'          ,
+                               node_type    = 'script'                    ,
+                               dom_path     = 'script'                    ,
+                               value        = value                       ,
+                               graph_source = graph_source                ,
+                               fill_color   = fill_color                  ,
+                               font_color   = font_color                  ,
+                               border_color = self._darken(fill_color)    ,
+                               shape        = 'box'                       )
+
+    def _create_style_node(self, node_id: str, value: Optional[str], graph_source: str) -> Extracted__Node:
+        fill_color = '#F3E5F5'                                                            # Light purple for styles
+        font_color = '#333333'
+        label      = (value or '')[:30] + '...' if value and len(value) > 30 else (value or '')
+
+        return Extracted__Node(id           = node_id                     ,
+                               label        = f'style: {label}'           ,
+                               node_type    = 'style'                     ,
+                               dom_path     = 'style'                     ,
+                               value        = value                       ,
+                               graph_source = graph_source                ,
+                               fill_color   = fill_color                  ,
+                               font_color   = font_color                  ,
+                               border_color = self._darken(fill_color)    ,
+                               shape        = 'box'                       )
+
+    def _should_include_node(self, node: Extracted__Node) -> bool:                        # Check visibility config
+        if not self.config:
+            return True
+        if node.node_type == 'tag'  and not self.config.show_tag_nodes:
+            return False
+        if node.node_type == 'attr' and not self.config.show_attr_nodes:
+            return False
+        if node.node_type == 'text' and not self.config.show_text_nodes:
+            return False
+        return True
+
+    # ═══════════════════════════════════════════════════════════════════════════
     # Root Detection
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _find_root(self):                                                         # Find the root element node
-        for node in self.nodes:
+    def _find_root(self):                                                                 # Find the root element node
+        if self.html_mgraph:
+            root = self.html_mgraph.root_id()
+            if root:
+                self.root_id = str(root)
+                return
+
+        for node in self.nodes:                                                           # Fallback: find by depth
             if node.node_type == 'element' and node.depth == 1:
                 self.root_id = node.id
                 break
@@ -331,22 +465,35 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
     # Utility Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _calculate_depth(self, node_path: str) -> int:                            # Calculate DOM depth from path
+    def _calculate_depth(self, node_path: str) -> int:                                    # Calculate DOM depth from path
         if not node_path:
             return 0
         return node_path.count('.') + 1
 
-    def _extract_tag(self, node_path: str) -> str:                                # Extract tag name from path
+    def _extract_tag(self, node_path: str) -> str:                                        # Extract tag name from path
         if not node_path:
             return ''
-        # Path like "html.body.div[0]" -> "div"
         last_part = node_path.split('.')[-1] if '.' in node_path else node_path
-        # Remove index like "[0]"
         if '[' in last_part:
             last_part = last_part[:last_part.index('[')]
         return last_part
 
-    def _darken(self, hex_color: str) -> str:                                     # Darken a hex color for borders
+    def _get_tag_category(self, tag: str) -> str:                                         # Get tag category
+        categories = {
+            'structural' : ['html', 'head', 'body', 'div', 'span', 'section', 'article', 'header', 'footer', 'nav', 'aside', 'main'],
+            'text'       : ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'strong', 'em', 'b', 'i', 'u', 'br', 'hr'],
+            'form'       : ['form', 'input', 'button', 'select', 'textarea', 'label', 'option'],
+            'media'      : ['img', 'video', 'audio', 'canvas', 'svg', 'picture'],
+            'list'       : ['ul', 'ol', 'li', 'dl', 'dt', 'dd'],
+            'table'      : ['table', 'tr', 'td', 'th', 'thead', 'tbody', 'tfoot'],
+            'meta'       : ['meta', 'link', 'title', 'style', 'script']
+        }
+        for category, tags in categories.items():
+            if tag.lower() in tags:
+                return category
+        return 'other'
+
+    def _darken(self, hex_color: str) -> str:                                             # Darken a hex color for borders
         if not hex_color or not hex_color.startswith('#') or len(hex_color) != 7:
             return '#CCCCCC'
         try:

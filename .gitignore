@@ -208,3 +208,4 @@ __marimo__/
 html-mgraph.png
 tests/unit/service/html_render/pngs
 package-lock.json
+*.png
