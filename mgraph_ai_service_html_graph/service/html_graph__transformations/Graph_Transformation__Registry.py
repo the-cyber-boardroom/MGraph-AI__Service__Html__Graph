@@ -5,6 +5,8 @@
 
 from typing                                                                                            import Dict, List, Type
 from enum                                                                                              import Enum
+
+#from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__1 import Html_Use_Case__1
 from osbot_utils.type_safe.Type_Safe                                                                   import Type_Safe
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base       import Graph_Transformation__Base
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transform__Body_Only       import Graph_Transform__Body_Only
@@ -40,6 +42,7 @@ class Graph_Transformation__Registry(Type_Safe):
         self._transformations[instance.name] = transformation_class
 
     def _register_all(self) -> None:                                                # Register all built-in transformations
+        #self.register(Html_Use_Case__1                )
         self.register(Graph_Transformation__Base      )                             # Default (pass-through)
         self.register(Graph_Transform__Body_Only      )                             # Body content only
         self.register(Graph_Transform__Structure_Only )                             # Page structure, no text
