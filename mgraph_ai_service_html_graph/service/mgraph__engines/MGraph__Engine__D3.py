@@ -3,11 +3,9 @@
 # Converts MGraph to D3.js compatible JSON format.
 # Output structure: { nodes: [...], links: [...], config: {...} }
 
-from typing                                                                      import Dict, List, Any, Optional
-
-from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__D3 import MGraph__Engine__Config__D3
-from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__Base   import MGraph__Engine__Base
-
+from typing                                                                                     import Dict, List, Any
+from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__D3    import MGraph__Engine__Config__D3
+from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__Base                  import MGraph__Engine__Base
 
 
 class MGraph__Engine__D3(MGraph__Engine__Base):      # D3 JSON format exporter

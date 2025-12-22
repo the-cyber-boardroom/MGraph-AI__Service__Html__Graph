@@ -3,10 +3,16 @@
 # Central registry for all available graph transformations.
 # Provides lookup by name and listing functionality.
 
-from typing                                                                                      import Dict, List, Type
-from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base import Graph_Transformation__Base
-from mgraph_ai_service_html_graph.service.html_graph__transformations.MGraph__Transformations    import Graph_Transform__Default, Graph_Transform__Body_Only, Graph_Transform__Head_Only, \
-                                                                                                        Graph_Transform__Document, Graph_Transform__Attributes, Graph_Transform__Scripts, Graph_Transform__Styles, Graph_Transform__Structure_Only, Graph_Transform__Clean, Graph_Transform__Compact, Graph_Transform__Expanded
+from typing                                                                                                                 import Dict, List, Type
+from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base                            import Graph_Transformation__Base
+from mgraph_ai_service_html_graph.service.html_graph__transformations.MGraph__Transformations                               import Graph_Transform__Structure_Only, Graph_Transform__Clean, Graph_Transform__Compact, Graph_Transform__Expanded
+from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Attributes      import Graph_Transform__Attributes
+from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Body_Only       import Graph_Transform__Body_Only
+from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Default         import Graph_Transform__Default
+from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Full_Document   import Graph_Transform__Full_Document
+from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Head_Only       import Graph_Transform__Head_Only
+from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Scripts         import Graph_Transform__Scripts
+from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Styles          import Graph_Transform__Styles
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════
@@ -19,7 +25,7 @@ class Graph_Transformation__Registry:                                           
         'default'        : Graph_Transform__Default        ,
         'body_only'      : Graph_Transform__Body_Only      ,
         'head_only'      : Graph_Transform__Head_Only      ,
-        'document'       : Graph_Transform__Document       ,
+        'full-document'  : Graph_Transform__Full_Document  ,
         'attributes'     : Graph_Transform__Attributes     ,
         'scripts'        : Graph_Transform__Scripts        ,
         'styles'         : Graph_Transform__Styles         ,

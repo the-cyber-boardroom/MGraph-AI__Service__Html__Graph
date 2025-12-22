@@ -10,11 +10,11 @@ from typing import List
 
 from osbot_fast_api.api.decorators.route_path                                            import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                          import Fast_API__Routes
-from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response             import Schema__Graph__Dot__Response
+#from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response             import Schema__Graph__Dot__Response
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request       import Schema__Graph__From_Html__Request
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Url__Request        import Schema__Graph__From_Url__Request
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Html__From_Url__Request         import Schema__Html__From_Url__Request
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import Schema__Transformations__List__Response, Schema__Transformation__Info
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import Schema__Transformations__List__Response, Schema__Transformation__Info, Schema__Graph__Dot__Response
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service import Html_Graph__Export__Service
 from mgraph_ai_service_html_graph.service.html_url.Html__Url__Fetcher                    import Html__Url__Fetcher
 
@@ -82,8 +82,8 @@ class Routes__Graph(Fast_API__Routes):                                          
             render_method = self.graph_service.to_mermaid
         elif engine == 'tree':
             render_method = self.graph_service.to_tree
-        elif engine == 'tree_text':
-            render_method = self.graph_service.to_tree_text
+        # elif engine == 'tree_text':                               # todo: wire this back
+        #     render_method = self.graph_service.to_tree_text
         else:
             raise Exception(f"Unknown graph engine: {engine}")
 
