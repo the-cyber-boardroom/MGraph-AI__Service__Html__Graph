@@ -1,117 +1,88 @@
-from unittest                                                                                        import TestCase
+from unittest                                                                                import TestCase
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.utils.Objects                                                               import base_classes
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                            import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base import Graph_Transformation__Base
 
 
 class test_Graph_Transformation__Base(TestCase):
 
     @classmethod
-    def setUpClass(cls):                                                                            # One-time setup for all tests
+    def setUpClass(cls):
         cls.transformation = Graph_Transformation__Base()
+        cls.simple_html    = '<div class="main">Hello World</div>'
+        cls.html_mgraph    = Html_MGraph.from_html(cls.simple_html)
 
-    def test__init__(self):                                                                         # Test initialization and attributes
-        with Graph_Transformation__Base() as _:
-            assert _.name        == 'default'
-            assert _.label       == 'Default'
-            assert _.description == 'Standard HTML to MGraph conversion with full detail'
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # Initialization Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
 
-    def test_transform_html__passthrough(self):                                                     # Test Phase 1: default passes through unchanged
-        html = '<div><p>Hello</p></div>'
+    def test__init__(self):
+        with self.transformation as _:
+            assert type(_)         is Graph_Transformation__Base
+            assert base_classes(_) == [Type_Safe, object]
+            assert _.name          == 'default'
+            assert _.label         == 'Default'
+            assert _.description   == 'Standard HTML to MGraph conversion with full detail'
 
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # Phase 1: transform_html Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
+
+    def test__transform_html__passthrough(self):
+        html   = '<div>Test</div>'
         result = self.transformation.transform_html(html)
+        assert result == html                                                         # Default passes through unchanged
 
-        assert result == html                                                                       # Should return unchanged
-
-    def test_transform_html__empty_string(self):                                                    # Test Phase 1: empty string
-        result = self.transformation.transform_html('')
-        assert result == ''
-
-    def test_transform_html__complex_html(self):                                                    # Test Phase 1: complex HTML passes through
-        html = '''<!DOCTYPE html>
-<html>
-<head><title>Test</title></head>
-<body><div class="container"><p>Content</p></div></body>
-</html>'''
-
+    def test__transform_html__preserves_content(self):
+        html   = '<!DOCTYPE html><html><body><p>Content</p></body></html>'
         result = self.transformation.transform_html(html)
-
         assert result == html
 
-    def test_transform_dict__passthrough(self):                                                     # Test Phase 2: default passes through unchanged
-        html_dict = { 'tag'        : 'div'                                                        ,
-                      'attrs'      : {'class': 'test'}                                            ,
-                      'child_nodes': [{'tag': 'p', 'attrs': {}, 'child_nodes': [], 'text_nodes': []}],
-                      'text_nodes' : []                                                           }
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # Phase 2: transform_mgraph Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
 
-        result = self.transformation.transform_dict(html_dict)
+    def test__transform_mgraph__passthrough(self):
+        result = self.transformation.transform_mgraph(self.html_mgraph)
+        assert result is self.html_mgraph                                             # Default passes through unchanged
 
-        assert result == html_dict                                                                  # Should return unchanged
+    def test__transform_mgraph__preserves_graphs(self):
+        result = self.transformation.transform_mgraph(self.html_mgraph)
+        assert result.body_graph  is not None
+        assert result.attrs_graph is not None
 
-    def test_transform_dict__empty_dict(self):                                                      # Test Phase 2: empty dict
-        result = self.transformation.transform_dict({})
-        assert result == {}
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # Phase 3: transform_export Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
 
-    def test_transform_dict__nested_structure(self):                                                # Test Phase 2: nested structure passes through
-        html_dict = { 'tag'        : 'html'                                                       ,
-                      'child_nodes': [
-                          {'tag': 'body', 'child_nodes': [
-                              {'tag': 'div', 'child_nodes': [
-                                  {'tag': 'p', 'child_nodes': [], 'text_nodes': [{'data': 'Text'}]}
-                              ], 'text_nodes': []}
-                          ], 'text_nodes': []}
-                      ]                                                                           ,
-                      'text_nodes' : []                                                           }
+    def test__transform_export__passthrough(self):
+        export_data = {'nodes': [], 'edges': [], 'format': 'test'}
+        result      = self.transformation.transform_export(export_data)
+        assert result is export_data                                                  # Default passes through unchanged
 
-        result = self.transformation.transform_dict(html_dict)
-
-        assert result == html_dict
-
-    def test_transform_mgraph__passthrough(self):                                                   # Test Phase 4: default passes through unchanged
-        mock_mgraph = {'mock': 'mgraph'}                                                            # Using dict as mock
-
-        result = self.transformation.transform_mgraph(mock_mgraph)
-
-        assert result == mock_mgraph
-
-    def test_transform_export__passthrough(self):                                                   # Test Phase 5: default passes through unchanged
-        export_data = { 'nodes': [{'id': '1', 'label': 'div'}]                                    ,
-                        'edges': [{'from': '1', 'to': '2'}]                                       }
-
+    def test__transform_export__preserves_structure(self):
+        export_data = {'nodes'   : [{'id': '1', 'label': 'test'}],
+                       'edges'   : [{'from': '1', 'to': '2'}]    ,
+                       'format'  : 'visjs'                       ,
+                       'duration': 0.1                           }
         result = self.transformation.transform_export(export_data)
+        assert result['nodes']    == export_data['nodes']
+        assert result['edges']    == export_data['edges']
+        assert result['format']   == 'visjs'
+        assert result['duration'] == 0.1
 
-        assert result == export_data
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # Metadata Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
 
-    def test_transform_export__empty_dict(self):                                                    # Test Phase 5: empty dict
-        result = self.transformation.transform_export({})
-        assert result == {}
-
-    def test_to_dict(self):                                                                         # Test metadata output
+    def test__to_dict(self):
         result = self.transformation.to_dict()
+        assert type(result)        is dict
+        assert result['name']      == 'default'
+        assert result['label']     == 'Default'
+        assert 'description'       in result
 
-        assert result == { 'name'       : 'default'                                               ,
-                           'label'      : 'Default'                                               ,
-                           'description': 'Standard HTML to MGraph conversion with full detail'  }
-
-    def test_to_dict__custom_transformation(self):                                                  # Test to_dict with custom values
-        class Custom_Transformation(Graph_Transformation__Base):
-            name        : str = 'custom'
-            label       : str = 'Custom Transform'
-            description : str = 'A custom transformation'
-
-        with Custom_Transformation() as _:
-            result = _.to_dict()
-
-            assert result == { 'name'       : 'custom'                                            ,
-                               'label'      : 'Custom Transform'                                  ,
-                               'description': 'A custom transformation'                          }
-
-    def test_inheritance__override_single_phase(self):                                              # Test that subclasses can override single phase
-        class Html_Uppercase(Graph_Transformation__Base):
-            def transform_html(self, html: str) -> str:
-                return html.upper()
-
-        with Html_Uppercase() as _:
-            result = _.transform_html('<div>hello</div>')
-            assert result == '<DIV>HELLO</DIV>'
-
-            dict_result = _.transform_dict({'tag': 'div'})                                          # Other phases unchanged
-            assert dict_result == {'tag': 'div'}
+    def test__to_dict__keys(self):
+        result = self.transformation.to_dict()
+        assert set(result.keys()) == {'name', 'label', 'description'}
