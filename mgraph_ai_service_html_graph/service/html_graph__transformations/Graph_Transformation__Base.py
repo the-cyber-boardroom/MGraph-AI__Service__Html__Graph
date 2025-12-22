@@ -1,90 +1,91 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# MGraph HTML Graph - Graph Transformation Base Class
-# v0.3.0 - Updated for multi-graph architecture
-# ═══════════════════════════════════════════════════════════════════════════════
+# Graph Transformation Base
+#
+# Base class for all HTML graph transformations. Implements the 4-phase pipeline:
+#   Phase 1: html__to__html_mgraph(html) → Html_MGraph
+#   Phase 2: html_mgraph__to__mgraph(Html_MGraph) → MGraph
+#   Phase 3: transform_mgraph(MGraph) → MGraph
+#   Phase 4: configure_<engine>(config) callbacks
+#   Phase 5: transform_export(output) → output
 
-from typing                                                       import Dict, Any
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph import Html_MGraph
-from osbot_utils.type_safe.Type_Safe                              import Type_Safe
+from typing                                                                                         import Any, Optional
+
+from mgraph_db.mgraph.MGraph import MGraph
+from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
+from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__Dot       import MGraph__Engine__Config__Dot
+from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__D3        import MGraph__Engine__Config__D3
+from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__Cytoscape import MGraph__Engine__Config__Cytoscape
+from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__VisJs     import MGraph__Engine__Config__VisJs
+from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__Mermaid   import MGraph__Engine__Config__Mermaid
+from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__Tree      import MGraph__Engine__Config__Tree
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                                   import Html_MGraph
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
 
 
-class Graph_Transformation__Base(Type_Safe):
-    """Base class for all graph transformations.
+class Graph_Transformation__Base(Type_Safe):                                             # Base transformation for HTML graphs
 
-    Override any phase method to customize that step.
-    Default implementation passes through unchanged.
+    name        : str = 'default'                                                        # Transformation identifier
+    label       : str = 'Default'                                                        # Human-readable label
+    description : str = 'Standard body graph visualization'                              # Description
 
-    Pipeline:
-        HTML String
-            → Phase 1: transform_html()
-        Html_MGraph (multi-graph)
-            → Phase 2: transform_mgraph()
-        Export data
-            → Phase 3: transform_export()
-        Response
-    """
+    # ═══════════════════════════════════════════════════════════════════════════════════
+    # Phase 1: HTML → Html_MGraph
+    # ═══════════════════════════════════════════════════════════════════════════════════
 
-    name        : str = "default"
-    label       : str = "Default"
-    description : str = "Standard HTML to MGraph conversion with full detail"
+    def html__to__html_mgraph(self, html: str):                                          # Convert HTML to Html_MGraph
+        return Html_MGraph.from_html(html)                                               # Default: use Html_MGraph parser
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Phase 1: Raw HTML Manipulation
-    # ═══════════════════════════════════════════════════════════════════════════
+    # ═══════════════════════════════════════════════════════════════════════════════════
+    # Phase 2: Html_MGraph → MGraph
+    # ═══════════════════════════════════════════════════════════════════════════════════
 
-    def transform_html(self, html: str) -> str:                                     # Modify raw HTML string before parsing
-        """Override to manipulate raw HTML before parsing.
+    @type_safe
+    def html_mgraph__to__mgraph(self,                                               # Select which graph to render
+                                html_mgraph: Html_MGraph
+                                ) -> MGraph:
+        body_graph = html_mgraph.body_graph                                         # Use body graph by default
+        if body_graph:
+            return body_graph.mgraph
+        return None
 
-        Use cases:
-            - Remove script/style tags
-            - Inject wrapper elements
-            - Normalize whitespace
-        """
-        return html
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Phase 2: MGraph Transformation
-    # ═══════════════════════════════════════════════════════════════════════════
+    # ═══════════════════════════════════════════════════════════════════════════════════
+    # Phase 3: MGraph → MGraph (transformation)
+    # ═══════════════════════════════════════════════════════════════════════════════════
 
-    def transform_mgraph(self, html_mgraph: Html_MGraph) -> Html_MGraph:            # Modify Html_MGraph after creation
-        """Override to manipulate the Html_MGraph graph structure.
+    def transform_mgraph(self, mgraph):                                                  # Transform the graph
+        return mgraph                                                                    # Default: no-op passthrough
 
-        The Html_MGraph contains multiple sub-graphs:
-            - document: Root document structure
-            - head_graph: Head element content
-            - body_graph: Body element content
-            - attrs_graph: All attributes
-            - scripts_graph: Script elements
-            - styles_graph: Style elements
+    # ═══════════════════════════════════════════════════════════════════════════════════
+    # Phase 4: Engine Configuration Callbacks
+    # ═══════════════════════════════════════════════════════════════════════════════════
 
-        Use cases:
-            - Collapse nodes
-            - Filter by depth
-            - Add computed properties
-            - Merge related nodes
-            - Filter specific sub-graphs
-        """
-        return html_mgraph
+    def configure_dot(self, config: MGraph__Engine__Config__Dot                          # Configure DOT engine
+                     ) -> MGraph__Engine__Config__Dot:
+        return config                                                                    # Default: no changes
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Phase 3: Export Data Manipulation
-    # ═══════════════════════════════════════════════════════════════════════════
+    def configure_d3(self, config: MGraph__Engine__Config__D3                            # Configure D3 engine
+                    ) -> MGraph__Engine__Config__D3:
+        return config
 
-    def transform_export(self, export_data: Dict[str, Any]) -> Dict[str, Any]:      # Modify exported data before sending to client
-        """Override to manipulate final export data.
+    def configure_cytoscape(self, config: MGraph__Engine__Config__Cytoscape              # Configure Cytoscape engine
+                           ) -> MGraph__Engine__Config__Cytoscape:
+        return config
 
-        Use cases:
-            - Add custom metadata
-            - Filter output fields
-            - Post-process colors/labels
-        """
-        return export_data
+    def configure_visjs(self, config: MGraph__Engine__Config__VisJs                      # Configure VisJs engine
+                       ) -> MGraph__Engine__Config__VisJs:
+        return config
 
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Metadata
-    # ═══════════════════════════════════════════════════════════════════════════
+    def configure_mermaid(self, config: MGraph__Engine__Config__Mermaid                  # Configure Mermaid engine
+                         ) -> MGraph__Engine__Config__Mermaid:
+        return config
 
-    def to_dict(self) -> Dict[str, str]:                                            # Return transformation metadata
-        return dict(name        = self.name       ,
-                    label       = self.label      ,
-                    description = self.description)
+    def configure_tree(self, config: MGraph__Engine__Config__Tree                        # Configure Tree engine
+                      ) -> MGraph__Engine__Config__Tree:
+        return config
+
+    # ═══════════════════════════════════════════════════════════════════════════════════
+    # Phase 5: Output Transformation
+    # ═══════════════════════════════════════════════════════════════════════════════════
+
+    def transform_export(self, output: Any) -> Any:                                      # Post-process export output
+        return output                                                                    # Default: no-op passthrough
