@@ -145,7 +145,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
             dot_string  = exporter.convert(html_mgraph)
             stats       = self.get_stats(html_mgraph)
 
-        return Schema__Graph__Dot__Response(dot_string    = dot_string           ,
+        return Schema__Graph__Dot__Response(dot           = dot_string           ,
                                             dot_size      = len(dot_string)      ,
                                             duration      = duration.seconds     ,
                                             stats         = stats                ,

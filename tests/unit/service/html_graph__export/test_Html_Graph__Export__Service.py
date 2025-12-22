@@ -103,15 +103,15 @@ class test_Html_Graph__Export__Service(TestCase):                               
         request = Schema__Graph__From_Html__Request(html='<div>Test</div>')
         result  = self.service.to_dot(request)
 
-        assert result.dot_string is not None
-        assert 'digraph' in result.dot_string
+        assert result.dot is not None
+        assert 'digraph' in result.dot
         assert result.dot_size > 0
 
     def test__to_dot__with_transformation(self):                                          # Test DOT export with transformation
         request = Schema__Graph__From_Html__Request(html='<div>Test</div>')
         result  = self.service.to_dot(request, transformation='default')
 
-        assert result.dot_string is not None
+        assert result.dot is not None
         assert result.transformation == 'default'
 
     # ═══════════════════════════════════════════════════════════════════════════════
