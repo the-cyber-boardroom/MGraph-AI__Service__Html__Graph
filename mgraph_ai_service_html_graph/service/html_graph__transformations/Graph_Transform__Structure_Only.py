@@ -117,7 +117,8 @@ class Graph_Transform__Structure_Only(Graph_Transformation__Base):
 
         # Only include element children (not text/attr)
         for child in tree_node.get('children', []):
-            if child.get('type') == 'element' or child.get('nodeType') == 'element':
-                result['children'].append(self._simplify_tree(child))
+            if type(child) is dict:                                 # todo: review why we need this
+                if child.get('type') == 'element' or child.get('nodeType') == 'element':
+                    result['children'].append(self._simplify_tree(child))
 
         return result

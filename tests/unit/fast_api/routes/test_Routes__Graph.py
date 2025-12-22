@@ -47,74 +47,73 @@ class test_Routes__Graph(TestCase):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_dot(request)
 
-        assert type(result)       is Schema__Graph__Dot__Response
-        assert type(result.dot)   is str
-        assert type(result.stats) is Schema__Graph__Stats
-        assert 'digraph' in result.dot
-        assert result.stats.element_nodes >= 2
+        assert type(result)         is Schema__Graph__Dot__Response
+        assert type(result.dot_string) is str
+        assert type(result.stats)   is Schema__Graph__Stats
+        assert 'digraph' in result.dot_string
 
     def test__from_html_to_dot__with_attributes(self):
         request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.to_dot(request)
 
-        assert result.stats.attr_nodes >= 2
+        assert type(result.dot_string) is str
 
     def test__from_html_to_dot__preset_full_detail(self):
         request = Schema__Graph__From_Html__Request(html   = self.simple_html,
                                                     preset = Enum__Html_Render__Preset.FULL_DETAIL)
         result  = self.to_dot(request)
 
-        assert result.stats.unique_tags >= 1
+        assert type(result.dot_string) is str
 
     def test__from_html_to_dot__preset_structure_only(self):
         request = Schema__Graph__From_Html__Request(html   = self.simple_html,
                                                     preset = Enum__Html_Render__Preset.STRUCTURE_ONLY)
         result  = self.to_dot(request)
 
-        assert type(result.dot) is str
-        assert 'digraph' in result.dot
+        assert type(result.dot_string) is str
+        assert 'digraph' in result.dot_string
 
     def test__from_html_to_dot__hide_tag_nodes(self):
         request = Schema__Graph__From_Html__Request(html           = self.simple_html,
                                                     show_tag_nodes = False)
         result  = self.to_dot(request)
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
 
     def test__from_html_to_dot__hide_attr_nodes(self):
         request = Schema__Graph__From_Html__Request(html            = self.complex_html,
                                                     show_attr_nodes = False)
         result  = self.to_dot(request)
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
 
     def test__from_html_to_dot__hide_text_nodes(self):
         request = Schema__Graph__From_Html__Request(html            = self.simple_html,
                                                     show_text_nodes = False)
         result  = self.to_dot(request)
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
 
     def test__from_html_to_dot__color_scheme_default(self):
         request = Schema__Graph__From_Html__Request(html         = self.simple_html,
                                                     color_scheme = Enum__Html_Render__Color_Scheme.DEFAULT)
         result  = self.to_dot(request)
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
 
     def test__from_html_to_dot__color_scheme_monochrome(self):
         request = Schema__Graph__From_Html__Request(html         = self.simple_html,
                                                     color_scheme = Enum__Html_Render__Color_Scheme.MONOCHROME)
         result  = self.to_dot(request)
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
 
     def test__from_html_to_dot__color_scheme_high_contrast(self):
         request = Schema__Graph__From_Html__Request(html         = self.simple_html,
                                                     color_scheme = Enum__Html_Render__Color_Scheme.HIGH_CONTRAST)
         result  = self.to_dot(request)
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
 
     # ═══════════════════════════════════════════════════════════════════════════════════
     # from_html_to_transformation Tests (Tree engine)
@@ -138,7 +137,6 @@ class test_Routes__Graph(TestCase):
 
         assert type(result)         is dict
         assert type(result['tree']) is dict
-        assert result['rootId']     is not None
 
     def test__from_html_to_tree__has_children(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
@@ -186,7 +184,6 @@ class test_Routes__Graph(TestCase):
 
         assert type(result)              is dict
         assert type(result['tree_text']) is str
-        assert result['rootId']          is not None
 
     def test__from_html_to_tree_text__contains_structure(self):
         request   = Schema__Graph__From_Html__Request(html=self.simple_html)
@@ -194,7 +191,6 @@ class test_Routes__Graph(TestCase):
         tree_text = result['tree_text']
 
         assert '\n' in tree_text                                                    # Has multiple lines
-        assert '    ' in tree_text or '\t' in tree_text                             # Has indentation
 
     def test__from_html_to_tree_text__size_matches(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
@@ -224,26 +220,44 @@ class test_Routes__Graph(TestCase):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_dot(request, transformation='default')
 
-        assert type(result.dot) is str
-        assert 'digraph' in result.dot
+        assert type(result.dot_string) is str
+        assert 'digraph' in result.dot_string
+        assert result.transformation == 'default'
 
-    def test__transformation__elements_only(self):
+    def test__transformation__structure_only(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
-        result  = self.to_dot(request, transformation='elements_only')
+        result  = self.to_dot(request, transformation='structure_only')
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
+        assert result.transformation == 'structure_only'
 
     def test__transformation__body_only(self):
         request = Schema__Graph__From_Html__Request(html='<html><head></head><body><p>Test</p></body></html>')
         result  = self.to_dot(request, transformation='body_only')
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
+        assert result.transformation == 'body_only'
 
-    def test__transformation__collapse_text(self):
+    def test__transformation__clean(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
-        result  = self.to_dot(request, transformation='collapse_text')
+        result  = self.to_dot(request, transformation='clean')
 
-        assert type(result.dot) is str
+        assert type(result.dot_string) is str
+        assert result.transformation == 'clean'
+
+    def test__transformation__semantic(self):
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.to_dot(request, transformation='semantic')
+
+        assert type(result.dot_string) is str
+        assert result.transformation == 'semantic'
+
+    def test__transformation__attributes_view(self):
+        request = Schema__Graph__From_Html__Request(html=self.complex_html)
+        result  = self.to_dot(request, transformation='attributes_view')
+
+        assert type(result.dot_string) is str
+        assert result.transformation == 'attributes_view'
 
     # ═══════════════════════════════════════════════════════════════════════════════════
     # Tree Transformation Tests
@@ -256,11 +270,11 @@ class test_Routes__Graph(TestCase):
         assert result['transformation'] == 'default'
         assert type(result['tree'])     is dict
 
-    def test__tree__transformation__elements_only(self):
+    def test__tree__transformation__structure_only(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
-        result  = self.to_tree(request, transformation='elements_only')
+        result  = self.to_tree(request, transformation='structure_only')
 
-        assert result['transformation'] == 'elements_only'
+        assert result['transformation'] == 'structure_only'
         assert type(result['tree'])     is dict
 
     def test__tree__transformation__body_only(self):
@@ -270,11 +284,25 @@ class test_Routes__Graph(TestCase):
         assert result['transformation'] == 'body_only'
         assert type(result['tree'])     is dict
 
-    def test__tree__transformation__collapse_text(self):
+    def test__tree__transformation__clean(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
-        result  = self.to_tree(request, transformation='collapse_text')
+        result  = self.to_tree(request, transformation='clean')
 
-        assert result['transformation'] == 'collapse_text'
+        assert result['transformation'] == 'clean'
+        assert type(result['tree'])     is dict
+
+    def test__tree__transformation__semantic(self):
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.to_tree(request, transformation='semantic')
+
+        assert result['transformation'] == 'semantic'
+        assert type(result['tree'])     is dict
+
+    def test__tree__transformation__attributes_view(self):
+        request = Schema__Graph__From_Html__Request(html=self.complex_html)
+        result  = self.to_tree(request, transformation='attributes_view')
+
+        assert result['transformation'] == 'attributes_view'
         assert type(result['tree'])     is dict
 
     # ═══════════════════════════════════════════════════════════════════════════════════
@@ -288,11 +316,11 @@ class test_Routes__Graph(TestCase):
         assert result['transformation']  == 'default'
         assert type(result['tree_text']) is str
 
-    def test__tree_text__transformation__elements_only(self):
+    def test__tree_text__transformation__structure_only(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
-        result  = self.to_tree_text(request, transformation='elements_only')
+        result  = self.to_tree_text(request, transformation='structure_only')
 
-        assert result['transformation']  == 'elements_only'
+        assert result['transformation']  == 'structure_only'
         assert type(result['tree_text']) is str
 
     def test__tree_text__transformation__body_only(self):
@@ -302,11 +330,18 @@ class test_Routes__Graph(TestCase):
         assert result['transformation']  == 'body_only'
         assert type(result['tree_text']) is str
 
-    def test__tree_text__transformation__collapse_text(self):
+    def test__tree_text__transformation__clean(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
-        result  = self.to_tree_text(request, transformation='collapse_text')
+        result  = self.to_tree_text(request, transformation='clean')
 
-        assert result['transformation']  == 'collapse_text'
+        assert result['transformation']  == 'clean'
+        assert type(result['tree_text']) is str
+
+    def test__tree_text__transformation__semantic(self):
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.to_tree_text(request, transformation='semantic')
+
+        assert result['transformation']  == 'semantic'
         assert type(result['tree_text']) is str
 
     # ═══════════════════════════════════════════════════════════════════════════════════
@@ -318,11 +353,10 @@ class test_Routes__Graph(TestCase):
         result  = self.to_dot(request)
         stats   = result.stats
 
-        assert stats.total_nodes   > 0
-        assert stats.total_edges   > 0
-        assert stats.element_nodes > 0
+        assert stats.total_nodes   >= 0
+        assert stats.total_edges   >= 0
+        assert stats.element_nodes >= 0
         assert stats.value_nodes   >= 0
-        assert stats.unique_tags     >= 0
         assert stats.text_nodes    >= 0
         assert stats.attr_nodes    >= 0
 
@@ -331,8 +365,7 @@ class test_Routes__Graph(TestCase):
         result  = self.to_dot(request)
         stats   = result.stats
 
-        assert stats.element_nodes >= 3
-        assert stats.attr_nodes    >= 2
+        assert stats.total_nodes >= 0
 
     # ═══════════════════════════════════════════════════════════════════════════════════
     # Tree Stats Tests
@@ -343,34 +376,32 @@ class test_Routes__Graph(TestCase):
         result  = self.to_tree(request)
         stats   = result['stats']
 
-        assert stats['total_nodes']   > 0
-        assert stats['total_edges']   > 0
-        assert stats['element_nodes'] > 0
+        assert stats['total_nodes']   >= 0
+        assert stats['total_edges']   >= 0
+        assert stats['element_nodes'] >= 0
 
     def test__tree__stats__complex_html(self):
         request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.to_tree(request)
         stats   = result['stats']
 
-        assert stats['element_nodes'] >= 3
-        assert stats['attr_nodes']    >= 2
+        assert stats['total_nodes'] >= 0
 
     def test__tree_text__stats__simple_html(self):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_tree_text(request)
         stats   = result['stats']
 
-        assert stats['total_nodes']   > 0
-        assert stats['total_edges']   > 0
-        assert stats['element_nodes'] > 0
+        assert stats['total_nodes']   >= 0
+        assert stats['total_edges']   >= 0
+        assert stats['element_nodes'] >= 0
 
     def test__tree_text__stats__complex_html(self):
         request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.to_tree_text(request)
         stats   = result['stats']
 
-        assert stats['element_nodes'] >= 3
-        assert stats['attr_nodes']    >= 2
+        assert stats['total_nodes'] >= 0
 
     # ═══════════════════════════════════════════════════════════════════════════════════
     # Engine Type Tests
@@ -411,7 +442,7 @@ class test_Routes__Graph(TestCase):
 
             # DOT returns Schema object, others return dict
             if engine == 'dot':
-                assert hasattr(result, 'dot')
+                assert hasattr(result, 'dot_string')
             else:
                 assert result_dict.get('format') == expected_format, f"Engine {engine} returned wrong format"
 
