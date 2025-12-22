@@ -5,7 +5,6 @@
 
 from typing                                                                                                                 import Dict, List, Type
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base                            import Graph_Transformation__Base
-from mgraph_ai_service_html_graph.service.html_graph__transformations.MGraph__Transformations                               import Graph_Transform__Structure_Only, Graph_Transform__Clean, Graph_Transform__Compact, Graph_Transform__Expanded
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Attributes      import Graph_Transform__Attributes
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Body_Only       import Graph_Transform__Body_Only
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Default         import Graph_Transform__Default
@@ -13,6 +12,7 @@ from mgraph_ai_service_html_graph.service.html_graph__transformations.core_trans
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Head_Only       import Graph_Transform__Head_Only
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Scripts         import Graph_Transform__Scripts
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Styles          import Graph_Transform__Styles
+from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__1 import Html_Use_Case__1
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════
@@ -21,18 +21,15 @@ from mgraph_ai_service_html_graph.service.html_graph__transformations.core_trans
 
 class Graph_Transformation__Registry:                                                    # Transformation registry
 
-    _transformations: Dict[str, Type[Graph_Transformation__Base]] = {                   # Built-in transformations
-        'default'        : Graph_Transform__Default        ,
+    _transformations: Dict[str, Type[Graph_Transformation__Base]] = {
+        'html-use-case-1': Html_Use_Case__1                ,
+        'default'        : Graph_Transform__Default        ,                            # Built-in transformations
         'body_only'      : Graph_Transform__Body_Only      ,
         'head_only'      : Graph_Transform__Head_Only      ,
         'full-document'  : Graph_Transform__Full_Document  ,
         'attributes'     : Graph_Transform__Attributes     ,
         'scripts'        : Graph_Transform__Scripts        ,
         'styles'         : Graph_Transform__Styles         ,
-        'structure_only' : Graph_Transform__Structure_Only ,
-        'clean'          : Graph_Transform__Clean          ,
-        'compact'        : Graph_Transform__Compact        ,
-        'expanded'       : Graph_Transform__Expanded       ,
     }
 
     def get(self, name: str) -> Graph_Transformation__Base:                              # Get transformation by name
