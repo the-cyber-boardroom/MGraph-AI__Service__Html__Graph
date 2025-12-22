@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "shortcuts": [
+    { "key": "r", "description": "Reload/Render graph", "event": "shortcut:reload" },
+    { "key": "m", "description": "Toggle maximize mode", "event": "shortcut:maximize-toggle" },
+    { "key": "t", "description": "Next transformation", "event": "shortcut:transformation-next" },
+    { "key": "T", "shift": true, "description": "Previous transformation", "event": "shortcut:transformation-prev" },
+    { "key": "e", "description": "Next engine/renderer", "event": "shortcut:engine-next" },
+    { "key": "E", "shift": true, "description": "Previous engine/renderer", "event": "shortcut:engine-prev" },
+    { "key": "+", "description": "Zoom in", "event": "shortcut:zoom-in" },
+    { "key": "=", "description": "Zoom in", "event": "shortcut:zoom-in" },
+    { "key": "-", "description": "Zoom out", "event": "shortcut:zoom-out" },
+    { "key": "0", "description": "Reset zoom", "event": "shortcut:zoom-reset" },
+    { "key": "f", "description": "Fit to view", "event": "shortcut:zoom-fit" },
+    { "key": "h", "description": "Toggle help", "event": "shortcut:help-toggle" },
+    { "key": "?", "shift": true, "description": "Toggle help", "event": "shortcut:help-toggle" },
+    { "key": "Escape", "description": "Close/Exit", "event": "shortcut:escape" },
+    { "key": "1", "description": "Transformation 1", "event": "shortcut:transformation-select", "data": { "index": 0 } },
+    { "key": "2", "description": "Transformation 2", "event": "shortcut:transformation-select", "data": { "index": 1 } },
+    { "key": "3", "description": "Transformation 3", "event": "shortcut:transformation-select", "data": { "index": 2 } },
+    { "key": "4", "description": "Transformation 4", "event": "shortcut:transformation-select", "data": { "index": 3 } },
+    { "key": "5", "description": "Transformation 5", "event": "shortcut:transformation-select", "data": { "index": 4 } }
+  ]
+}
