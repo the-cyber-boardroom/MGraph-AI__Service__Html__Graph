@@ -68,9 +68,9 @@ class Schema__VisJs__Edge(Type_Safe):                                           
 # vis.js Response Schema
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class Schema__Graph__VisJs__Response(Type_Safe):                                # Response schema for vis.js format
-    nodes    : List[Schema__VisJs__Node]                                        # Node dataset
-    edges    : List[Schema__VisJs__Edge]                                        # Edge dataset
-    stats    : Schema__Graph__Stats                                             # Graph statistics
-    duration : Safe_Float             = Safe_Float(0.0)                         # Processing time in seconds
-    format   : str                    = 'visjs'                                 # Export format identifier
+# class Schema__Graph__VisJs__Response(Type_Safe):                                # Response schema for vis.js format
+#     nodes    : List[Schema__VisJs__Node]                                        # Node dataset
+#     edges    : List[Schema__VisJs__Edge]                                        # Edge dataset
+#     stats    : Schema__Graph__Stats                                             # Graph statistics
+#     duration : Safe_Float             = Safe_Float(0.0)                         # Processing time in seconds
+#     format   : str                    = 'visjs'                                 # Export format identifier

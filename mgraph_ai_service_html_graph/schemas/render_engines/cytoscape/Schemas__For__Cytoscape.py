@@ -69,8 +69,8 @@ class Schema__Cytoscape__Elements(Type_Safe):                                   
 # Cytoscape Response Schema
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class Schema__Graph__Cytoscape__Response(Type_Safe):                            # Response schema for Cytoscape format
-    elements : Schema__Cytoscape__Elements                                      # Cytoscape elements (nodes + edges)
-    stats    : Schema__Graph__Stats                                             # Graph statistics
-    duration : Safe_Float             = Safe_Float(0.0)                         # Processing time in seconds
-    format   : str                    = 'cytoscape'                             # Export format identifier
+# class Schema__Graph__Cytoscape__Response(Type_Safe):                            # Response schema for Cytoscape format
+#     elements : Schema__Cytoscape__Elements                                      # Cytoscape elements (nodes + edges)
+#     stats    : Schema__Graph__Stats                                             # Graph statistics
+#     duration : Safe_Float             = Safe_Float(0.0)                         # Processing time in seconds
+#     format   : str                    = 'cytoscape'                             # Export format identifier
