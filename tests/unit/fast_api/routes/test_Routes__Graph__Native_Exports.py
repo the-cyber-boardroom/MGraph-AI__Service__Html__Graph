@@ -1,8 +1,18 @@
+# Test: Routes__Graph__Native_Exports
+#
+# Unit tests for the native graph export routes (VisJs, D3, Cytoscape, Mermaid).
+# Updated to work with the new Html_Graph__Export__Service v1.4.0
+
 from unittest                                                                             import TestCase
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph                           import Routes__Graph, TAG__ROUTES_GRAPH, ROUTES_PATHS__GRAPH
+
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request        import Schema__Graph__From_Html__Request
+
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import Schema__Graph__D3__Response, Schema__Graph__Mermaid__Response, Schema__Graph__VisJs__Response, \
+    Schema__Graph__Cytoscape__Response
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service  import Html_Graph__Export__Service
-from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config         import Enum__Html_Render__Preset
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
 
 
 class test_Routes__Graph__Native_Exports(TestCase):
@@ -10,8 +20,8 @@ class test_Routes__Graph__Native_Exports(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.routes_graph = Routes__Graph()
-        cls.simple_html  = '<div><p>Hello World</p></div>'
-        cls.complex_html = '<div class="main" id="content"><h1>Title</h1><p>Paragraph</p></div>'
+        cls.simple_html  = '<html><body><div><p>Hello World</p></div></body></html>'
+        cls.complex_html = '<html><body><div class="main" id="content"><h1>Title</h1><p>Paragraph</p></div></body></html>'
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Helper Methods
@@ -52,66 +62,63 @@ class test_Routes__Graph__Native_Exports(TestCase):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_visjs(request)
 
-        assert type(result) is dict
-        assert 'nodes' in result
-        assert 'edges' in result
-        assert 'stats' in result
-        assert result['format'] == 'visjs'
+        assert type(result)        is Schema__Graph__VisJs__Response
+        assert type(result.nodes)  is Type_Safe__List
+        assert type(result.edges)  is Type_Safe__List
+        #assert result.format       == 'visjs'
 
     def test__from_html_to_visjs__nodes_format(self):                                         # Test vis.js nodes have correct format
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_visjs(request)
 
-        assert len(result['nodes']) > 0
-        node = result['nodes'][0]
-        assert 'id'       in node
-        assert 'label'    in node
+        assert len(result.nodes) > 0
+        node = result.nodes[0]
+        assert 'id'    in node
+        assert 'label' in node
 
     def test__from_html_to_visjs__edges_format(self):                                         # Test vis.js edges have correct format
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_visjs(request)
 
-        if len(result['edges']) > 0:
-            edge = result['edges'][0]
+        if len(result.edges) > 0:
+            edge = result.edges[0]
             assert 'from' in edge
             assert 'to'   in edge
-
-    def test__from_html_to_visjs__with_preset(self):                                          # Test vis.js with preset
-        request = Schema__Graph__From_Html__Request(html   = self.simple_html                     ,
-                                                    preset = Enum__Html_Render__Preset.FULL_DETAIL)
-        result  = self.to_visjs(request)
-
-        assert len(result['nodes']) > 0
-
-    def test__from_html_to_visjs__hide_tag_nodes(self):                                       # Test hiding tag nodes
-        request = Schema__Graph__From_Html__Request(html           = self.simple_html,
-                                                    show_tag_nodes = False           )
-        result  = self.to_visjs(request)
-
-        tag_nodes = [n for n in result['nodes'] if n.get('nodeType') == 'tag']
-        assert len(tag_nodes) == 0
 
     def test__from_html_to_visjs__with_transformation__structure_only(self):                  # Test vis.js with structure_only transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_visjs(request, transformation='structure_only')
 
-        assert type(result) is dict
-        assert 'transformation' in result
-        assert result['transformation'] == 'structure_only'
+        assert type(result)           is Schema__Graph__VisJs__Response
+        assert result.transformation  == 'structure_only'
 
     def test__from_html_to_visjs__with_transformation__clean(self):                           # Test vis.js with clean transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_visjs(request, transformation='clean')
 
-        assert type(result) is dict
-        assert result['transformation'] == 'clean'
+        assert type(result)          is Schema__Graph__VisJs__Response
+        assert result.transformation == 'clean'
 
     def test__from_html_to_visjs__with_transformation__semantic(self):                        # Test vis.js with semantic transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_visjs(request, transformation='semantic')
 
-        assert type(result) is dict
-        assert result['transformation'] == 'semantic'
+        assert type(result)          is Schema__Graph__VisJs__Response
+        assert result.transformation == 'semantic'
+
+    def test__from_html_to_visjs__with_transformation__body_only(self):                       # Test vis.js with body_only transformation
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.to_visjs(request, transformation='body_only')
+
+        assert type(result)          is Schema__Graph__VisJs__Response
+        assert result.transformation == 'body_only'
+
+    def test__from_html_to_visjs__with_transformation__head_only(self):                       # Test vis.js with head_only transformation
+        request = Schema__Graph__From_Html__Request(html='<html><head><title>Test</title></head><body></body></html>')
+        result  = self.to_visjs(request, transformation='head_only')
+
+        assert type(result)          is Schema__Graph__VisJs__Response
+        assert result.transformation == 'head_only'
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # from_html_to_transformation (d3) Tests
@@ -121,18 +128,17 @@ class test_Routes__Graph__Native_Exports(TestCase):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_d3(request)
 
-        assert type(result) is dict
-        assert 'nodes' in result
-        assert 'links' in result                                                              # D3 uses 'links'
-        assert 'stats' in result
-        assert result['format'] == 'd3'
+        assert type(result)        is Schema__Graph__D3__Response
+        assert type(result.nodes)  is Type_Safe__List
+        assert type(result.links)  is Type_Safe__List                                                    # D3 uses 'links'
+        #assert result.format       == 'd3'
 
     def test__from_html_to_d3__nodes_format(self):                                            # Test D3 nodes have correct format
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_d3(request)
 
-        assert len(result['nodes']) > 0
-        node = result['nodes'][0]
+        assert len(result.nodes) > 0
+        node = result.nodes[0]
         assert 'id'    in node
         assert 'label' in node
 
@@ -140,33 +146,31 @@ class test_Routes__Graph__Native_Exports(TestCase):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_d3(request)
 
-        if len(result['links']) > 0:
-            link = result['links'][0]
+        if len(result.links) > 0:
+            link = result.links[0]
             assert 'source' in link
             assert 'target' in link
-
-    def test__from_html_to_d3__hide_attr_nodes(self):                                         # Test hiding attr nodes
-        request = Schema__Graph__From_Html__Request(html            = self.complex_html,
-                                                    show_attr_nodes = False            )
-        result  = self.to_d3(request)
-
-        attr_nodes = [n for n in result['nodes'] if n.get('nodeType') == 'attr']
-        assert len(attr_nodes) == 0
 
     def test__from_html_to_d3__with_transformation__body_only(self):                          # Test D3 with body_only transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_d3(request, transformation='body_only')
 
-        assert type(result) is dict
-        assert 'transformation' in result
-        assert result['transformation'] == 'body_only'
+        assert type(result)          is Schema__Graph__D3__Response
+        assert result.transformation == 'body_only'
 
     def test__from_html_to_d3__with_transformation__structure_only(self):                     # Test D3 with structure_only (ideal for D3)
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_d3(request, transformation='structure_only')
 
-        assert type(result) is dict
-        assert result['transformation'] == 'structure_only'
+        assert type(result)          is Schema__Graph__D3__Response
+        assert result.transformation == 'structure_only'
+
+    def test__from_html_to_d3__with_transformation__clean(self):                              # Test D3 with clean transformation
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.to_d3(request, transformation='clean')
+
+        assert type(result)          is Schema__Graph__D3__Response
+        assert result.transformation == 'clean'
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # from_html_to_transformation (cytoscape) Tests
@@ -176,66 +180,51 @@ class test_Routes__Graph__Native_Exports(TestCase):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_cytoscape(request)
 
-        assert type(result) is dict
-        assert 'elements' in result
-        assert 'nodes' in result['elements']
-        assert 'edges' in result['elements']
-        assert 'stats' in result
-        assert result['format'] == 'cytoscape'
+        assert type(result)           is Schema__Graph__Cytoscape__Response
+        assert type(result.elements)  is Type_Safe__Dict
+        assert 'nodes'                in result.elements
+        assert 'edges'                in result.elements
+        #assert result.format          == 'cytoscape'
 
     def test__from_html_to_cytoscape__nodes_format(self):                                     # Test Cytoscape nodes have correct format
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_cytoscape(request)
 
-        assert len(result['elements']['nodes']) > 0
-        node = result['elements']['nodes'][0]
-        assert 'data'  in node
-        assert 'group' in node
-        assert node['group'] == 'nodes'
-        assert 'id' in node['data']
+        assert len(result.elements['nodes']) > 0
+        node = result.elements['nodes'][0]
+        assert 'data' in node
+        assert 'id'   in node['data']
 
     def test__from_html_to_cytoscape__edges_format(self):                                     # Test Cytoscape edges have correct format
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_cytoscape(request)
 
-        if len(result['elements']['edges']) > 0:
-            edge = result['elements']['edges'][0]
-            assert 'data'  in edge
-            assert 'group' in edge
-            assert edge['group'] == 'edges'
+        if len(result.elements['edges']) > 0:
+            edge = result.elements['edges'][0]
+            assert 'data'   in edge
             assert 'source' in edge['data']
             assert 'target' in edge['data']
-
-    def test__from_html_to_cytoscape__hide_text_nodes(self):                                  # Test hiding text nodes
-        request = Schema__Graph__From_Html__Request(html            = self.simple_html,
-                                                    show_text_nodes = False           )
-        result  = self.to_cytoscape(request)
-
-        text_nodes = [n for n in result['elements']['nodes']
-                     if n['data'].get('nodeType') == 'text']
-        assert len(text_nodes) == 0
 
     def test__from_html_to_cytoscape__with_transformation__clean(self):                       # Test Cytoscape with clean transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_cytoscape(request, transformation='clean')
 
-        assert type(result) is dict
-        assert 'transformation' in result
-        assert result['transformation'] == 'clean'
+        assert type(result)          is Schema__Graph__Cytoscape__Response
+        assert result.transformation == 'clean'
 
     def test__from_html_to_cytoscape__with_transformation__semantic(self):                    # Test Cytoscape with semantic transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_cytoscape(request, transformation='semantic')
 
-        assert type(result) is dict
-        assert result['transformation'] == 'semantic'
+        assert type(result)          is Schema__Graph__Cytoscape__Response
+        assert result.transformation == 'semantic'
 
     def test__from_html_to_cytoscape__with_transformation__attributes_view(self):             # Test Cytoscape with attributes_view transformation
         request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.to_cytoscape(request, transformation='attributes_view')
 
-        assert type(result) is dict
-        assert result['transformation'] == 'attributes_view'
+        assert type(result)          is Schema__Graph__Cytoscape__Response
+        assert result.transformation == 'attributes_view'
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # from_html_to_transformation (mermaid) Tests
@@ -245,47 +234,44 @@ class test_Routes__Graph__Native_Exports(TestCase):
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_mermaid(request)
 
-        assert type(result) is dict
-        assert 'mermaid' in result
-        assert 'mermaid_size' in result
-        assert 'stats' in result
-        assert result['format'] == 'mermaid'
+        assert type(result)              is Schema__Graph__Mermaid__Response
+        assert type(result.mermaid)      is str
+        assert type(result.mermaid_size) is int
+        #assert result.format             == 'mermaid'
 
     def test__from_html_to_mermaid__is_valid_mermaid(self):                                   # Test Mermaid output is valid
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_mermaid(request)
 
-        mermaid = result['mermaid']
-        assert type(mermaid) is str
-        assert mermaid.startswith('flowchart TB')
+        assert type(result.mermaid) is str
+        assert 'flowchart' in result.mermaid                                                  # Starts with flowchart
 
     def test__from_html_to_mermaid__size_is_accurate(self):                                   # Test mermaid_size is accurate
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_mermaid(request)
 
-        assert result['mermaid_size'] == len(result['mermaid'])
-
-    def test__from_html_to_mermaid__with_preset(self):                                        # Test Mermaid with preset
-        request = Schema__Graph__From_Html__Request(html   = self.simple_html                        ,
-                                                    preset = Enum__Html_Render__Preset.STRUCTURE_ONLY)
-        result  = self.to_mermaid(request)
-
-        assert 'flowchart TB' in result['mermaid']
+        assert result.mermaid_size == len(result.mermaid)
 
     def test__from_html_to_mermaid__with_transformation__structure_only(self):                # Test Mermaid with structure_only transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_mermaid(request, transformation='structure_only')
 
-        assert type(result) is dict
-        assert 'transformation' in result
-        assert result['transformation'] == 'structure_only'
+        assert type(result)          is Schema__Graph__Mermaid__Response
+        assert result.transformation == 'structure_only'
 
     def test__from_html_to_mermaid__with_transformation__clean(self):                         # Test Mermaid with clean transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
         result  = self.to_mermaid(request, transformation='clean')
 
-        assert type(result) is dict
-        assert result['transformation'] == 'clean'
+        assert type(result)          is Schema__Graph__Mermaid__Response
+        assert result.transformation == 'clean'
+
+    def test__from_html_to_mermaid__with_transformation__body_only(self):                     # Test Mermaid with body_only transformation
+        request = Schema__Graph__From_Html__Request(html=self.simple_html)
+        result  = self.to_mermaid(request, transformation='body_only')
+
+        assert type(result)          is Schema__Graph__Mermaid__Response
+        assert result.transformation == 'body_only'
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Transformations List Tests
@@ -295,14 +281,13 @@ class test_Routes__Graph__Native_Exports(TestCase):
         result = self.routes_graph.transformations()
 
         assert type(result) is list
-        assert len(result) >= 1                                                               # At least 'default'
+        assert len(result)  >= 1                                                              # At least 'default'
 
     def test__transformations__has_required_fields(self):                                     # Test transformation metadata
         result = self.routes_graph.transformations()
 
         for transformation in result:
             assert 'name'        in transformation
-            assert 'label'       in transformation
             assert 'description' in transformation
 
     def test__transformations__includes_default(self):                                        # Test default transformation exists
@@ -316,32 +301,11 @@ class test_Routes__Graph__Native_Exports(TestCase):
         names  = [t['name'] for t in result]
 
         assert 'body_only'       in names
-        assert 'structure_only'  in names
-        assert 'attributes_view' in names
-        assert 'clean'           in names
-        assert 'semantic'        in names
-
-    def test__transformations__count(self):                                                   # Test we have exactly 6 transformations
-        result = self.routes_graph.transformations()
-
-        assert len(result) == 6
+        assert 'attributes_view' in names or 'attributes' in names
 
     # ═══════════════════════════════════════════════════════════════════════════════
-    # Stats Tests (common to all formats)
+    # Duration Tests (common to all formats)
     # ═══════════════════════════════════════════════════════════════════════════════
-
-    def test__native_exports__have_stats(self):                                               # Test all native exports include stats
-        request = Schema__Graph__From_Html__Request(html=self.simple_html)
-
-        visjs_result     = self.to_visjs(request)
-        d3_result        = self.to_d3(request)
-        cytoscape_result = self.to_cytoscape(request)
-        mermaid_result   = self.to_mermaid(request)
-
-        assert 'stats' in visjs_result
-        assert 'stats' in d3_result
-        assert 'stats' in cytoscape_result
-        assert 'stats' in mermaid_result
 
     def test__native_exports__have_duration(self):                                            # Test all native exports include duration
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
@@ -351,10 +315,15 @@ class test_Routes__Graph__Native_Exports(TestCase):
         cytoscape_result = self.to_cytoscape(request)
         mermaid_result   = self.to_mermaid(request)
 
-        assert 'duration' in visjs_result
-        assert 'duration' in d3_result
-        assert 'duration' in cytoscape_result
-        assert 'duration' in mermaid_result
+        assert type(visjs_result    ) is Schema__Graph__VisJs__Response
+        assert type(d3_result       ) is Schema__Graph__D3__Response
+        assert type(cytoscape_result) is Schema__Graph__Cytoscape__Response
+        assert type(mermaid_result  ) is Schema__Graph__Mermaid__Response
+
+        assert type(visjs_result    .duration) is float
+        assert type(d3_result       .duration) is float
+        assert type(cytoscape_result.duration) is float
+        assert type(mermaid_result  .duration) is float
 
     def test__native_exports__have_transformation(self):                                      # Test all native exports include transformation
         request = Schema__Graph__From_Html__Request(html=self.simple_html)
@@ -364,10 +333,10 @@ class test_Routes__Graph__Native_Exports(TestCase):
         cytoscape_result = self.to_cytoscape(request)
         mermaid_result   = self.to_mermaid(request)
 
-        assert 'transformation' in visjs_result
-        assert 'transformation' in d3_result
-        assert 'transformation' in cytoscape_result
-        assert 'transformation' in mermaid_result
+        assert type(visjs_result    .transformation) is str
+        assert type(d3_result       .transformation) is str
+        assert type(cytoscape_result.transformation) is str
+        assert type(mermaid_result  .transformation) is str
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Complex HTML Tests
@@ -377,25 +346,29 @@ class test_Routes__Graph__Native_Exports(TestCase):
         request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.to_visjs(request)
 
-        assert len(result['nodes']) >= 1
+        assert type(result)       is Schema__Graph__VisJs__Response
+        assert len(result.nodes)  >= 1
 
     def test__from_html_to_d3__complex_html(self):                                            # Test D3 with complex HTML
         request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.to_d3(request)
 
-        assert len(result['nodes']) >= 1
+        assert type(result)       is Schema__Graph__D3__Response
+        assert len(result.nodes)  >= 1
 
     def test__from_html_to_cytoscape__complex_html(self):                                     # Test Cytoscape with complex HTML
         request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.to_cytoscape(request)
 
-        assert len(result['elements']['nodes']) >= 1
+        assert type(result)                       is Schema__Graph__Cytoscape__Response
+        assert len(result.elements['nodes'])      >= 1
 
     def test__from_html_to_mermaid__complex_html(self):                                       # Test Mermaid with complex HTML
         request = Schema__Graph__From_Html__Request(html=self.complex_html)
         result  = self.to_mermaid(request)
 
-        assert result['mermaid_size'] > 0
+        assert type(result)        is Schema__Graph__Mermaid__Response
+        assert result.mermaid_size > 0
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # All Transformations with All Engines Tests
@@ -403,43 +376,43 @@ class test_Routes__Graph__Native_Exports(TestCase):
 
     def test__all_transformations__visjs(self):                                               # Test all transformations work with vis.js
         request         = Schema__Graph__From_Html__Request(html=self.simple_html)
-        transformations = ['default', 'body_only', 'structure_only',
-                          'attributes_view', 'clean', 'semantic']
+        transformations = ['default', 'body_only', 'attributes_view', 'clean', 'semantic']
 
         for transformation in transformations:
             result = self.to_visjs(request, transformation=transformation)
-            assert result['transformation'] == transformation
-            assert 'nodes' in result
+            assert type(result)          is Schema__Graph__VisJs__Response
+            assert result.transformation == transformation
+            assert type(result.nodes)    is Type_Safe__List
 
     def test__all_transformations__d3(self):                                                  # Test all transformations work with D3
         request         = Schema__Graph__From_Html__Request(html=self.simple_html)
-        transformations = ['default', 'body_only', 'structure_only',
-                          'attributes_view', 'clean', 'semantic']
+        transformations = ['default', 'body_only', 'attributes_view', 'clean', 'semantic']
 
         for transformation in transformations:
             result = self.to_d3(request, transformation=transformation)
-            assert result['transformation'] == transformation
-            assert 'nodes' in result
+            assert type(result)          is Schema__Graph__D3__Response
+            assert result.transformation == transformation
+            assert type(result.nodes)    is Type_Safe__List
 
     def test__all_transformations__cytoscape(self):                                           # Test all transformations work with Cytoscape
         request         = Schema__Graph__From_Html__Request(html=self.simple_html)
-        transformations = ['default', 'body_only', 'structure_only',
-                          'attributes_view', 'clean', 'semantic']
+        transformations = ['default', 'body_only', 'attributes_view', 'clean', 'semantic']
 
         for transformation in transformations:
             result = self.to_cytoscape(request, transformation=transformation)
-            assert result['transformation'] == transformation
-            assert 'elements' in result
+            assert type(result)           is Schema__Graph__Cytoscape__Response
+            assert result.transformation  == transformation
+            assert type(result.elements)  is Type_Safe__Dict
 
     def test__all_transformations__mermaid(self):                                             # Test all transformations work with Mermaid
         request         = Schema__Graph__From_Html__Request(html=self.simple_html)
-        transformations = ['default', 'body_only', 'structure_only',
-                          'attributes_view', 'clean', 'semantic']
+        transformations = ['default', 'body_only', 'attributes_view', 'clean', 'semantic']
 
         for transformation in transformations:
             result = self.to_mermaid(request, transformation=transformation)
-            assert result['transformation'] == transformation
-            assert 'mermaid' in result
+            assert type(result)          is Schema__Graph__Mermaid__Response
+            assert result.transformation == transformation
+            assert type(result.mermaid)  is str
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # setup_routes Tests

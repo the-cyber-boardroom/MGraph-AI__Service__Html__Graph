@@ -1,6 +1,5 @@
 from unittest                                                                           import TestCase
-
-from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Attributes
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                      import Schema__Html_MGraph__Stats__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Attributes    import Html_MGraph__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base          import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                                     import Node_Path
@@ -468,8 +467,8 @@ class test_Html_MGraph__Attributes(TestCase):                                   
                 assert stats.obj() == __(registered_elements=2,
                                          total_attributes=3,
                                          unique_tags=2,
-                                         total_nodes=9,
-                                         total_edges=7,
+                                         total_nodes=14,
+                                         total_edges=13,
                                          root_id='c0000002')
                 assert stats.unique_tags         == 2                                  # div, p
                 assert stats.registered_elements == 2                                  # 2 registered elements
@@ -541,8 +540,8 @@ class test_Html_MGraph__Attributes(TestCase):                                   
                 assert stats.obj() == __(registered_elements=4,
                                          total_attributes=4,
                                          unique_tags=4,
-                                         total_nodes=14,
-                                         total_edges=12,
+                                         total_nodes=21,
+                                         total_edges=20,
                                          root_id='c0000002')
                 assert stats.unique_tags     == 4
                 assert stats.registered_elements == 4

@@ -174,7 +174,9 @@ class Html_MGraph(Type_Safe):                                                   
 
     @property
     def body_graph(self):                                                       # Direct access to body graph
-        return self.document.body_graph
+        if self.document:
+            return self.document.body_graph
+        return None
 
     @property
     def attrs_graph(self):                                                      # Direct access to attributes graph

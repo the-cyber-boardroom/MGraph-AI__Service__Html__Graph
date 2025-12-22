@@ -1,6 +1,5 @@
 from typing                                                                             import Dict, Any, List, Optional
-
-from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Document, Schema__Html_MGraph__Stats__Base
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                      import Schema__Html_MGraph__Stats__Document, Schema__Html_MGraph__Stats__Base
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Attributes    import Html_MGraph__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base          import Html_MGraph__Base
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Body          import Html_MGraph__Body
@@ -94,7 +93,7 @@ class Html_MGraph__Document(Html_MGraph__Base):                                 
     def get_tag(self, node_id: Node_Id) -> Optional[str]:                       # Get HTML tag for any element node
         return self.attrs_graph.get_tag(node_id)
 
-    def get_attributes(self, node_id: Node_Id) -> Dict[str, str]:               # Get all attributes for any element
+    def get_attributes(self, node_id: Node_Id) -> Dict[str, Optional[str]]:               # Get all attributes for any element
         return self.attrs_graph.get_attributes(node_id)
 
     def get_attribute(self, node_id: Node_Id, attr_name: str) -> Optional[str]: # Get specific attribute value

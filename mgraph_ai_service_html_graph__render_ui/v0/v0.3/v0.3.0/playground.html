@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MGraph HTML Graph - Render UI - Playground
+     v0.3.0 - Consolidated from v0.2.0 → v0.2.10
+
+     This is a SELF-CONTAINED major version with all features merged:
+     - Base playground with 5 renderers (v0.2.0)
+     - Native format API routing (v0.2.3)
+     - Maximize/fullscreen mode (v0.2.4)
+     - Transformation support (v0.2.5)
+     - Keyboard shortcuts (v0.2.6)
+     - D3 trackpad zoom fix (v0.2.8)
+     - Tree renderers (v0.2.9)
+     - Server reload detection + copy to clipboard (v0.2.10)
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Graph Playground v0.3.0</title>
+
+    <!-- All styles consolidated -->
+    <link rel="stylesheet" href="css/common.css">
+</head>
+<body>
+    <div class="playground">
+        <!-- Top Navigation -->
+        <top-nav></top-nav>
+
+        <!-- Main Content -->
+        <main class="playground-main">
+            <!-- Left Panel: Input & Config -->
+            <aside class="left-panel">
+                <url-input></url-input>
+                <html-input></html-input>
+                <config-panel></config-panel>
+            </aside>
+
+            <!-- Right Panel: Graph Canvas -->
+            <section class="right-panel">
+                <stats-toolbar></stats-toolbar>
+                <graph-canvas></graph-canvas>
+            </section>
+        </main>
+    </div>
+
+    <!-- API Client (consolidated) -->
+    <script src="js/services/api-client.js"></script>
+
+    <!-- Components (all from v0.3.0) -->
+    <script src="components/top-nav/top-nav.js"></script>
+    <script src="components/html-input/html-input.js"></script>
+    <script src="components/config-panel/config-panel.js"></script>
+    <script src="components/graph-canvas/graph-canvas.js"></script>
+    <script src="components/url-input/url-input.js"></script>
+    <script src="components/stats-toolbar/stats-toolbar.js"></script>
+
+    <!-- Renderers (all consolidated) -->
+    <script src="components/dot-renderer/dot-renderer.js"></script>
+    <script src="components/vis-renderer/vis-renderer.js"></script>
+    <script src="components/d3-renderer/d3-renderer.js"></script>
+    <script src="components/cytoscape-renderer/cytoscape-renderer.js"></script>
+    <script src="components/mermaid-renderer/mermaid-renderer.js"></script>
+    <script src="components/tree-renderer/tree-renderer.js"></script>
+    <script src="components/tree-text-renderer/tree-text-renderer.js"></script>
+
+    <!-- Keyboard Shortcuts -->
+    <script src="js/keyboard-shortcuts.js"></script>
+
+    <!-- Server Reload Detector -->
+    <script src="js/server-reload-detector.js"></script>
+
+    <!-- Playground Orchestrator (consolidated) -->
+    <script src="js/playground.js"></script>
+
+    <!-- Invisible renderer components -->
+    <dot-renderer></dot-renderer>
+    <vis-renderer></vis-renderer>
+    <d3-renderer></d3-renderer>
+    <cytoscape-renderer></cytoscape-renderer>
+    <mermaid-renderer></mermaid-renderer>
+    <tree-renderer></tree-renderer>
+    <tree-text-renderer></tree-text-renderer>
+</body>
+</html>
