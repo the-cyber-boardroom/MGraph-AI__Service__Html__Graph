@@ -1,4 +1,4 @@
-from unittest                                                                           import TestCase
+from unittest                                                                                      import TestCase
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document   import Html__To__Html_MGraph__Document
 
 

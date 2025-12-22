@@ -1,9 +1,7 @@
 from typing                                                                     import Dict, Any, List, Optional
-
-from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph import Schema__Html_MGraph__Stats__Attributes
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph              import Schema__Html_MGraph__Stats__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
-from mgraph_db.mgraph.schemas.identifiers.Edge_Path                             import Edge_Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               import Safe_Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
@@ -37,10 +35,15 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
     # Constants
     # ═══════════════════════════════════════════════════════════════════════════
 
+    PATH_ROOT         : str     = 'attributes'                                  # Node path for root
     PREDICATE_TAG     : Safe_Id = Safe_Id('tag')                                # Edge from root to tag node
     PREDICATE_ELEMENT : Safe_Id = Safe_Id('element')                            # Edge from tag to element node
     PREDICATE_ATTR    : Safe_Id = Safe_Id('attr')                               # Edge from element to attr value
-    PATH_ROOT         : str     = 'attributes'                                  # Node path for root
+    PREDICATE_NAME    : Safe_Id = 'name'                                        # instance → name node
+    PREDICATE_VALUE   : Safe_Id = 'value'                                       # instance → value node
+    NODE_PATH_NAME    : Safe_Id = 'name'                                        # node_path marker for name nodes
+    NODE_PATH_VALUE   : Safe_Id = 'value'                                       # node_path marker for value nodes
+
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Internal State
@@ -73,18 +76,63 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
                       predicate    = self.PREDICATE_ELEMENT)
 
     @type_safe
-    def add_attribute(self, node_id    : Node_Id ,                              # Element node_id
-                            attr_name  : str     ,                              # Attribute name (e.g., "class")
-                            attr_value : str     ,                              # Attribute value (e.g., "container")
-                            position   : int     = 0                            # Position for ordering (round-trip)
-                     ) -> Node_Id:                                              # Add an attribute to an element
-        attr_node = self.new_value_node(value     = attr_value         ,        # Create attr value node
-                                        node_path = Node_Path(str(position)))   # Position in node_path for ordering
-        self.new_edge(from_node_id = node_id               ,                    # Link element → attr value
-                      to_node_id   = attr_node.node_id     ,
-                      predicate    = self.PREDICATE_ATTR   ,
-                      edge_path    = Edge_Path(attr_name)  )                    # Attr name in edge_path
-        return attr_node.node_id
+    def add_attribute(self,                                               # Add an attribute to an element using three-node model.
+                      node_id    : Node_Id       ,                        # Element node_id
+                      attr_name  : str           ,                        # Attribute name (e.g., "class")
+                      attr_value : str     = None,                        # Attribute value (e.g., "container")
+                      position   : int     = 0                            # Position for ordering (round-trip)
+               ) -> Node_Id:                                              # Return Node_Id created
+
+
+
+        instance_node = self.new_element_node(node_path = Node_Path(str(position)))         # 1. Create instance node (always new, stores position)
+
+        self.new_edge(from_node_id = node_id              ,                                 # 2. Link element → instance
+                      to_node_id   = instance_node.node_id,
+                      predicate    = self.PREDICATE_ATTR  )
+
+        name_node = self._get_or_create_name_node(attr_name)                                # 3. Get or create name node (reused)
+
+
+        self.new_edge(from_node_id = instance_node.node_id,                                 # 4. Link instance → name
+                      to_node_id   = name_node.node_id    ,
+                      predicate    = self.PREDICATE_NAME  )
+
+        if attr_value is not None:                                                          # 5. Only create value node if value is not None
+            value_node = self._get_or_create_value_node(attr_value)
+            self.new_edge(from_node_id = instance_node.node_id,
+                          to_node_id   = value_node.node_id   ,
+                          predicate    = self.PREDICATE_VALUE )
+
+        return instance_node.node_id
+
+
+    def _get_or_create_name_node(self, attr_name: str):
+        """Get existing name node or create new one (for reuse)."""
+        for node_id in self.nodes_ids():
+            node_path = self.node_path(node_id)
+            if node_path and str(node_path) == self.NODE_PATH_NAME:
+                if self.node_value(node_id) == attr_name:
+                    return self.node(node_id)
+
+        return self.new_value_node(
+            value     = attr_name,
+            node_path = Node_Path(self.NODE_PATH_NAME)
+        )
+
+
+    def _get_or_create_value_node(self, attr_value: str):
+        """Get existing value node or create new one (for reuse)."""
+        for node_id in self.nodes_ids():
+            node_path = self.node_path(node_id)
+            if node_path and str(node_path) == self.NODE_PATH_VALUE:
+                if self.node_value(node_id) == attr_value:
+                    return self.node(node_id)
+
+        return self.new_value_node(
+            value     = attr_value,
+            node_path = Node_Path(self.NODE_PATH_VALUE)
+        )
 
     def _get_or_create_tag_node(self, tag: str) -> Node_Id:                     # Get or create a tag node
         if self.tag_node_cache is None:
@@ -143,51 +191,58 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
     # Query Methods - Attribute Lookups
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def get_attributes(self, node_id: Node_Id) -> Dict[str, str]:               # Get all attributes for an element (ordered)
-        attrs            = []
-        edges            = self.outgoing_edges(node_id)
+    def get_attributes(self, node_id: Node_Id) -> Dict[str, Optional[str]]:         # Get all attributes for an element (ordered). Returns None for boolean attrs.
+        attrs = []
 
-        for edge in edges:
+        for edge in self.outgoing_edges(node_id):
             if self.edge_predicate(edge) == self.PREDICATE_ATTR:
-                attr_name     = str(self.edge_path(edge))                       # Attr name from edge_path
-                attr_node_id  = edge.edge.data.to_node_id
-                attr_value    = self.node_value(attr_node_id)
-                position_path = self.node_path(attr_node_id)                    # Position from node_path
-                position      = int(str(position_path)) if position_path else 0
+                instance_id = edge.edge.data.to_node_id
 
-                attrs.append((position, attr_name, attr_value or ''))
+                # Get position from instance node's path
+                position_path = self.node_path(instance_id)
+                position = int(str(position_path)) if position_path else 0
 
-        attrs.sort(key=lambda x: x[0])                                          # Sort by position for round-trip
+                # Find name and value from instance's outgoing edges
+                attr_name = None
+                attr_value = None  # Will stay None for boolean attrs
+
+                for inner_edge in self.outgoing_edges(instance_id):
+                    inner_pred = self.edge_predicate(inner_edge)
+                    inner_target = inner_edge.edge.data.to_node_id
+
+                    if inner_pred == self.PREDICATE_NAME:
+                        attr_name = self.node_value(inner_target)
+                    elif inner_pred == self.PREDICATE_VALUE:
+                        attr_value = self.node_value(inner_target)
+
+                if attr_name:
+                    attrs.append((position, attr_name, attr_value))
+
+        attrs.sort(key=lambda x: x[0])
         return {name: value for _, name, value in attrs}
 
     def get_attribute(self, node_id  : Node_Id ,                                # Get specific attribute value
-                            attr_name: str
-                     ) -> Optional[str]:
-        edges = self.outgoing_edges(node_id)
-        for edge in edges:
-            if self.edge_predicate(edge) == self.PREDICATE_ATTR:
-                if str(self.edge_path(edge)) == attr_name:
-                    attr_node_id = edge.edge.data.to_node_id
-                    return self.node_value(attr_node_id)
-        return None
+                        attr_name: str
+                 ) -> Optional[str]:
+        return self.get_attributes(node_id).get(attr_name)
 
-    def get_elements_with_attribute(self, attr_name  : str             ,        # Find elements with specific attribute
-                                          attr_value : str      = None          # Optionally filter by value
-                                   ) -> List[Node_Id]:
-        elements = []
+    def get_elements_with_attribute(self, attr_name: str, attr_value: Optional[str] = None) -> List[Node_Id]:   # Find all elements that have a specific attribute (optionally with specific value).
+        result = []
+
+        # Get all element nodes (those that have been registered via register_element)
         for node_id in self.nodes_ids():
-            if self._is_element_anchor(node_id):
-                for edge in self.outgoing_edges(node_id):
-                    if self.edge_predicate(edge) == self.PREDICATE_ATTR:
-                        if str(self.edge_path(edge)) == attr_name:
-                            if attr_value is None:
-                                elements.append(node_id)
-                            else:
-                                value = self.node_value(edge.edge.data.to_node_id)
-                                if value == attr_value:
-                                    elements.append(node_id)
-                            break                                               # Found attribute, check next element
-        return elements
+            # Check if this node has attributes
+            attrs = self.get_attributes(node_id)
+
+            if attr_name in attrs:
+                if attr_value is None:
+                    # Just checking for presence of attribute
+                    result.append(node_id)
+                elif attrs[attr_name] == attr_value:
+                    # Checking for specific value
+                    result.append(node_id)
+
+        return result
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Helper Methods

@@ -10,7 +10,7 @@
 # - Styles graph (style content)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from typing                                                                               import Dict, List, Optional, Set
+from typing                                                                               import List, Optional, Set
 from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
 from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                         import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_render.Html_MGraph__Render__Config         import Html_MGraph__Render__Config
@@ -175,7 +175,8 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
     # Attributes Graph Extraction
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _extract_from_attrs_graph(self):                                                  # Extract tags and attributes from attrs graph
+    def _extract_from_attrs_graph(self):
+        """Extract from attrs graph using three-node model."""
         attrs_graph = self.html_mgraph.attrs_graph
         if not attrs_graph or not attrs_graph.mgraph:
             return
@@ -186,22 +187,96 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
 
             node_path = attrs_graph.node_path(node_id)
             path_str  = str(node_path) if node_path else ''
-            value     = attrs_graph.node_value(node_id)
 
-            if path_str.startswith('tag:'):                                               # Tag node
+            # Tag nodes (unchanged)
+            if path_str.startswith('tag:'):
+                value = attrs_graph.node_value(node_id)
                 extracted = self._create_tag_node(str(node_id), path_str, value, 'attrs')
-            elif path_str.startswith('attr:'):                                            # Attribute node
-                extracted = self._create_attr_node(str(node_id), path_str, value, 'attrs')
-            else:
-                continue                                                                  # Skip anchor nodes (already in body/head)
+                if extracted and self._should_include_node(extracted):
+                    self.nodes.append(extracted)
+                    self._extracted_ids.add(str(node_id))
 
-            if extracted and self._should_include_node(extracted):
-                self.nodes.append(extracted)
-                self._extracted_ids.add(str(node_id))
-            elif extracted:
-                self._excluded_nodes.add(str(node_id))
+            # NEW: Name nodes (path = 'name')
+            elif path_str == 'name':
+                value = attrs_graph.node_value(node_id)  # e.g., "class", "required"
+                extracted = self._create_attr_name_node(str(node_id), value, 'attrs')
+                if extracted and self._should_include_node(extracted):
+                    self.nodes.append(extracted)
+                    self._extracted_ids.add(str(node_id))
 
-        self._extract_edges_from_graph(attrs_graph, 'attrs')                              # Extract attr edges
+            # NEW: Value nodes (path = 'value')
+            elif path_str == 'value':
+                value = attrs_graph.node_value(node_id)  # e.g., "container", "text"
+                extracted = self._create_attr_value_node(str(node_id), value, 'attrs')
+                if extracted and self._should_include_node(extracted):
+                    self.nodes.append(extracted)
+                    self._extracted_ids.add(str(node_id))
+
+            # NEW: Instance nodes (path = position like "0", "1", "2")
+            elif path_str.isdigit():
+                extracted = self._create_attr_instance_node(str(node_id), path_str, 'attrs')
+                if extracted and self._should_include_node(extracted):
+                    self.nodes.append(extracted)
+                    self._extracted_ids.add(str(node_id))
+
+        self._extract_edges_from_graph(attrs_graph, 'attrs')
+
+    def _create_attr_name_node(self, node_id: str, value: str, graph_source: str) -> Extracted__Node:
+        """Create node for attribute name (e.g., 'class', 'required')."""
+        fill_color = self.colors.get_attr_color() if self.colors else '#B39DDB'
+        font_color = '#FFFFFF'
+
+        return Extracted__Node(
+            id           = node_id,
+            label        = value,           # Show the attr name directly
+            node_type    = 'attr',
+            dom_path     = f'name:{value}',
+            value        = value,
+            graph_source = graph_source,
+            fill_color   = fill_color,
+            font_color   = font_color,
+            border_color = self._darken(fill_color),
+            shape        = 'ellipse'
+        )
+
+
+    def _create_attr_value_node(self, node_id: str, value: str, graph_source: str) -> Extracted__Node:
+        """Create node for attribute value."""
+        fill_color = '#E1BEE7'  # Lighter purple for values
+        font_color = '#333333'
+        label = value[:30] + '...' if len(value) > 30 else value
+
+        return Extracted__Node(
+            id           = node_id,
+            label        = label,
+            node_type    = 'attr',
+            dom_path     = f'value:{value[:20]}',
+            value        = value,
+            graph_source = graph_source,
+            fill_color   = fill_color,
+            font_color   = font_color,
+            border_color = self._darken(fill_color),
+            shape        = 'box'
+        )
+
+
+    def _create_attr_instance_node(self, node_id: str, position: str, graph_source: str) -> Extracted__Node:
+        """Create node for attribute instance (links name and optionally value)."""
+        fill_color = '#F3E5F5'  # Very light purple
+        font_color = '#333333'
+
+        return Extracted__Node(
+            id           = node_id,
+            label        = f'attr[{position}]',
+            node_type    = 'attr',
+            dom_path     = f'instance:{position}',
+            value        = None,
+            graph_source = graph_source,
+            fill_color   = fill_color,
+            font_color   = font_color,
+            border_color = self._darken(fill_color),
+            shape        = 'box'
+        )
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Scripts Graph Extraction
@@ -281,7 +356,8 @@ class Html_MGraph__Data__Extractor(Type_Safe):                                  
             predicate   = self._get_edge_predicate(edge_data)
             position    = self._get_edge_position(edge_data)
             color       = self.colors.get_edge_color(predicate) if self.colors else '#888888'
-            dashed      = predicate in ('tag', 'attr', 'script', 'style')                 # Non-structural edges are dashed
+            dashed      = predicate in ('tag', 'attr', 'script', 'style', 'name', 'value')
+                # Non-structural edges are dashed
 
             return Extracted__Edge(id           = edge_id_str   ,
                                    source       = source        ,
