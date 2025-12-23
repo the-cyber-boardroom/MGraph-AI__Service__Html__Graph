@@ -12,8 +12,10 @@ from mgraph_ai_service_html_graph.service.html_graph__transformations.core_trans
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Head_Only       import Graph_Transform__Head_Only
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Scripts         import Graph_Transform__Scripts
 from mgraph_ai_service_html_graph.service.html_graph__transformations.core_transformations.Graph_Transform__Styles          import Graph_Transform__Styles
-from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__1 import Html_Use_Case__1
-from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__2 import Html_Use_Case__2
+from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__1                       import Html_Use_Case__1
+from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__2                       import Html_Use_Case__2
+from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__3                       import Html_Use_Case__3
+from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__Performance_Stats import Html_Use_Case__Performance_Stats
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════
@@ -25,6 +27,8 @@ class Graph_Transformation__Registry:                                           
     _transformations: Dict[str, Type[Graph_Transformation__Base]] = {
         'html-use-case-1': Html_Use_Case__1                ,
         'html-use-case-2': Html_Use_Case__2                ,
+        'html-use-case-3': Html_Use_Case__3                ,
+        'html-use-case-performance-stats' : Html_Use_Case__Performance_Stats,
         'default'        : Graph_Transform__Default        ,                            # Built-in transformations
         'body_only'      : Graph_Transform__Body_Only      ,
         'head_only'      : Graph_Transform__Head_Only      ,
