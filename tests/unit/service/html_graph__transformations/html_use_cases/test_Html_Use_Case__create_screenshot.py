@@ -2,17 +2,19 @@ import pytest
 from unittest                                                                                           import TestCase
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service                import Html_Graph__Export__Service
 from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__1   import Html_Use_Case__1
+from mgraph_ai_service_html_graph.service.html_graph__transformations.html_use_cases.Html_Use_Case__2 import Html_Use_Case__2
 from mgraph_db.mgraph.MGraph                                                                            import MGraph
 from osbot_utils.utils.Env                                                                              import get_env, load_dotenv
 from osbot_utils.utils.Files                                                                            import path_combine
 
 
-class test_Html_Use_Case__1__create_screenshot(TestCase):
+class test_Html_Use_Case__create_screenshot(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.load_env_vars()
-        cls.use_case_1          = Html_Use_Case__1()
-        cls.transformation_name = cls.use_case_1.name
+        #cls.use_case          = Html_Use_Case__1()
+        cls.use_case          = Html_Use_Case__2()
+        cls.transformation_name = cls.use_case.name
         cls.html_graph_service  = Html_Graph__Export__Service()
         cls.png_file            = path_combine(__file__, '../use-case-1.png')
 
