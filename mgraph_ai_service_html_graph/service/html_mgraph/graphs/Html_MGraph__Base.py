@@ -7,6 +7,8 @@ from mgraph_db.mgraph.schemas.identifiers.Node_Path                             
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                                 import Edge_Path
 from mgraph_db.mgraph.domain.Domain__MGraph__Edge                                   import Domain__MGraph__Edge
 from mgraph_db.mgraph.domain.Domain__MGraph__Node                                   import Domain__MGraph__Node
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp                     import timestamp
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp_args import timestamp_args
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
@@ -17,6 +19,7 @@ class Html_MGraph__Base(Type_Safe):                                             
     mgraph  : MGraph  = None                                                    # The underlying MGraph
     root_id : Node_Id = None                                                    # Root node ID for this graph
 
+    @timestamp_args(name="html_mgraph.{self.__class__.__name__}.setup")
     def setup(self) -> 'Html_MGraph__Base':                                     # Initialize the graph with a fresh MGraph instance
         self.mgraph = MGraph()
         root_node   = self.new_element_node(node_path='')                       # Create root node for this graph

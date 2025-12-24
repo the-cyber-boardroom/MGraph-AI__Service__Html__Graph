@@ -2,7 +2,7 @@
 # Tests for Routes__PlantUML
 # ═══════════════════════════════════════════════════════════════════════════════
 from unittest                                                       import TestCase
-from osbot_fast_api_serverless.utils.testing.skip_tests             import skip__if_not__in_github_actions
+from osbot_utils.testing.Pytest                                                               import skip__if_not__in_github_actions
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__PlantUML  import Routes__PlantUML, TAG__ROUTES_PLANTUML, ROUTES_PATHS__PLANTUML
 
 

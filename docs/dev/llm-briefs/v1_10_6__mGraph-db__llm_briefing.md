@@ -1,16 +1,19 @@
 # MGraph-DB: Type-Safe Graph Database Framework - LLM Briefing
 
-**Version**: v1.4.7  
-**Last Updated**: 2nd December 2025  
+**Version**: v1.10.6  
+**Last Updated**: 23rd December 2025  
 **Repository**: owasp-sbot/MGraph-DB
 
 ## Executive Summary
 
 MGraph-DB is a sophisticated, type-safe graph database framework built in Python using the OSBot-Utils Type_Safe system. It provides a layered architecture for creating, querying, and manipulating graph data structures with full runtime type checking, comprehensive indexing, and powerful visualization capabilities. The framework is designed for building domain-specific graph applications with strong type guarantees and elegant APIs.
 
-**Key v1.4.7 Enhancements:**
+**Key v1.10.6 Enhancements:**
+- **Modular Index Architecture**: Refactored index system with specialized sub-indexes (`MGraph__Index__Edges`, `MGraph__Index__Labels`, `MGraph__Index__Types`, `MGraph__Index__Values`)
+- **New `MGraph__Index__Query` Class**: Dedicated query interface wrapping sub-indexes for value-based, predicate-based, and type-based queries
+- **Context Manager Support**: Index operations support `with` statement for atomic updates
+- **Enhanced Index Access**: Clean delegation pattern from main index to specialized sub-indexes
 - **Path Support**: Optional string-based path identifiers (`node_path`, `edge_path`, `graph_path`) for REST-friendly graph element classification
-- **Enhanced Indexing**: Complete accessor methods, string-based type queries, predicate indexing with flexible parameters, and comprehensive statistics
 - **Dual Interface Design**: Type-based methods (for Python) alongside string-based methods (for REST APIs)
 
 ## Core Architecture: Four-Layer Design
@@ -33,7 +36,7 @@ MGraph-DB uses a clean separation of concerns across four distinct layers:
 class Schema__MGraph__Node(Type_Safe):
     node_data : Schema__MGraph__Node__Data
     node_id   : Node_Id
-    node_path : Node_Path                    = None      # NEW: Optional path identifier
+    node_path : Node_Path                    = None      # Optional path identifier
     node_type : Type['Schema__MGraph__Node'] = None
 
 # ✗ WRONG - No business logic in schemas
@@ -72,7 +75,7 @@ class Model__MGraph__Graph(Type_Safe):
 ### 3. Domain Layer (`domain/`)
 - **Purpose**: High-level business logic and graph domain operations
 - **Key Classes**:
-  - `Domain__MGraph__Graph`: Rich graph manipulation API
+  - `Domain__MGraph__Graph`: Rich graph manipulation API with cached index access
   - `Domain__MGraph__Node`: Node domain operations with edge traversal
   - `Domain__MGraph__Edge`: Edge domain operations
 
@@ -81,14 +84,30 @@ class Model__MGraph__Graph(Type_Safe):
 - Node/edge relationship management
 - High-level graph construction patterns
 - Domain-specific operations
+- Cached index access via `@cache_on_self`
+
+**Domain Graph Index Access** (New in v1.10.6):
+```python
+class Domain__MGraph__Graph(Type_Safe):
+    model    : Model__MGraph__Graph
+    resolver : MGraph__Type__Resolver
+    
+    @cache_on_self
+    def index(self) -> MGraph__Index:                    # Cached index access
+        return MGraph__Index.from_graph(self.model.data)  # Factory method pattern
+```
 
 ### 4. Action Layer (`actions/`)
 - **Purpose**: Complex operations, algorithms, and utilities
 - **Key Components**:
   - `MGraph__Edit`: Graph editing operations with index maintenance (including path support)
   - `MGraph__Data`: Data access and statistics
-  - `MGraph__Index`: Comprehensive indexing system with path and predicate support
+  - `MGraph__Index`: Main index coordinator delegating to sub-indexes
+  - `MGraph__Index__Edges`: Edge-node relationship indexing
+  - `MGraph__Index__Labels`: Predicate and label indexing
+  - `MGraph__Index__Types`: Node/edge type indexing
   - `MGraph__Index__Values`: Value node indexing with hash-based lookups
+  - `MGraph__Index__Query`: Query interface wrapping all sub-indexes
   - `MGraph__Builder`: Fluent API for graph construction
   - `MGraph__Export`: Multiple export formats
   - `MGraph__Values`: Value node management
@@ -108,12 +127,18 @@ class MGraph(Type_Safe):
     
     def builder(self)     -> MGraph__Builder      # Fluent graph construction
     def data(self)        -> MGraph__Data         # Data access
-    def edit(self)        -> MGraph__Edit         # Editing operations
+    def edit(self)        -> MGraph__Edit         # Editing operations (cached)
     def export(self)      -> MGraph__Export       # Export to various formats
-    def index(self)       -> MGraph__Index        # Access index
+    def index(self)       -> MGraph__Index        # Access index via edit()
     def query(self)       -> MGraph__Query        # Query interface
     def values(self)      -> MGraph__Values       # Value node operations
     def screenshot(self)  -> MGraph__Screenshot   # Visualization
+```
+
+**Important**: The `index()` method now returns the index from `edit()` to ensure everyone uses the same cached object:
+```python
+def index(self) -> MGraph__Index:
+    return self.edit().index()  # Get index from edit() for consistency
 ```
 
 ## Core Concepts
@@ -149,7 +174,7 @@ class Schema__MGraph__Edge__Label(Type_Safe):
     predicate : Safe_Id = None    # Semantic relationship type
 ```
 
-### Path Identifiers (New in v1.4.7)
+### Path Identifiers
 
 Paths provide REST-friendly string-based identification that coexists with Python type fields:
 
@@ -239,64 +264,249 @@ node3 = mgraph.values().get_or_create("hello")
 assert node1.node_id == node2.node_id == node3.node_id  # True!
 ```
 
-## The Indexing System
+## The Indexing System (Refactored in v1.10.6)
 
-MGraph-DB maintains comprehensive indexes for O(1) lookups:
+MGraph-DB maintains comprehensive indexes for O(1) lookups. In v1.10.6, the index system has been refactored into a **modular architecture** with specialized sub-indexes.
 
-### Main Index (`MGraph__Index`)
+### Index Architecture Overview
 
+```
+MGraph__Index (Main Coordinator)
+    ├── MGraph__Index__Edges   - Edge-node relationships
+    ├── MGraph__Index__Labels  - Predicates and labels
+    ├── MGraph__Index__Types   - Node/edge type indexing
+    └── MGraph__Index__Values  - Value node hash lookups
+
+MGraph__Index__Query (Query Interface)
+    └── Wraps all sub-indexes for complex queries
+```
+
+### Sub-Index Classes (New in v1.10.6)
+
+#### `MGraph__Index__Edges`
+Manages edge-to-node relationships:
 ```python
-class Schema__MGraph__Index__Data(Type_Safe):
-    # Node indexes
+class MGraph__Index__Edges(Type_Safe):
+    # Core data structures
+    edges_to_nodes         : Dict[Edge_Id, tuple[Node_Id, Node_Id]]
+    nodes_to_outgoing_edges: Dict[Node_Id, Set[Edge_Id]]
+    nodes_to_incoming_edges: Dict[Node_Id, Set[Edge_Id]]
+    
+    # Methods
+    def get_edge_from_node(self, edge_id: Edge_Id) -> Optional[Node_Id]
+    def get_edge_to_node(self, edge_id: Edge_Id) -> Optional[Node_Id]
+    def get_node_id_outgoing_edges(self, node_id: Node_Id) -> Set[Edge_Id]
+    def get_node_id_incoming_edges(self, node_id: Node_Id) -> Set[Edge_Id]
+```
+
+#### `MGraph__Index__Labels`
+Manages predicate and label indexing:
+```python
+class MGraph__Index__Labels(Type_Safe):
+    # Core data structures
+    edges_predicates      : Dict[Edge_Id, Safe_Id]
+    edges_by_predicate    : Dict[Safe_Id, Set[Edge_Id]]
+    edges_by_incoming_label: Dict[Safe_Id, Set[Edge_Id]]
+    edges_by_outgoing_label: Dict[Safe_Id, Set[Edge_Id]]
+    
+    # Methods
+    def get_edges_by_predicate(self, predicate: Safe_Id) -> Set[Edge_Id]
+    def get_edge_predicate(self, edge_id: Edge_Id) -> Optional[Safe_Id]
+```
+
+#### `MGraph__Index__Types`
+Manages node and edge type indexing:
+```python
+class MGraph__Index__Types(Type_Safe):
+    # Core data structures
     nodes_by_type                  : Dict[str, Set[Node_Id]]
-    nodes_by_path                  : Dict[Node_Path, Set[Node_Id]]     # NEW: path -> node_ids
     nodes_types                    : Dict[Node_Id, str]
-    
-    # Edge indexes
     edges_by_type                  : Dict[str, Set[Edge_Id]]
-    edges_by_path                  : Dict[Edge_Path, Set[Edge_Id]]     # NEW: path -> edge_ids
     edges_types                    : Dict[Edge_Id, str]
-    edges_to_nodes                 : Dict[Edge_Id, tuple[Node_Id, Node_Id]]
-    
-    # Relationship indexes
-    nodes_to_outgoing_edges        : Dict[Node_Id, Set[Edge_Id]]
-    nodes_to_incoming_edges        : Dict[Node_Id, Set[Edge_Id]]
     nodes_to_outgoing_edges_by_type: Dict[Node_Id, Dict[str, Set[Edge_Id]]]
     nodes_to_incoming_edges_by_type: Dict[Node_Id, Dict[str, Set[Edge_Id]]]
     
-    # Semantic indexes
-    edges_predicates               : Dict[Edge_Id, Safe_Id]
-    edges_by_predicate             : Dict[Safe_Id, Set[Edge_Id]]
-    edges_by_incoming_label        : Dict[Safe_Id, Set[Edge_Id]]
-    edges_by_outgoing_label        : Dict[Safe_Id, Set[Edge_Id]]
+    # Methods
+    def get_nodes_by_type(self, type_name: str) -> Set[Node_Id]
+    def get_node_type(self, node_id: Node_Id) -> Optional[str]
+    def get_edge_type(self, edge_id: Edge_Id) -> Optional[str]
+    def get_node_outgoing_edges_by_type(self, node_id: Node_Id, edge_type: str) -> Set[Edge_Id]
+    def get_node_incoming_edges_by_type(self, node_id: Node_Id, edge_type: str) -> Set[Edge_Id]
 ```
 
-### Index Accessor Methods (Enhanced in v1.4.7)
+#### `MGraph__Index__Values`
+Manages value node hash-based lookups:
+```python
+class MGraph__Index__Values(Type_Safe):
+    # Core data structures
+    hash_to_node  : Dict[str, Node_Id]       # value_hash -> node_id
+    node_to_hash  : Dict[Node_Id, str]       # node_id -> value_hash
+    values_by_type: Dict[Type, Set[str]]     # type -> set of hashes
+    type_by_value : Dict[str, Type]          # hash -> type
+    
+    # Methods
+    def get_node_id_by_value(self, value_type: Type, value: str, 
+                              key: str = None, 
+                              node_type: Type[Schema__MGraph__Node__Value] = None) -> Optional[Node_Id]
+    def get_node_id_by_hash(self, hash_value: str) -> Optional[Node_Id]
+```
 
-All index data is now accessible via consistent methods:
+### Main Index (`MGraph__Index`)
+
+The main index class coordinates all sub-indexes and provides a unified interface:
 
 ```python
-# Raw data accessors
+class MGraph__Index(Type_Safe):
+    edges_index : MGraph__Index__Edges       # Edge-node relationships
+    labels_index: MGraph__Index__Labels      # Predicates and labels
+    types_index : MGraph__Index__Types       # Node/edge types
+    values_index: MGraph__Index__Values      # Value node lookups
+    
+    # Factory method for creating index from graph data
+    @classmethod
+    def from_graph(cls, graph_data: Schema__MGraph__Graph) -> 'MGraph__Index':
+        index = cls()
+        index.reload(graph_data)
+        return index
+    
+    # Reload/rebuild index
+    def reload(self, graph_data: Schema__MGraph__Graph) -> 'MGraph__Index':
+        # Rebuilds all sub-indexes from graph data
+        ...
+```
+
+### Index Delegation Pattern (New in v1.10.6)
+
+The main `MGraph__Index` delegates to sub-indexes for all operations:
+
+```python
+# Main index methods delegate to sub-indexes
+def edges_to_nodes(self) -> Dict[Edge_Id, tuple[Node_Id, Node_Id]]:
+    return self.edges_index.edges_to_nodes()
+
+def nodes_to_outgoing_edges_by_type(self) -> Dict[Node_Id, Dict[str, Set[Edge_Id]]]:
+    return self.types_index.nodes_to_outgoing_edges_by_type()
+
+def edges_predicates(self) -> Dict[Edge_Id, Safe_Id]:
+    return self.labels_index.edges_predicates()
+```
+
+### `MGraph__Index__Query` Class (New in v1.10.6)
+
+A dedicated query class that wraps all sub-indexes for complex queries:
+
+```python
+class MGraph__Index__Query(Type_Safe):
+    edges_index : MGraph__Index__Edges
+    labels_index: MGraph__Index__Labels
+    types_index : MGraph__Index__Types
+    values_index: MGraph__Index__Values
+```
+
+#### Value-Based Queries
+```python
+# Get nodes connected to a value node, optionally filtered by edge type
+def get_nodes_connected_to_value(self, value    : Any,
+                                       edge_type: Type[Schema__MGraph__Edge] = None,
+                                       node_type: Type[Schema__MGraph__Node__Value] = None
+                                  ) -> Set[Node_Id]:
+    """Get nodes connected to a value node, optionally filtered by edge type."""
+```
+
+#### Node Connection Queries
+```python
+# Get target node connected via outgoing edge of specific type
+def get_node_connected_to_node__outgoing(self, node_id: Node_Id, 
+                                               edge_type: str) -> Optional[Node_Id]:
+    """Get target node connected via outgoing edge of specific type."""
+
+# Get source node connected via incoming edge of specific type
+def get_node_connected_to_node__incoming(self, node_id: Node_Id, 
+                                               edge_type: str) -> Optional[Node_Id]:
+    """Get source node connected via incoming edge of specific type."""
+```
+
+#### Predicate-Based Queries
+```python
+# Get outgoing edges filtered by predicate
+def get_node_outgoing_edges_by_predicate(self, node_id: Node_Id, 
+                                               predicate: Safe_Id) -> Set[Edge_Id]:
+
+# Get incoming edges filtered by predicate
+def get_node_incoming_edges_by_predicate(self, node_id: Node_Id, 
+                                               predicate: Safe_Id) -> Set[Edge_Id]:
+
+# Get target nodes reachable via predicate from source node
+def get_nodes_by_predicate(self, from_node_id: Node_Id, 
+                                 predicate: Safe_Id) -> Set[Node_Id]:
+
+# Get source nodes reachable via predicate to target node
+def get_nodes_by_incoming_predicate(self, to_node_id: Node_Id, 
+                                          predicate: Safe_Id) -> Set[Node_Id]:
+```
+
+#### Type-Based Queries
+```python
+# Get all target nodes reachable via edges of specific type
+def get_nodes_by_outgoing_edge_type(self, node_id: Node_Id, 
+                                          edge_type: str) -> Set[Node_Id]:
+
+# Get all source nodes reachable via edges of specific type
+def get_nodes_by_incoming_edge_type(self, node_id: Node_Id, 
+                                          edge_type: str) -> Set[Edge_Id]:
+```
+
+### Index Accessor Methods
+
+All index data is accessible via consistent methods on the main `MGraph__Index`:
+
+```python
+# Edge relationship accessors (delegated to edges_index)
 index.edges_to_nodes()                    # Dict[Edge_Id, tuple[Node_Id, Node_Id]]
-index.edges_by_type()                     # Dict[str, Set[Edge_Id]]
-index.edges_by_path()                     # Dict[Edge_Path, Set[Edge_Id]]
-index.nodes_by_type()                     # Dict[str, Set[Node_Id]]
-index.nodes_by_path()                     # Dict[Node_Path, Set[Node_Id]]
 index.nodes_to_incoming_edges()           # Dict[Node_Id, Set[Edge_Id]]
-index.nodes_to_incoming_edges_by_type()   # Dict[Node_Id, Dict[str, Set[Edge_Id]]]
 index.nodes_to_outgoing_edges()           # Dict[Node_Id, Set[Edge_Id]]
+
+# Type accessors (delegated to types_index)
+index.edges_by_type()                     # Dict[str, Set[Edge_Id]]
+index.nodes_by_type()                     # Dict[str, Set[Node_Id]]
+index.nodes_to_incoming_edges_by_type()   # Dict[Node_Id, Dict[str, Set[Edge_Id]]]
 index.nodes_to_outgoing_edges_by_type()   # Dict[Node_Id, Dict[str, Set[Edge_Id]]]
 
-# Predicate accessors (NEW)
+# Label/predicate accessors (delegated to labels_index)
 index.edges_predicates()                  # Dict[Edge_Id, Safe_Id]
 index.edges_by_predicate_all()            # Dict[Safe_Id, Set[Edge_Id]]
 index.edges_by_incoming_label()           # Dict[Safe_Id, Set[Edge_Id]]
 index.edges_by_outgoing_label()           # Dict[Safe_Id, Set[Edge_Id]]
+
+# Path accessors
+index.edges_by_path()                     # Dict[Edge_Path, Set[Edge_Id]]
+index.nodes_by_path()                     # Dict[Node_Path, Set[Node_Id]]
 ```
 
-### String-Based Type Queries (New in v1.4.7)
+### Context Manager Support for Index (New in v1.10.6)
 
-For REST API compatibility, type queries can now use string names:
+Index operations now support context managers for atomic updates:
+
+```python
+# Using context manager in MGraph__Edit
+def add_node(self, node: Schema__MGraph__Node):
+    with self.index() as index:                     # Context manager ensures index exists
+        result = self.graph.add_node(node)          # Add node to graph
+        index.add_node(node)                        # Add to index
+    return result
+
+def new_node(self, node_path: Node_Path = None, **kwargs):
+    with self.index() as index:
+        if node_path:
+            kwargs['node_path'] = node_path
+        node = self.graph.new_node(**kwargs)        # Create new node
+        index.add_node(node.node.data)              # Add to index
+    return node
+```
+
+### String-Based Type Queries
+
+For REST API compatibility, type queries can use string names:
 
 ```python
 # Type-based (Python usage)
@@ -312,17 +522,8 @@ all_node_paths = mgraph.index().get_all_node_paths()  # Set[Node_Path]
 all_edge_paths = mgraph.index().get_all_edge_paths()  # Set[Edge_Path]
 ```
 
-### Value Index (`MGraph__Index__Values`)
+### Index Usage Examples
 
-```python
-class Schema__MGraph__Value__Index__Data(Type_Safe):
-    hash_to_node   : Dict[str, Node_Id]       # value_hash -> node_id
-    node_to_hash   : Dict[Node_Id, str]       # node_id -> value_hash
-    values_by_type : Dict[Type, Set[str]]     # type -> set of hashes
-    type_by_value  : Dict[str, Type]          # hash -> type
-```
-
-**Index Usage Examples**:
 ```python
 # Get all nodes of a specific type
 node_ids = mgraph.index().get_nodes_by_type(MyNodeType)
@@ -334,7 +535,7 @@ edge_ids = mgraph.index().get_node_id_outgoing_edges(node_id)
 # Get incoming edges for a node
 incoming_edge_ids = mgraph.index().get_node_id_incoming_edges(node_id)
 
-# Find value node
+# Find value node (via values_index)
 node_id = mgraph.index().values_index.get_node_id_by_value(
     value_type=str, 
     value="hello"
@@ -358,9 +559,23 @@ node_path = mgraph.index().get_node_path(node_id)  # Returns Optional[Node_Path]
 edge_path = mgraph.index().get_edge_path(edge_id)  # Returns Optional[Edge_Path]
 count = mgraph.index().count_nodes_by_path(Node_Path("html.body"))
 exists = mgraph.index().has_node_path(Node_Path("config.settings"))
+
+# Using MGraph__Index__Query for complex queries
+index_query = MGraph__Index__Query(
+    edges_index  = mgraph.index().edges_index,
+    labels_index = mgraph.index().labels_index,
+    types_index  = mgraph.index().types_index,
+    values_index = mgraph.index().values_index
+)
+
+# Get nodes connected to a value
+connected_nodes = index_query.get_nodes_connected_to_value("hello", edge_type=Edge__HasProperty)
+
+# Get nodes by predicate
+target_nodes = index_query.get_nodes_by_predicate(source_node_id, Safe_Id("has_property"))
 ```
 
-### Index Statistics (Enhanced in v1.4.7)
+### Index Statistics
 
 ```python
 stats = mgraph.index().stats()
@@ -370,9 +585,9 @@ stats = mgraph.index().stats()
     'index_data': {
         'edge_to_nodes'        : 42,
         'edges_by_type'        : {'Schema__MGraph__Edge': 42},
-        'edges_by_path'        : {'contains': 10, 'references': 5},   # NEW
+        'edges_by_path'        : {'contains': 10, 'references': 5},
         'nodes_by_type'        : {'Schema__MGraph__Node': 50},
-        'nodes_by_path'        : {'html.body': 5, 'config': 3},       # NEW
+        'nodes_by_path'        : {'html.body': 5, 'config': 3},
         'node_edge_connections': {
             'total_nodes'      : 50,
             'avg_incoming_edges': 2,
@@ -385,19 +600,19 @@ stats = mgraph.index().stats()
         'total_nodes'      : 50,
         'total_edges'      : 42,
         'total_predicates' : 5,
-        'unique_node_paths': 8,                                       # NEW
-        'unique_edge_paths': 3,                                       # NEW
-        'nodes_with_paths' : 15,                                      # NEW
-        'edges_with_paths' : 10                                       # NEW
+        'unique_node_paths': 8,
+        'unique_edge_paths': 3,
+        'nodes_with_paths' : 15,
+        'edges_with_paths' : 10
     },
-    'paths': {                                                        # NEW section
+    'paths': {
         'node_paths': {'html.body': 5, 'config': 3},
         'edge_paths': {'contains': 10, 'references': 5}
     }
 }
 ```
 
-### Index Rebuild (New in v1.4.7)
+### Index Rebuild
 
 ```python
 # Rebuild index via MGraph__Edit
@@ -406,6 +621,84 @@ fresh_index = mgraph.edit().rebuild_index()
 # The index is automatically maintained during edit operations
 mgraph.edit().add_node(node)      # Automatically updates index
 mgraph.edit().delete_node(node_id) # Automatically removes from index
+```
+
+## The MGraph__Edit Class
+
+The `MGraph__Edit` class handles all graph modifications with automatic index maintenance:
+
+```python
+class MGraph__Edit(Type_Safe):
+    graph    : Domain__MGraph__Graph
+    data_type: Type[MGraph__Data]
+    
+    @cache_on_self
+    def index(self) -> MGraph__Index:           # Cached index access
+        return self.graph.index()
+    
+    @cache_on_self
+    def data(self) -> MGraph__Data:
+        return self.data_type(graph=self.graph)
+```
+
+### Key Edit Methods
+
+```python
+# Add node with index update
+def add_node(self, node: Schema__MGraph__Node):
+    with self.index() as index:
+        result = self.graph.add_node(node)
+        index.add_node(node)
+    return result
+
+# Add edge with index update
+def add_edge(self, edge: Schema__MGraph__Edge):
+    result = self.graph.add_edge(edge)
+    self.index().add_edge(edge)
+    return result
+
+# Create new node with optional path
+def new_node(self, node_path: Node_Path = None, **kwargs):
+    with self.index() as index:
+        if node_path:
+            kwargs['node_path'] = node_path
+        node = self.graph.new_node(**kwargs)
+        index.add_node(node.node.data)
+    return node
+
+# Get or create edge (prevents duplicates)
+def get_or_create_edge(self, from_node_id : Node_Id,
+                             to_node_id   : Node_Id,
+                             edge_type    : Type[Schema__MGraph__Edge] = None,
+                             predicate    : str = None
+                        ) -> Domain__MGraph__Edge:
+    # Uses index to check for existing edges before creating
+
+# Create or retrieve unique value node
+def new_value(self, value,
+              key                                          = None,
+              node_type: Type[Schema__MGraph__Node__Value] = None,
+              node_path: Node_Path                         = None,
+              **kwargs__new_node
+         ) -> Domain__MGraph__Node:
+    # Uses values_index for uniqueness check
+
+# Delete operations with index cleanup
+def delete_node(self, node_id: Node_Id) -> bool:
+    node = self.data().node(node_id)
+    if node:
+        self.index().remove_node(node.node.data)
+    return self.graph.delete_node(node_id)
+
+def delete_edge(self, edge_id: Edge_Id) -> bool:
+    edge = self.data().edge(edge_id)
+    if edge:
+        self.index().remove_edge(edge.edge.data)
+    return self.graph.delete_edge(edge_id)
+
+# Rebuild index from scratch
+def rebuild_index(self) -> MGraph__Index:
+    return self.index().reload(self.graph.model.data)
 ```
 
 ## Graph Construction: The Builder Pattern
@@ -851,7 +1144,7 @@ teams = (mgraph.query()
                .add().add_outgoing_edges(depth=2))
 ```
 
-### Pattern 3: Path-Based Document Structure (New in v1.4.7)
+### Pattern 3: Path-Based Document Structure
 
 ```python
 # Create document structure with paths
@@ -914,6 +1207,36 @@ for node_id in mgraph.data().nodes_ids():
     hub_scores[node_id] = outgoing + incoming
 
 most_connected = max(hub_scores, key=hub_scores.get)
+```
+
+### Pattern 6: Using MGraph__Index__Query for Complex Lookups (New in v1.10.6)
+
+```python
+# Create index query instance
+index_query = MGraph__Index__Query(
+    edges_index  = mgraph.index().edges_index,
+    labels_index = mgraph.index().labels_index,
+    types_index  = mgraph.index().types_index,
+    values_index = mgraph.index().values_index
+)
+
+# Find all nodes connected to a specific value
+nodes_with_tag = index_query.get_nodes_connected_to_value(
+    value="python",
+    edge_type=Edge__HasTag
+)
+
+# Find nodes reachable via specific predicate
+related_nodes = index_query.get_nodes_by_predicate(
+    from_node_id=person_node_id,
+    predicate=Safe_Id("knows")
+)
+
+# Find source nodes pointing to a target via predicate
+sources = index_query.get_nodes_by_incoming_predicate(
+    to_node_id=city_node_id,
+    predicate=Safe_Id("lives_in")
+)
 ```
 
 ## Integration Examples
@@ -1040,7 +1363,7 @@ builder.connect_to("John Doe")
 builder.connect_to("2025-01-01")
 ```
 
-### 4. Use Paths for REST API Integration (New in v1.4.7)
+### 4. Use Paths for REST API Integration
 
 ```python
 # ✓ GOOD - Paths enable REST-friendly queries
@@ -1099,6 +1422,26 @@ results = mgraph.query().by_type(MyType).collect()
 mgraph.query().add().add_node_id(new_id)  # Confusing
 ```
 
+### 8. Use MGraph__Index__Query for Complex Index Lookups (New in v1.10.6)
+
+```python
+# ✓ GOOD - Use MGraph__Index__Query for multi-index queries
+index_query = MGraph__Index__Query(
+    edges_index  = mgraph.index().edges_index,
+    labels_index = mgraph.index().labels_index,
+    types_index  = mgraph.index().types_index,
+    values_index = mgraph.index().values_index
+)
+
+# Complex query combining value lookup with edge type filtering
+connected = index_query.get_nodes_connected_to_value("tag", edge_type=Edge__HasTag)
+
+# ❌ BAD - Manual multi-step index lookups
+value_node_id = mgraph.index().values_index.get_node_id_by_value(...)
+incoming_edges = mgraph.index().edges_index.get_node_id_incoming_edges(value_node_id)
+# ... more manual steps
+```
+
 ## Performance Considerations
 
 ### Index Maintenance
@@ -1155,6 +1498,19 @@ node_ids = mgraph.index().get_nodes_by_path(Node_Path("html.body"))  # O(1)
 
 # Path existence check is O(1)
 exists = mgraph.index().has_node_path(Node_Path("config.settings"))  # O(1)
+```
+
+### Sub-Index Access Performance (New in v1.10.6)
+
+Direct sub-index access is efficient:
+
+```python
+# Direct sub-index access - no overhead
+edge_nodes = mgraph.index().edges_index.edges_to_nodes()  # Direct access
+node_types = mgraph.index().types_index.nodes_by_type()   # Direct access
+
+# Main index delegation adds minimal overhead
+edge_nodes = mgraph.index().edges_to_nodes()  # Delegates to edges_index
 ```
 
 ## Error Handling
@@ -1239,6 +1595,21 @@ if node_path:
     print(f"Node path: {node_path}")
 else:
     print("Node has no path set")
+```
+
+### Issue: Sub-index not populated (New in v1.10.6)
+
+Ensure index is created from graph data:
+
+```python
+# Index should be created via factory method
+index = MGraph__Index.from_graph(graph_data)
+
+# Or via Domain__MGraph__Graph.index()
+index = domain_graph.index()
+
+# ❌ BAD - Empty index without data
+index = MGraph__Index()  # Sub-indexes are empty!
 ```
 
 ## Testing Utilities
@@ -1331,17 +1702,20 @@ result = (mgraph.query()
 MGraph-DB provides:
 
 1. **Type-Safe Architecture**: Four clean layers (Schema/Model/Domain/Action)
-2. **Comprehensive Indexing**: O(1) lookups for nodes, edges, values, predicates, and paths
-3. **Path Support**: REST-friendly string-based element identification (new in v1.4.7)
-4. **Value Node System**: Automatic uniqueness enforcement for primitive values
-5. **Fluent Builder API**: Elegant graph construction with navigation
-6. **Powerful Query System**: Chainable operations with view history
-7. **Rich Visualization**: Multiple export formats and customizable DOT rendering
-8. **Semantic Relationships**: Predicate-based edge labels
-9. **Graph Diffing**: Compare graphs at node/edge or value level
-10. **Extension Points**: Custom node/edge/graph types
-11. **Type Safety**: Runtime validation catches errors at assignment
-12. **REST API Ready**: String-based queries for service layer integration (new in v1.4.7)
+2. **Modular Index System**: Specialized sub-indexes for edges, labels, types, and values (new in v1.10.6)
+3. **MGraph__Index__Query**: Dedicated query interface for complex index lookups (new in v1.10.6)
+4. **Comprehensive Indexing**: O(1) lookups for nodes, edges, values, predicates, and paths
+5. **Path Support**: REST-friendly string-based element identification
+6. **Value Node System**: Automatic uniqueness enforcement for primitive values
+7. **Fluent Builder API**: Elegant graph construction with navigation
+8. **Powerful Query System**: Chainable operations with view history
+9. **Rich Visualization**: Multiple export formats and customizable DOT rendering
+10. **Semantic Relationships**: Predicate-based edge labels
+11. **Graph Diffing**: Compare graphs at node/edge or value level
+12. **Extension Points**: Custom node/edge/graph types
+13. **Type Safety**: Runtime validation catches errors at assignment
+14. **REST API Ready**: String-based queries for service layer integration
+15. **Context Manager Support**: Atomic index operations (new in v1.10.6)
 
 When using MGraph-DB in your project:
 - Inherit from appropriate base classes (Schema/Model/Domain layers)
@@ -1349,9 +1723,10 @@ When using MGraph-DB in your project:
 - Leverage value nodes for uniqueness
 - Use predicates for semantic meaning
 - Use paths for REST API integration and structural identification
+- Use `MGraph__Index__Query` for complex multi-index queries
 - Follow the established code formatting style
 - Let the index handle lookups
 - Use builder for construction, query for analysis
 - Export views for subgraph operations
 
-The framework is designed for building sophisticated graph-based applications with strong type guarantees and elegant APIs, now with enhanced REST API support through path-based identification.
+The framework is designed for building sophisticated graph-based applications with strong type guarantees and elegant APIs, with a modular index architecture that enables efficient querying across multiple dimensions.
