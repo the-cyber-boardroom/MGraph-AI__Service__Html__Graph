@@ -1,21 +1,6 @@
-from typing                                                                         import Dict, Any, List, Optional, Tuple, Set
-from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document  import Html_MGraph__Document
-from mgraph_db.mgraph.schemas.identifiers.Node_Path                                 import Node_Path
-from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block import timestamp_block
-from osbot_utils.helpers.timestamp_capture.decorators.timestamp                     import timestamp
-from osbot_utils.helpers.timestamp_capture.decorators.timestamp_args import timestamp_args
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
-from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                      import Html__To__Html_Dict
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+"""
+Converts raw HTML to Html_MGraph__Document with 5 component graphs.
 
-SCRIPT_TAGS : Set = {'script'}                                              # Tags that go to Scripts graph
-STYLE_TAGS  : Set = {'style', 'link'}                                       # Tags that go to Styles graph
-
-class Html__To__Html_MGraph__Document(Type_Safe):                               # Convert HTML string to multi-graph Document structure
-    """Converts raw HTML to Html_MGraph__Document with 5 component graphs.
-    
     Pipeline:
         HTML String
             → Parse to Html_Dict (OSBot format)
@@ -28,12 +13,28 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                 - Styles graph: CSS content
             → Link in Document orchestrator
         Html_MGraph__Document
-    
+
     Node_Id sharing:
     - When creating element in Head/Body, same Node_Id is used in Attributes
     - Script/Style elements also share Node_Id with their parent graph
     - This enables cross-graph lookups
-    """
+"""
+
+from typing                                                                         import Dict, Any, List, Optional, Tuple, Set
+from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document  import Html_MGraph__Document
+from mgraph_db.mgraph.schemas.identifiers.Node_Path                                 import Node_Path
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp                     import timestamp
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                      import Html__To__Html_Dict
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+
+SCRIPT_TAGS : Set = {'script'}                                              # Tags that go to Scripts graph
+STYLE_TAGS  : Set = {'style', 'link'}                                       # Tags that go to Styles graph
+
+class Html__To__Html_MGraph__Document(Type_Safe):                               # Convert HTML string to multi-graph Document structure
+
 
 
 
@@ -64,7 +65,6 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
 
         return document
 
-    @timestamp(name="html_mgraph.convert.extract-head-body")
     def _extract_head_body(self, html_dict: Dict[str, Any]                      # Extract <head> and <body> from html_dict
                           ) -> Tuple[Optional[Dict], Optional[Dict]]:
         head_dict = None
@@ -84,7 +84,6 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
     # ═══════════════════════════════════════════════════════════════════════════
     # Attributes Processing (Html Tag)
     # ═══════════════════════════════════════════════════════════════════════════
-    @timestamp(name="html_mgraph.attributes.html-tag.process")
     def process_attrs__html_tag(self,
                       html_dict: Dict[str, Any] ,
                       document : Html_MGraph__Document):
@@ -160,6 +159,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
         document.body_graph.create_element(node_path = Node_Path('body'),
                                            node_id   = body_node_id     )
         document.body_graph.set_root(body_node_id)
+
         document.attrs_graph.register_element(body_node_id, 'body')
 
         body_attrs = body_dict.get('attrs', {})                                 # Add <body> attributes
@@ -168,7 +168,6 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
 
         self._process_body_children(document, body_node_id, body_dict, 'body')  # Process children
 
-    @timestamp(name="html_mgraph.body.process_children")
     def _process_body_children(self, document    : Html_MGraph__Document ,
                                      parent_id   : Node_Id               ,
                                      parent_dict : Dict[str, Any]        ,
@@ -196,7 +195,6 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                 self._process_body__element(document   , parent_id, node     ,
                                             position   , tag      , node_path)
 
-    @timestamp(name="html_mgraph.body.text_node")
     def _process_body__text_node(self, document  : Html_MGraph__Document ,
                                        parent_id : Node_Id               ,
                                        node      : Dict[str, Any]        ,
@@ -207,7 +205,6 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                                             parent_id = parent_id ,
                                             position  = position  )
 
-    @timestamp(name="html_mgraph.body.element")
     def _process_body__element(self, document  : Html_MGraph__Document ,
                                      parent_id : Node_Id               ,
                                      node      : Dict[str, Any]        ,
@@ -217,14 +214,13 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
         node_id = self._generate_node_id()
 
         self._process_body__create_in_graph(document, parent_id, node_id, position, node_path)
-        self._process_body__register_attrs(document, node_id, tag, node)
+        self._process_body__register_attrs(document, node_id, tag, node)                            # this is the step that triggers the creation of the attributes nodes
 
         if tag in SCRIPT_TAGS:                                                  # Handle script content
             self._process_body__handle_script(document, node_id, node)
         else:
             self._process_body_children(document, node_id, node, node_path)     # Recurse
 
-    @timestamp(name="html_mgraph.body.create_in_graph")
     def _process_body__create_in_graph(self, document  : Html_MGraph__Document ,
                                              parent_id : Node_Id               ,
                                              node_id   : Node_Id               ,
@@ -234,19 +230,15 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                                            node_id   = node_id              )
         document.body_graph.add_child(parent_id, node_id, position)
 
-    @timestamp_args(name="html_mgraph.body.register_attrs | {node_id} | {tag} ")
     def _process_body__register_attrs(self, document : Html_MGraph__Document ,
                                             node_id  : Node_Id               ,
                                             tag      : str                   ,
                                             node     : Dict[str, Any]        ) -> None:
-        with timestamp_block(name='register_element'):
-            document.attrs_graph.register_element(node_id, tag)                     # Register in attributes graph
-        with timestamp_block(name='process_attributes'):
-            attrs = node.get('attrs', {})
-            for attr_pos, (attr_name, attr_value) in enumerate(attrs.items()):
-                document.attrs_graph.add_attribute(node_id, attr_name, attr_value, attr_pos)
+        document.attrs_graph.register_element(node_id, tag)                     # Register in attributes graph
+        attrs = node.get('attrs', {})
+        for attr_pos, (attr_name, attr_value) in enumerate(attrs.items()):
+            document.attrs_graph.add_attribute(node_id, attr_name, attr_value, attr_pos)
 
-    @timestamp(name="html_mgraph.body.handle_script")
     def _process_body__handle_script(self, document : Html_MGraph__Document ,
                                            node_id  : Node_Id               ,
                                            node     : Dict[str, Any]        ) -> None:

@@ -2,8 +2,6 @@ from typing                                                                     
 from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph              import Schema__Html_MGraph__Stats__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
-from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block     import timestamp_block
-from osbot_utils.helpers.timestamp_capture.decorators.timestamp_args            import timestamp_args
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               import Safe_Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
@@ -87,29 +85,23 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
                ) -> Node_Id:                                              # Return Node_Id created
 
 
-        with timestamp_block(name='html_mgraph.attributes.add_attribute | new_element_node'):
+        instance_node = self.new_element_node(node_path = Node_Path(str(position)))         # 1. Create instance node (always new, stores position)
 
-            instance_node = self.new_element_node(node_path = Node_Path(str(position)))         # 1. Create instance node (always new, stores position)
+        self.new_edge(from_node_id = node_id              ,                                 # 2. Link element → instance
+                      to_node_id   = instance_node.node_id,
+                      predicate    = self.PREDICATE_ATTR  )
 
-        with timestamp_block(name='html_mgraph.attributes.add_attribute | new_edge'):
-            self.new_edge(from_node_id = node_id              ,                                 # 2. Link element → instance
-                          to_node_id   = instance_node.node_id,
-                          predicate    = self.PREDICATE_ATTR  )
+        name_node = self._get_or_create_name_node(attr_name)                                # 3. Get or create name node (reused)
 
-        with timestamp_block(name='html_mgraph.attributes.add_attribute | _get_or_create_name_node'):
-            name_node = self._get_or_create_name_node(attr_name)                                # 3. Get or create name node (reused)
-
-        with timestamp_block(name='html_mgraph.attributes.add_attribute | new_edge'):
-            self.new_edge(from_node_id = instance_node.node_id,                                 # 4. Link instance → name
-                          to_node_id   = name_node.node_id    ,
-                          predicate    = self.PREDICATE_NAME  )
+        self.new_edge(from_node_id = instance_node.node_id,                                 # 4. Link instance → name
+                      to_node_id   = name_node.node_id    ,
+                      predicate    = self.PREDICATE_NAME  )
 
         if attr_value is not None:                                                          # 5. Only create value node if value is not None
-            with timestamp_block(name='html_mgraph.attributes.add_attribute | _get_or_create_value_node'):
-                value_node = self._get_or_create_value_node(attr_value)
-                self.new_edge(from_node_id = instance_node.node_id,
-                              to_node_id   = value_node.node_id   ,
-                              predicate    = self.PREDICATE_VALUE )
+            value_node = self._get_or_create_value_node(attr_value)
+            self.new_edge(from_node_id = instance_node.node_id,
+                          to_node_id   = value_node.node_id   ,
+                          predicate    = self.PREDICATE_VALUE )
 
         return instance_node.node_id
 
@@ -137,7 +129,6 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
         # )
 
 
-    @timestamp_args(name='html_mgraph.attributes._get_or_create_value_node| {attr_value}')
     def _get_or_create_value_node(self, attr_value: str):
         # O(1) lookup instead of O(n) scan
         if attr_value in self.value_node_cache:

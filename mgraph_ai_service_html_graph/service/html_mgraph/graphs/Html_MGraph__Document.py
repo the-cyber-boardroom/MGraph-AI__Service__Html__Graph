@@ -9,7 +9,6 @@ from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Styles
 from mgraph_db.mgraph.MGraph                                                            import MGraph
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                                     import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                                     import Edge_Path
-from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block             import timestamp_block
 from osbot_utils.helpers.timestamp_capture.decorators.timestamp                         import timestamp
 from osbot_utils.helpers.timestamp_capture.decorators.timestamp_args                    import timestamp_args
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                       import Node_Id
@@ -66,12 +65,11 @@ class Html_MGraph__Document(Html_MGraph__Base):                                 
         root_node    = self.new_element_node(node_path=Node_Path(self.PATH_HTML))  # Create <html> root node
         self.root_id = root_node.node_id
 
-        with timestamp_block(name='html_mgraph.document.graphs-setup'):
-            self.head_graph    = Html_MGraph__Head      ().setup()                  # Initialize component graphs
-            self.body_graph    = Html_MGraph__Body      ().setup()
-            self.attrs_graph   = Html_MGraph__Attributes().setup()
-            self.scripts_graph = Html_MGraph__Scripts   ().setup()
-            self.styles_graph  = Html_MGraph__Styles    ().setup()
+        self.head_graph    = Html_MGraph__Head      ().setup()                  # Initialize component graphs
+        self.body_graph    = Html_MGraph__Body      ().setup()
+        self.attrs_graph   = Html_MGraph__Attributes().setup()
+        self.scripts_graph = Html_MGraph__Scripts   ().setup()
+        self.styles_graph  = Html_MGraph__Styles    ().setup()
 
 
         self._link_component_graph('head'   , self.head_graph   .root_id)       # Create graph reference edges
@@ -84,7 +82,6 @@ class Html_MGraph__Document(Html_MGraph__Base):                                 
 
         return self
 
-    @timestamp_args(name="html_mgraph.document._link_component_graph({name:7})")
     def _link_component_graph(self, name: str, component_root_id: Node_Id) -> None:  # Create edge from document root to component graph root
         ref_node = self.new_value_node(value     = str(component_root_id) ,
                                        node_path = Node_Path(f"graph:{name}"))

@@ -30,11 +30,11 @@ TIMEOUT: Request exceeded maximum duration
 
 *A hand reaches for a coffee cup—long cold—and sets it back down.*
 
-**DINIS CRUZ** *(V.O.)*: "We had built something beautiful. MGraph-AI—a system that could take any HTML document and transform it into a living, queryable graph structure. Every element, every attribute, every relationship—preserved and indexed."
+**MARCUS VALE** *(V.O.)*: "We had built something beautiful. MGraph-AI—a system that could take any HTML document and transform it into a living, queryable graph structure. Every element, every attribute, every relationship—preserved and indexed."
 
 *[Cut to: Architecture diagrams. Node-and-edge visualizations. Marketing materials showing the Html_MGraph pipeline.]*
 
-**DINIS** *(V.O.)*: "And then, one day, it just... stopped working."
+**MARCUS** *(V.O.)*: "And then, one day, it just... stopped working."
 
 ---
 
@@ -59,10 +59,10 @@ TIMEOUT: Request exceeded maximum duration
 [9:47 AM] "anyone else seeing slow responses?"
 [9:52 AM] "yeah, everything's crawling"
 [10:15 AM] "akeia.ai taking 1.5 seconds to process"
-[10:31 AM] "docs.diniscruz.ai is timing out completely"
+[10:31 AM] "docs.thornwood-docs.dev is timing out completely"
 ```
 
-**DINIS** *(direct to camera)*: "docs.diniscruz.ai. That's my personal documentation site. Thirty-three kilobytes of HTML. It had been working for weeks. And now—nothing. Complete timeout. The system couldn't even finish processing it."
+**MARCUS** *(direct to camera)*: "docs.thornwood-docs.dev. That's my personal documentation site. Thirty-three kilobytes of HTML. It had been working for weeks. And now—nothing. Complete timeout. The system couldn't even finish processing it."
 
 *[Cut to: A graph showing response times. The line doesn't just climb—it curves upward, steepening with each data point.]*
 
@@ -76,13 +76,13 @@ TIMEOUT: Request exceeded maximum duration
 
 *[INT. HOME OFFICE - MORNING]*
 
-*Dinis sits at his desk, multiple monitors showing code editors and terminal windows.*
+*Marcus sits at his desk, multiple monitors showing code editors and terminal windows.*
 
-**DINIS** *(V.O.)*: "The first rule of performance debugging: measure everything. But we had a problem. Our codebase was complex—dozens of interconnected methods, multiple processing phases. We needed a way to see inside the execution."
+**MARCUS** *(V.O.)*: "The first rule of performance debugging: measure everything. But we had a problem. Our codebase was complex—dozens of interconnected methods, multiple processing phases. We needed a way to see inside the execution."
 
 *[Cut to: Screen recording showing OSBot-Utils repository on GitHub]*
 
-**DINIS** *(V.O.)*: "We'd been developing a timing instrumentation system as part of OSBot-Utils. Version 3.57 had the basics. But we needed more. We needed to see *exactly* where time was being spent—not just total duration, but what we call 'self-time': the actual work each method was doing, excluding calls to other methods."
+**MARCUS** *(V.O.)*: "We'd been developing a timing instrumentation system as part of OSBot-Utils. Version 3.57 had the basics. But we needed more. We needed to see *exactly* where time was being spent—not just total duration, but what we call 'self-time': the actual work each method was doing, excluding calls to other methods."
 
 *[Cut to: Code diff showing the @timestamp decorator implementation]*
 
@@ -111,11 +111,11 @@ Top 10 Hotspots (by self-time):
    4. html_mgraph.head.process              1.53ms (  5.1%)
 ```
 
-**DINIS** *(direct to camera, leaning forward)*: "And here's where we almost made a critical mistake. Look at that profile. Document setup is 70% of the time. Body processing is only 5%. You might think—'Ah, the problem is in setup.'"
+**MARCUS** *(direct to camera, leaning forward)*: "And here's where we almost made a critical mistake. Look at that profile. Document setup is 70% of the time. Body processing is only 5%. You might think—'Ah, the problem is in setup.'"
 
 *[Pause. He shakes his head.]*
 
-**DINIS**: "We were testing with minimal HTML. A skeleton document. Almost no content. Of course setup dominated—there was nothing else to do."
+**MARCUS**: "We were testing with minimal HTML. A skeleton document. Almost no content. Of course setup dominated—there was nothing else to do."
 
 ---
 
@@ -148,9 +148,9 @@ def generate_scaled_html(element_count: int) -> str:
 
 *[Dramatic pause. The camera slowly zooms in on the "Per Element" column.]*
 
-**DINIS** *(V.O.)*: "Look at that column. Per-element cost. It should be constant. Process one element, it takes X milliseconds. Process two elements, it takes 2X. That's linear scaling. That's healthy."
+**MARCUS** *(V.O.)*: "Look at that column. Per-element cost. It should be constant. Process one element, it takes X milliseconds. Process two elements, it takes 2X. That's linear scaling. That's healthy."
 
-**DINIS** *(direct to camera, intensity building)*: "But this? 53 milliseconds per element when you have 10 elements. 180 milliseconds per element when you have 30. The per-element cost was *tripling*. Every new element made *all the previous work* more expensive."
+**MARCUS** *(direct to camera, intensity building)*: "But this? 53 milliseconds per element when you have 10 elements. 180 milliseconds per element when you have 30. The per-element cost was *tripling*. Every new element made *all the previous work* more expensive."
 
 *[Cut to: Whiteboard animation showing O(n²) growth curve versus O(n)]*
 
@@ -166,7 +166,7 @@ def generate_scaled_html(element_count: int) -> str:
 
 *Multiple terminals visible. The timestamp system now has more instrumentation points.*
 
-**DINIS** *(V.O.)*: "The @timestamp system let us drill deeper. We added decorators to every major phase. Body processing. Head processing. Attribute registration. Graph creation."
+**MARCUS** *(V.O.)*: "The @timestamp system let us drill deeper. We added decorators to every major phase. Body processing. Head processing. Attribute registration. Graph creation."
 
 *[Cut to: New profiling output]*
 
@@ -179,13 +179,13 @@ Top 10 Hotspots (by self-time):
 
 **ENGINEER #2** *(excited, pointing at screen)*: "There. Register attributes. 52% of total time. Seventeen calls."
 
-**DINIS**: "Seventeen calls. That's—what—eleven milliseconds per attribute registration?"
+**MARCUS**: "Seventeen calls. That's—what—eleven milliseconds per attribute registration?"
 
 **ENGINEER #2**: "For an operation that should be microseconds."
 
 *[Cut to: A moment of silence. Realization dawning.]*
 
-**DINIS** *(V.O.)*: "We were getting warmer. But we needed to go deeper."
+**MARCUS** *(V.O.)*: "We were getting warmer. But we needed to go deeper."
 
 ---
 
@@ -198,11 +198,11 @@ Top 10 Hotspots (by self-time):
 **TITLE CARD:**
 > "The tool that would crack the case was built in the middle of the crisis."
 
-**DINIS** *(V.O.)*: "This is the part people don't see. While we were hunting this bug, we were also building the instrumentation system we needed to find it. Version 3.58.0 of OSBot-Utils. It was necessity driving innovation."
+**MARCUS** *(V.O.)*: "This is the part people don't see. While we were hunting this bug, we were also building the instrumentation system we needed to find it. Version 3.58.0 of OSBot-Utils. It was necessity driving innovation."
 
 *[Cut to: Code commits scrolling. Feature additions to the timestamp_capture module.]*
 
-**DINIS** *(V.O.)*: "We needed three things we didn't have. First: the ability to trace *self-time*, not just total time. Second: argument capture—we needed to see which specific attribute values were slow. Third: block-level instrumentation for code that wasn't in dedicated methods."
+**MARCUS** *(V.O.)*: "We needed three things we didn't have. First: the ability to trace *self-time*, not just total time. Second: argument capture—we needed to see which specific attribute values were slow. Third: block-level instrumentation for code that wasn't in dedicated methods."
 
 *[Cut to: The @timestamp_args decorator being implemented]*
 
@@ -249,7 +249,7 @@ app.js             14.39ms    ~140 nodes
 
 *[Long pause. Camera slowly pushes in on the numbers.]*
 
-**DINIS** *(V.O., quiet)*: "There it was. The first value lookup takes 1.4 milliseconds. The last one takes 14.4 milliseconds. Ten times longer. And the only difference? The graph had grown."
+**MARCUS** *(V.O., quiet)*: "There it was. The first value lookup takes 1.4 milliseconds. The last one takes 14.4 milliseconds. Ten times longer. And the only difference? The graph had grown."
 
 **ENGINEER #2** *(V.O.)*: "Each lookup was scanning the *entire* graph to see if a node already existed. Early lookups scanned 10 nodes. Later lookups scanned 140 nodes. Same operation. More work every time."
 
@@ -263,11 +263,11 @@ def _get_or_create_value_node(self, attr_value):
     # Create new node...
 ```
 
-**DINIS** *(direct to camera)*: "Four lines of code. Perfectly readable. Perfectly intuitive. 'Loop through all nodes. Find the one with this value.' It's what any junior developer would write. Hell, it's what I wrote."
+**MARCUS** *(direct to camera)*: "Four lines of code. Perfectly readable. Perfectly intuitive. 'Loop through all nodes. Find the one with this value.' It's what any junior developer would write. Hell, it's what I wrote."
 
 *[Pause]*
 
-**DINIS**: "And it was killing us."
+**MARCUS**: "And it was killing us."
 
 ---
 
@@ -298,7 +298,7 @@ Adding node 500: scan 499 nodes
 
 *[Animation: The quadratic curve exploding upward]*
 
-**ENGINEER #1** *(V.O.)*: "Double your document size, quadruple your processing time. Triple your document size, nine times the processing. The Duchess of Documentsworth—the 33KB docs.diniscruz.ai site—was creating over 14,000 graph objects. That's 14,000 × 14,000 potential comparisons."
+**ENGINEER #1** *(V.O.)*: "Double your document size, quadruple your processing time. Triple your document size, nine times the processing. The Duchess of Documentsworth—the 33KB docs.thornwood-docs.dev site—was creating over 14,000 graph objects. That's 14,000 × 14,000 potential comparisons."
 
 *[Animation ends with a single number on screen:]*
 
@@ -312,9 +312,9 @@ Adding node 500: scan 499 nodes
 
 *[INT. HOME OFFICE - SUNLIGHT STREAMING IN]*
 
-*Dinis types rapidly. The solution is elegant.*
+*Marcus types rapidly. The solution is elegant.*
 
-**DINIS** *(V.O.)*: "The fix was almost embarrassingly simple. Dictionary lookup. Hash index. O(1) instead of O(n)."
+**MARCUS** *(V.O.)*: "The fix was almost embarrassingly simple. Dictionary lookup. Hash index. O(1) instead of O(n)."
 
 *[Screen recording: The diff view]*
 
@@ -338,7 +338,7 @@ class MGraph__Attributes:
 
 **ENGINEER #2** *(V.O.)*: "Two dictionary lookups. Two dictionary assignments. That's the entire fix."
 
-**DINIS** *(leaning back, exhaling)*: "Hours of investigation. Minutes of coding."
+**MARCUS** *(leaning back, exhaling)*: "Hours of investigation. Minutes of coding."
 
 ---
 
@@ -364,10 +364,10 @@ class MGraph__Attributes:
 
 **ENGINEER #1** *(V.O.)*: "Linear scaling. Look at the per-element cost now—22 to 27 milliseconds, constant regardless of document size. That's what healthy software looks like."
 
-*[Cut to: Terminal showing docs.diniscruz.ai processing]*
+*[Cut to: Terminal showing docs.thornwood-docs.dev processing]*
 
 ```
-Processing: docs.diniscruz.ai (33.5 KB)
+Processing: docs.thornwood-docs.dev (33.5 KB)
 Status: COMPLETE
 Time: 1,841ms
 
@@ -379,7 +379,7 @@ Graph Statistics:
 Rate: 1,315 graph objects/second
 ```
 
-**DINIS** *(watching the output, quiet)*: "It works. It actually works."
+**MARCUS** *(watching the output, quiet)*: "It works. It actually works."
 
 ---
 
@@ -403,7 +403,7 @@ Performance: 22% faster test suite
 
 *[Cut to: CI pipeline running. Green checkmarks cascading.]*
 
-**DINIS** *(V.O.)*: "The beautiful thing about having good CI/CD is that the fix goes from 'working on my machine' to 'deployed everywhere' in minutes. Tests pass. Pipeline runs. Version 1.4.8 ships."
+**MARCUS** *(V.O.)*: "The beautiful thing about having good CI/CD is that the fix goes from 'working on my machine' to 'deployed everywhere' in minutes. Tests pass. Pipeline runs. Version 1.4.8 ships."
 
 *[Cut to: Slack notifications]*
 
@@ -411,7 +411,7 @@ Performance: 22% faster test suite
 [2:47 PM] 🚀 MGraph-AI v1.4.8 deployed to production
 [2:48 PM] "Performance looking good"
 [2:49 PM] "akeia.ai processing in 502ms!"
-[2:51 PM] "docs.diniscruz.ai is back 🎉"
+[2:51 PM] "docs.thornwood-docs.dev is back 🎉"
 ```
 
 ---
@@ -422,13 +422,13 @@ Performance: 22% faster test suite
 
 *[INT. VIDEO CALL - RETROSPECTIVE MEETING]*
 
-**DINIS** *(direct to camera)*: "What did we learn? A few things."
+**MARCUS** *(direct to camera)*: "What did we learn? A few things."
 
 *[Cut to: Presentation slides]*
 
 **Lesson 1: Don't Trust Minimal Tests**
 
-**DINIS** *(V.O.)*: "Our initial profiling with minimal HTML was misleading. Real workloads revealed the true bottleneck. Always test at scale."
+**MARCUS** *(V.O.)*: "Our initial profiling with minimal HTML was misleading. Real workloads revealed the true bottleneck. Always test at scale."
 
 **Lesson 2: Self-Time vs Total-Time**
 
@@ -444,7 +444,7 @@ for node_id in self.nodes_ids():  # Looks harmless
         return node
 ```
 
-**DINIS** *(V.O.)*: "This code is readable. It's intuitive. It's exactly what you'd write if you weren't thinking about scale. And that's the danger."
+**MARCUS** *(V.O.)*: "This code is readable. It's intuitive. It's exactly what you'd write if you weren't thinking about scale. And that's the danger."
 
 **Lesson 4: Build Your Tools**
 
@@ -452,7 +452,7 @@ for node_id in self.nodes_ids():  # Looks harmless
 
 **Lesson 5: The Fix Is Often Simple**
 
-**DINIS** *(direct to camera)*: "Four lines of code. Two dictionary lookups replacing two linear scans. The investigation took days. The fix took minutes. That's software engineering."
+**MARCUS** *(direct to camera)*: "Four lines of code. Two dictionary lookups replacing two linear scans. The investigation took days. The fix took minutes. That's software engineering."
 
 ---
 
@@ -462,17 +462,17 @@ for node_id in self.nodes_ids():  # Looks harmless
 
 *[INT. CONFERENCE ROOM - DAY]*
 
-*Dinis presents at a tech meetup. The MGraph-AI architecture is on the screen behind him.*
+*Marcus presents at a tech meetup. The MGraph-AI architecture is on the screen behind him.*
 
-**DINIS**: "...and so we process about 14,000 graph objects per second now. Sites that used to timeout? They load in under two seconds. The test suite is 22% faster."
+**MARCUS**: "...and so we process about 14,000 graph objects per second now. Sites that used to timeout? They load in under two seconds. The test suite is 22% faster."
 
 *[Cut to: Audience, engaged]*
 
-**DINIS**: "But here's the thing. The @timestamp decorators? They're still there. Still in production. Three microseconds of overhead when inactive. But when something goes wrong again—and something always goes wrong eventually—we flip a switch, and we can see everything."
+**MARCUS**: "But here's the thing. The @timestamp decorators? They're still there. Still in production. Three microseconds of overhead when inactive. But when something goes wrong again—and something always goes wrong eventually—we flip a switch, and we can see everything."
 
 *[He pauses, looks at the audience]*
 
-**DINIS**: "Performance crimes hide in innocent-looking code. A simple loop. A straightforward scan. Readable, intuitive, and utterly deadly at scale."
+**MARCUS**: "Performance crimes hide in innocent-looking code. A simple loop. A straightforward scan. Readable, intuitive, and utterly deadly at scale."
 
 *[He taps the slide forward. Final message appears:]*
 
@@ -490,7 +490,7 @@ for node_id in self.nodes_ids():  # Looks harmless
 ---
 
 **Technical Leads**
-- Dinis Cruz — Architecture & Investigation Lead
+- Marcus Vale — Architecture & Investigation Lead
 - OSBot-Utils Team — @timestamp System Development
 
 **Key Technologies**

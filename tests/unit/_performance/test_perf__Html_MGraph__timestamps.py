@@ -1,61 +1,59 @@
-# """
-# Html_MGraph Performance Tests with Timestamp Capture
-# =====================================================
-#
-# Performance test suite using the @timestamp decorator system
-# to capture detailed timing breakdowns of the Html_MGraph pipeline.
-#
-# These tests are designed to:
-# 1. Identify performance bottlenecks via self-time analysis
-# 2. Track performance regressions over time
-# 3. Validate optimization improvements
-#
-# """
-#
-# from unittest                                                                                    import TestCase
-#
+"""
+Html_MGraph Performance Tests with Timestamp Capture
+=====================================================
+
+Performance test suite using the @timestamp decorator system
+to capture detailed timing breakdowns of the Html_MGraph pipeline.
+
+These tests are designed to:
+1. Identify performance bottlenecks via self-time analysis
+2. Track performance regressions over time
+3. Validate optimization improvements
+
+"""
+
+#from unittest                                                                                    import TestCase
+
 # from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
 # from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                                   import Timestamp_Collector
-# from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Report                           import Timestamp_Collector__Report
+# from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Report import Timestamp_Collector__Report
+#
 # from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block                      import timestamp_block
 # from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document import Html__To__Html_MGraph__Document
 # from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html import Html_MGraph__Document__To__Html
 # from osbot_utils.utils.Dev import pprint
-#
-#
-# class test_perf__Html_MGraph__timestamps(TestCase):
-#
-#     def test_timestamp__minimal_html(self):                                             # Capture timing breakdown for minimal HTML (baseline)
-#
-#         _timestamp_collector_ = Timestamp_Collector(name="minimal_html_conversion")
-#         #html = HTML_MINIMAL
-#         #html = HTML_MEDIUM
-#         size = 500
-#         html = generate_scaled_html(size)
-#         with mgraph_test_ids():
-#             with _timestamp_collector_:
-#                 with timestamp_block("phase.html-to-document"):
-#                     with Html__To__Html_MGraph__Document() as converter:
-#                         doc = converter.convert(html)
-#                         doc_stats = doc.stats()
-#                         doc_stats.print_obj()
-#                         #print(f'with size {size} we have {}')
-#                 return
-#                 with timestamp_block("phase.document-to-html"):
-#                     with Html_MGraph__Document__To__Html() as converter:
-#                         result = converter.convert(doc)
-#
-#         # Print reports
-#         print("\n")
-#         report = Timestamp_Collector__Report(collector=_timestamp_collector_)
-#         #report.print_report()
-#         report.print_hotspots(top_n=10)
-#         #report.print_timeline()
-#
-#         # Basic assertions
-#         assert doc is not None
-#         assert result is not None
-#         assert _timestamp_collector_.total_duration_ms() > 0
+
+
+#class test_perf__Html_MGraph__timestamps(TestCase):
+
+    # def test_timestamp__minimal_html(self):                                             # Capture timing breakdown for minimal HTML (baseline)
+    #
+    #     _timestamp_collector_ = Timestamp_Collector(name="minimal_html_conversion")
+    #     #html = HTML_MINIMAL
+    #     html = HTML_MEDIUM
+    #     #size = 500
+    #     #html = generate_scaled_html(size)
+    #     with mgraph_test_ids():
+    #         with _timestamp_collector_:
+    #             with timestamp_block("phase.html-to-document"):
+    #                 with Html__To__Html_MGraph__Document() as converter:
+    #                     doc = converter.convert(html)
+    #
+    #             with timestamp_block("phase.document-to-html"):
+    #                 with Html_MGraph__Document__To__Html() as converter:
+    #                     result = converter.convert(doc)
+    #
+    #     # Print reports
+    #     print("\n")
+    #     report = Timestamp_Collector__Report(collector=_timestamp_collector_)
+    #     report.print_report()
+    #     report.print_hotspots(top_n=30)
+    #     report.print_timeline()
+    #
+    #     # Basic assertions
+    #     assert doc is not None
+    #     assert result is not None
+    #     assert _timestamp_collector_.total_duration_ms() > 0
 #
 #     # # ═══════════════════════════════════════════════════════════════════════
 #     # # Test: Simple HTML
@@ -337,10 +335,10 @@
 #     #         print(f"    Ratio: {unique_time/dup_time:.2f}x")
 #
 #
-# # ═══════════════════════════════════════════════════════════════════════════════
-# # Test HTML Samples
-# # ═══════════════════════════════════════════════════════════════════════════════
-#
+# ═══════════════════════════════════════════════════════════════════════════════
+# Test HTML Samples
+# ═══════════════════════════════════════════════════════════════════════════════
+
 # HTML_MINIMAL = '''<html><head></head><body></body></html>'''
 #
 # HTML_SIMPLE = '''<html lang="en">
