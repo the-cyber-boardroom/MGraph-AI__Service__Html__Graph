@@ -24,14 +24,17 @@ const processSpeedscopeEvents = (profile, frames) => {
     const timeMs = event.at * unitMultiplier;
     
     if (event.type === 'O') {
-      stack.push({ frame: event.frame, name: frameName, startMs: timeMs, depth: stack.length });
+      // Capture current stack path for this span
+      const stackPath = stack.map(s => s.frame).concat(event.frame);
+      stack.push({ frame: event.frame, name: frameName, startMs: timeMs, depth: stack.length, stackPath });
     } else if (event.type === 'C') {
       for (let i = stack.length - 1; i >= 0; i--) {
         if (stack[i].frame === event.frame) {
           const opened = stack.splice(i, 1)[0];
           spans.push({
             name: opened.name, frame: opened.frame, startMs: opened.startMs,
-            endMs: timeMs, durationMs: timeMs - opened.startMs, depth: opened.depth
+            endMs: timeMs, durationMs: timeMs - opened.startMs, depth: opened.depth,
+            stackPath: opened.stackPath
           });
           break;
         }
@@ -39,6 +42,97 @@ const processSpeedscopeEvents = (profile, frames) => {
     }
   });
   return spans;
+};
+
+// Build Left Heavy aggregated tree from spans
+const buildLeftHeavyTree = (spans, totalDurationMs) => {
+  if (!spans.length) return [];
+  
+  // Build tree structure by aggregating spans with same stack path
+  const root = { name: 'root', children: new Map(), totalMs: 0, frame: -1 };
+  
+  spans.forEach(span => {
+    let current = root;
+    const path = span.stackPath || [span.frame];
+    
+    path.forEach((frameId, depth) => {
+      if (!current.children.has(frameId)) {
+        current.children.set(frameId, {
+          name: span.name,
+          frame: frameId,
+          children: new Map(),
+          totalMs: 0,
+          selfMs: 0,
+          depth: depth
+        });
+      }
+      current = current.children.get(frameId);
+      // Only add duration at the leaf level (the actual span's depth)
+      if (depth === path.length - 1) {
+        current.totalMs += span.durationMs;
+        current.name = span.name; // Ensure correct name
+      }
+    });
+  });
+  
+  // Convert Map children to sorted arrays and calculate positions
+  const convertNode = (node, parentTotalMs) => {
+    const children = Array.from(node.children.values())
+      .map(child => convertNode(child, node.totalMs || parentTotalMs))
+      .sort((a, b) => b.totalMs - a.totalMs); // Sort by total time descending (heaviest left)
+    
+    return {
+      name: node.name,
+      frame: node.frame,
+      totalMs: node.totalMs,
+      depth: node.depth,
+      children
+    };
+  };
+  
+  // Get root children and convert
+  const rootChildren = Array.from(root.children.values())
+    .map(child => convertNode(child, totalDurationMs))
+    .sort((a, b) => b.totalMs - a.totalMs);
+  
+  return rootChildren;
+};
+
+// Flatten Left Heavy tree into renderable rectangles
+const flattenLeftHeavyTree = (tree, totalDurationMs) => {
+  const rects = [];
+  
+  const traverse = (node, xOffset, parentWidth, depth) => {
+    const width = parentWidth * (node.totalMs / (depth === 0 ? totalDurationMs : node.totalMs));
+    const actualWidth = depth === 0 ? (node.totalMs / totalDurationMs) : parentWidth;
+    
+    rects.push({
+      name: node.name,
+      frame: node.frame,
+      depth: depth,
+      totalMs: node.totalMs,
+      xStart: xOffset,
+      width: actualWidth
+    });
+    
+    // Layout children
+    let childX = xOffset;
+    const childParentWidth = actualWidth;
+    node.children.forEach(child => {
+      const childWidth = childParentWidth * (child.totalMs / node.totalMs);
+      traverse(child, childX, childWidth, depth + 1);
+      childX += childWidth;
+    });
+  };
+  
+  let xOffset = 0;
+  tree.forEach(rootNode => {
+    const nodeWidth = rootNode.totalMs / totalDurationMs;
+    traverse(rootNode, xOffset, nodeWidth, 0);
+    xOffset += nodeWidth;
+  });
+  
+  return rects;
 };
 
 const aggregateFrameStats = (spans) => {
@@ -76,9 +170,13 @@ const processSpeedscopeFiles = (files) => {
         ? profile.endValue * (profile.unit === 'nanoseconds' ? 0.000001 : profile.unit === 'microseconds' ? 0.001 : 1)
         : (spans.length ? Math.max(...spans.map(s => s.endMs)) : 0);
       
+      // Pre-compute Left Heavy tree
+      const leftHeavyTree = buildLeftHeavyTree(spans, totalDurationMs);
+      
       return {
         key, name: f.data.name || key, raw: f.data, frames, profile, spans, frameStats,
-        totalDurationMs, eventCount: profile.events?.length || 0, frameCount: frames.length
+        totalDurationMs, eventCount: profile.events?.length || 0, frameCount: frames.length,
+        leftHeavyTree
       };
     });
 };
@@ -90,6 +188,9 @@ function SpeedscopeAnalyzer() {
   const [activeTab, setActiveTab] = useState('flame');
   const [expandedChart, setExpandedChart] = useState(false);
   const [depthOffset, setDepthOffset] = useState(0);
+  const [flameMode, setFlameMode] = useState('timeOrder'); // 'timeOrder' or 'leftHeavy'
+  const [autoCollapseOnZoom, setAutoCollapseOnZoom] = useState(false);
+  const [zoomRange, setZoomRange] = useState(null);
 
   const profiles = useMemo(() => processSpeedscopeFiles(files), [files]);
   
@@ -99,9 +200,10 @@ function SpeedscopeAnalyzer() {
     }
   }, [profiles]);
 
-  // Reset depth offset when switching profiles
+  // Reset depth offset and zoom when switching profiles
   useEffect(() => {
     setDepthOffset(0);
+    setZoomRange(null);
   }, [selectedKeys]);
 
   const selectedProfiles = useMemo(() => 
@@ -143,7 +245,6 @@ function SpeedscopeAnalyzer() {
   // Flame Graph Component
   const FlameGraph = ({ profile, isExpanded = false }) => {
     const [hoveredSpan, setHoveredSpan] = useState(null);
-    const [zoomRange, setZoomRange] = useState(null);
 
     if (!profile || !profile.spans.length) {
       return React.createElement('div', { className: 'empty-state' }, 'No flame graph data available');
@@ -151,59 +252,226 @@ function SpeedscopeAnalyzer() {
 
     const spans = profile.spans;
     const maxDepth = Math.max(...spans.map(s => s.depth)) + 1;
-    const effectiveRange = zoomRange || { start: 0, end: profile.totalDurationMs };
-    const timeRange = effectiveRange.end - effectiveRange.start;
     
     const rowHeight = isExpanded ? 26 : 24;
     const visibleMaxDepth = Math.max(1, maxDepth - depthOffset);
     const graphHeight = Math.min(isExpanded ? 800 : 600, Math.max(200, visibleMaxDepth * rowHeight + 50));
     const graphWidth = isExpanded ? 1200 : 760;
     
-    const timeToX = (t) => ((t - effectiveRange.start) / timeRange) * graphWidth + 20;
-    const durationToWidth = (d) => (d / timeRange) * graphWidth;
     const getSpanColor = (span) => colors[span.frame % colors.length];
 
-    // Filter spans by time range AND depth offset
-    const visibleSpans = spans.filter(s => 
-      s.endMs > effectiveRange.start && 
-      s.startMs < effectiveRange.end &&
-      s.depth >= depthOffset
-    );
+    // Time Order rendering
+    const renderTimeOrder = () => {
+      const effectiveRange = zoomRange || { start: 0, end: profile.totalDurationMs };
+      const timeRange = effectiveRange.end - effectiveRange.start;
+      
+      const timeToX = (t) => ((t - effectiveRange.start) / timeRange) * graphWidth + 20;
+      const durationToWidth = (d) => (d / timeRange) * graphWidth;
 
-    const handleSpanClick = (span, e) => {
-      if (e.detail === 2) {
-        // Double-click: set depth to this span's level
-        e.stopPropagation();
-        setDepthOffset(prev => prev === span.depth ? 0 : span.depth);
-      } else {
-        // Single click: zoom
-        if (zoomRange && Math.abs(zoomRange.start - span.startMs) < 0.001 && Math.abs(zoomRange.end - span.endMs) < 0.001) {
-          setZoomRange(null);
+      const visibleSpans = spans.filter(s => 
+        s.endMs > effectiveRange.start && 
+        s.startMs < effectiveRange.end &&
+        s.depth >= depthOffset
+      );
+
+      const handleSpanClick = (span, e) => {
+        if (e.detail === 2) {
+          e.stopPropagation();
+          setDepthOffset(prev => prev === span.depth ? 0 : span.depth);
         } else {
-          setZoomRange({ start: span.startMs, end: span.endMs });
+          if (zoomRange && Math.abs(zoomRange.start - span.startMs) < 0.001 && Math.abs(zoomRange.end - span.endMs) < 0.001) {
+            setZoomRange(null);
+            if (autoCollapseOnZoom) setDepthOffset(0);
+          } else {
+            setZoomRange({ start: span.startMs, end: span.endMs });
+            if (autoCollapseOnZoom) setDepthOffset(span.depth);
+          }
         }
+      };
+
+      return (
+        <>
+          <g className="time-axis">
+            {[0, 0.25, 0.5, 0.75, 1].map((pct, i) => {
+              const x = 20 + pct * graphWidth;
+              const time = effectiveRange.start + pct * timeRange;
+              return (
+                <g key={i}>
+                  <line x1={x} y1={0} x2={x} y2={graphHeight - 25} stroke="#333" strokeDasharray="2,2" />
+                  <text x={x} y={graphHeight - 8} fill="#666" fontSize="10" textAnchor="middle">
+                    {time.toFixed(2)}ms
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+          
+          {visibleSpans.map((span, i) => {
+            const x = Math.max(20, timeToX(span.startMs));
+            const rawWidth = durationToWidth(span.durationMs);
+            const width = Math.min(rawWidth, graphWidth + 20 - x);
+            const y = (span.depth - depthOffset) * rowHeight;
+            const isHovered = hoveredSpan === i;
+            
+            if (width < 0.5 || y < 0) return null;
+            
+            return (
+              <g key={i} 
+                 onMouseEnter={() => setHoveredSpan(i)}
+                 onMouseLeave={() => setHoveredSpan(null)}
+                 onClick={(e) => handleSpanClick(span, e)}
+                 style={{ cursor: 'pointer' }}>
+                <rect
+                  x={x} y={y} width={Math.max(1, width)} height={rowHeight - 2}
+                  fill={getSpanColor(span)}
+                  opacity={isHovered ? 1 : 0.85}
+                  stroke={isHovered ? '#fff' : '#0005'}
+                  strokeWidth={isHovered ? 2 : 0.5}
+                  rx={2}
+                />
+                {width > 35 && (
+                  <text x={x + 4} y={y + rowHeight / 2 + 4} fill="#000" fontSize="11"
+                    fontFamily="'JetBrains Mono', monospace" style={{ pointerEvents: 'none' }}>
+                    {span.name.length > width / 6.5 ? span.name.slice(0, Math.floor(width / 6.5) - 2) + '..' : span.name}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </>
+      );
+    };
+
+    // Left Heavy rendering
+    const renderLeftHeavy = () => {
+      const leftHeavyRects = useMemo(() => 
+        flattenLeftHeavyTree(profile.leftHeavyTree, profile.totalDurationMs),
+        [profile.leftHeavyTree, profile.totalDurationMs]
+      );
+
+      const visibleRects = leftHeavyRects.filter(r => r.depth >= depthOffset);
+
+      const handleRectClick = (rect, e) => {
+        if (e.detail === 2) {
+          e.stopPropagation();
+          setDepthOffset(prev => prev === rect.depth ? 0 : rect.depth);
+        }
+      };
+
+      return (
+        <>
+          <g className="time-axis">
+            {[0, 0.25, 0.5, 0.75, 1].map((pct, i) => {
+              const x = 20 + pct * graphWidth;
+              const time = pct * profile.totalDurationMs;
+              return (
+                <g key={i}>
+                  <line x1={x} y1={0} x2={x} y2={graphHeight - 25} stroke="#333" strokeDasharray="2,2" />
+                  <text x={x} y={graphHeight - 8} fill="#666" fontSize="10" textAnchor="middle">
+                    {time.toFixed(2)}ms
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+          
+          {visibleRects.map((rect, i) => {
+            const x = 20 + rect.xStart * graphWidth;
+            const width = rect.width * graphWidth;
+            const y = (rect.depth - depthOffset) * rowHeight;
+            const isHovered = hoveredSpan === i;
+            
+            if (width < 0.5 || y < 0) return null;
+            
+            return (
+              <g key={i} 
+                 onMouseEnter={() => setHoveredSpan(i)}
+                 onMouseLeave={() => setHoveredSpan(null)}
+                 onClick={(e) => handleRectClick(rect, e)}
+                 style={{ cursor: 'pointer' }}>
+                <rect
+                  x={x} y={y} width={Math.max(1, width)} height={rowHeight - 2}
+                  fill={colors[rect.frame % colors.length]}
+                  opacity={isHovered ? 1 : 0.85}
+                  stroke={isHovered ? '#fff' : '#0005'}
+                  strokeWidth={isHovered ? 2 : 0.5}
+                  rx={2}
+                />
+                {width > 35 && (
+                  <text x={x + 4} y={y + rowHeight / 2 + 4} fill="#000" fontSize="11"
+                    fontFamily="'JetBrains Mono', monospace" style={{ pointerEvents: 'none' }}>
+                    {rect.name.length > width / 6.5 ? rect.name.slice(0, Math.floor(width / 6.5) - 2) + '..' : rect.name}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </>
+      );
+    };
+
+    // Get hovered data for tooltip
+    const getHoveredData = () => {
+      if (hoveredSpan === null) return null;
+      
+      if (flameMode === 'timeOrder') {
+        const effectiveRange = zoomRange || { start: 0, end: profile.totalDurationMs };
+        const visibleSpans = spans.filter(s => 
+          s.endMs > effectiveRange.start && 
+          s.startMs < effectiveRange.end &&
+          s.depth >= depthOffset
+        );
+        return visibleSpans[hoveredSpan];
+      } else {
+        const leftHeavyRects = flattenLeftHeavyTree(profile.leftHeavyTree, profile.totalDurationMs);
+        const visibleRects = leftHeavyRects.filter(r => r.depth >= depthOffset);
+        return visibleRects[hoveredSpan];
       }
     };
 
-    const hoveredSpanData = hoveredSpan !== null ? visibleSpans[hoveredSpan] : null;
+    const hoveredData = getHoveredData();
 
     return (
       <div className="flame-graph-container">
         <div className="flame-graph-header">
           <div className="flame-graph-controls">
-            {zoomRange && (
-              <button className="ctrl-btn" onClick={() => setZoomRange(null)}>Reset Zoom</button>
-            )}
-            {depthOffset > 0 && (
-              <button className="ctrl-btn" onClick={() => setDepthOffset(0)}>Show All ({depthOffset} hidden)</button>
-            )}
+            <div className="view-toggle">
+              <button 
+                className={`toggle-btn ${flameMode === 'timeOrder' ? 'active' : ''}`}
+                onClick={() => { setFlameMode('timeOrder'); setHoveredSpan(null); }}
+              >
+                Time Order
+              </button>
+              <button 
+                className={`toggle-btn ${flameMode === 'leftHeavy' ? 'active' : ''}`}
+                onClick={() => { setFlameMode('leftHeavy'); setHoveredSpan(null); setZoomRange(null); setDepthOffset(0); }}
+              >
+                Left Heavy
+              </button>
+            </div>
             <div className="depth-control">
               <span className="depth-label">Collapse top:</span>
               <button className="depth-btn" onClick={() => setDepthOffset(Math.max(0, depthOffset - 1))} disabled={depthOffset === 0}>−</button>
               <span className="depth-value">{depthOffset}</span>
               <button className="depth-btn" onClick={() => setDepthOffset(Math.min(maxDepth - 1, depthOffset + 1))} disabled={depthOffset >= maxDepth - 1}>+</button>
             </div>
-            <span className="flame-hint">Click=zoom · Double-click=focus level</span>
+            {depthOffset > 0 && (
+              <button className="ctrl-btn" onClick={() => setDepthOffset(0)}>Show All ({depthOffset} hidden)</button>
+            )}
+            {flameMode === 'timeOrder' && zoomRange && (
+              <button className="ctrl-btn" onClick={() => { setZoomRange(null); if (autoCollapseOnZoom) setDepthOffset(0); }}>Reset Zoom</button>
+            )}
+            <label className="auto-collapse-toggle" title="When enabled, clicking a span will collapse all parent levels">
+              <input 
+                type="checkbox" 
+                checked={autoCollapseOnZoom} 
+                onChange={(e) => setAutoCollapseOnZoom(e.target.checked)} 
+              />
+              <span>Auto-collapse</span>
+            </label>
+            <span className="flame-hint">
+              {flameMode === 'timeOrder' ? 'Click=zoom · Double-click=focus level' : 'Double-click=focus level'}
+            </span>
           </div>
           {!isExpanded && (
             <button className="expand-btn" onClick={() => setExpandedChart(true)} title="Maximize">⊕</button>
@@ -215,67 +483,25 @@ function SpeedscopeAnalyzer() {
         
         <div className="flame-graph-scroll">
           <svg width={graphWidth + 40} height={graphHeight} className="flame-graph-svg">
-            <g className="time-axis">
-              {[0, 0.25, 0.5, 0.75, 1].map((pct, i) => {
-                const x = 20 + pct * graphWidth;
-                const time = effectiveRange.start + pct * timeRange;
-                return (
-                  <g key={i}>
-                    <line x1={x} y1={0} x2={x} y2={graphHeight - 25} stroke="#333" strokeDasharray="2,2" />
-                    <text x={x} y={graphHeight - 8} fill="#666" fontSize="10" textAnchor="middle">
-                      {time.toFixed(2)}ms
-                    </text>
-                  </g>
-                );
-              })}
-            </g>
-            
-            {visibleSpans.map((span, i) => {
-              const x = Math.max(20, timeToX(span.startMs));
-              const rawWidth = durationToWidth(span.durationMs);
-              const width = Math.min(rawWidth, graphWidth + 20 - x);
-              const y = (span.depth - depthOffset) * rowHeight;
-              const isHovered = hoveredSpan === i;
-              
-              if (width < 0.5 || y < 0) return null;
-              
-              return (
-                <g key={i} 
-                   onMouseEnter={() => setHoveredSpan(i)}
-                   onMouseLeave={() => setHoveredSpan(null)}
-                   onClick={(e) => handleSpanClick(span, e)}
-                   style={{ cursor: 'pointer' }}>
-                  <rect
-                    x={x} y={y} width={Math.max(1, width)} height={rowHeight - 2}
-                    fill={getSpanColor(span)}
-                    opacity={isHovered ? 1 : 0.85}
-                    stroke={isHovered ? '#fff' : '#0005'}
-                    strokeWidth={isHovered ? 2 : 0.5}
-                    rx={2}
-                  />
-                  {width > 35 && (
-                    <text x={x + 4} y={y + rowHeight / 2 + 4} fill="#000" fontSize="11"
-                      fontFamily="'JetBrains Mono', monospace" style={{ pointerEvents: 'none' }}>
-                      {span.name.length > width / 6.5 ? span.name.slice(0, Math.floor(width / 6.5) - 2) + '..' : span.name}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
+            {flameMode === 'timeOrder' ? renderTimeOrder() : renderLeftHeavy()}
           </svg>
         </div>
         
-        <div className={`flame-tooltip ${hoveredSpanData ? 'visible' : ''}`}>
-          {hoveredSpanData ? (
+        <div className={`flame-tooltip ${hoveredData ? 'visible' : ''}`}>
+          {hoveredData ? (
             <>
               <div className="tooltip-method">
-                <span className="tooltip-color" style={{ background: getSpanColor(hoveredSpanData) }} />
-                <strong>{hoveredSpanData.name}</strong>
+                <span className="tooltip-color" style={{ background: colors[hoveredData.frame % colors.length] }} />
+                <strong>{hoveredData.name}</strong>
               </div>
               <div className="tooltip-values">
-                <span>Duration: <strong>{hoveredSpanData.durationMs.toFixed(3)}ms</strong></span>
-                <span>Start: {hoveredSpanData.startMs.toFixed(3)}ms</span>
-                <span>Depth: {hoveredSpanData.depth}</span>
+                <span>
+                  {flameMode === 'timeOrder' ? 'Duration' : 'Total Time'}: 
+                  <strong> {(hoveredData.durationMs || hoveredData.totalMs).toFixed(3)}ms</strong>
+                </span>
+                {flameMode === 'timeOrder' && <span>Start: {hoveredData.startMs.toFixed(3)}ms</span>}
+                {flameMode === 'leftHeavy' && <span>({((hoveredData.totalMs / profile.totalDurationMs) * 100).toFixed(1)}% of total)</span>}
+                <span>Depth: {hoveredData.depth}</span>
               </div>
             </>
           ) : (
@@ -329,10 +555,10 @@ function SpeedscopeAnalyzer() {
         <div className="chart-section">
           <h3>Top Frames by Total Time</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={sortedStats.slice(0, 15)} layout="vertical" margin={{ left: 200, right: 20 }}>
+            <BarChart data={sortedStats.slice(0, 15)} layout="vertical" margin={{ left: 180, right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis type="number" stroke="#888" tickFormatter={v => `${v.toFixed(1)}ms`} />
-              <YAxis type="category" dataKey="name" stroke="#888" tick={{ fontSize: 11 }} width={190} />
+              <YAxis type="category" dataKey="name" stroke="#888" tick={{ fontSize: 11 }} width={170} />
               <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid #333' }} formatter={(v) => [`${v.toFixed(3)}ms`]} />
               <Bar animationDuration={150} dataKey="totalMs" fill="#4ecdc4" onClick={(data) => setSelectedFrame(data.name)} cursor="pointer" />
             </BarChart>
@@ -460,10 +686,10 @@ function SpeedscopeAnalyzer() {
         <div className="chart-section">
           <h3>Total Time by Frame (Top 10)</h3>
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={comparisonData.slice(0, 10)} layout="vertical" margin={{ left: 200, right: 20 }}>
+            <BarChart data={comparisonData.slice(0, 10)} layout="vertical" margin={{ left: 180, right: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis type="number" stroke="#888" tickFormatter={v => `${v.toFixed(1)}ms`} />
-              <YAxis type="category" dataKey="name" stroke="#888" tick={{ fontSize: 11 }} width={190} />
+              <YAxis type="category" dataKey="name" stroke="#888" tick={{ fontSize: 11 }} width={170} />
               <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid #333' }} />
               <Legend />
               {profiles.map((p, i) => <Bar key={p.key} animationDuration={150} dataKey={`${p.key}_total`} fill={colors[i % colors.length]} name={p.key} />)}
@@ -519,7 +745,7 @@ function SpeedscopeAnalyzer() {
           color: #e0e0e0;
           min-height: 100vh;
           display: grid;
-          grid-template-columns: 280px 1fr;
+          grid-template-columns: 240px 1fr;
           grid-template-rows: auto 1fr;
         }
         .header {
@@ -696,7 +922,7 @@ function SpeedscopeAnalyzer() {
           border: 1px solid #2a2a2a;
           border-radius: 8px;
           padding: 16px 20px;
-          min-width: 120px;
+          min-width: 100px;
         }
         .metric-value {
           display: block;
@@ -773,6 +999,32 @@ function SpeedscopeAnalyzer() {
           gap: 12px;
           flex-wrap: wrap;
         }
+        .view-toggle {
+          display: flex;
+          background: #1a1a1a;
+          border-radius: 6px;
+          padding: 2px;
+          border: 1px solid #333;
+        }
+        .toggle-btn {
+          padding: 6px 12px;
+          background: transparent;
+          border: none;
+          color: #666;
+          font-size: 12px;
+          cursor: pointer;
+          border-radius: 4px;
+          transition: all 0.15s;
+          font-family: inherit;
+        }
+        .toggle-btn:hover {
+          color: #888;
+        }
+        .toggle-btn.active {
+          background: #4ecdc4;
+          color: #000;
+          font-weight: 500;
+        }
         .depth-control {
           display: flex;
           align-items: center;
@@ -817,6 +1069,27 @@ function SpeedscopeAnalyzer() {
           text-align: center;
         }
         .flame-hint { color: #555; font-size: 11px; font-style: italic; }
+        .auto-collapse-toggle {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 11px;
+          color: #888;
+          cursor: pointer;
+          padding: 4px 8px;
+          background: #1a1a1a;
+          border: 1px solid #333;
+          border-radius: 4px;
+          transition: all 0.15s;
+        }
+        .auto-collapse-toggle:hover {
+          border-color: #4ecdc4;
+          color: #aaa;
+        }
+        .auto-collapse-toggle input {
+          accent-color: #4ecdc4;
+          cursor: pointer;
+        }
         .expand-btn {
           width: 32px;
           height: 32px;

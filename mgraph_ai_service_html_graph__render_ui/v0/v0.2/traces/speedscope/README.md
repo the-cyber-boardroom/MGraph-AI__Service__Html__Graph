@@ -14,14 +14,33 @@ Or use any static file server (Node's `npx serve`, PHP's built-in server, etc.)
 
 ## Features
 
-### Flame Graph
-- **Custom SVG implementation** - no D3 dependency
-- **Click to zoom** into any span's time range
-- **Double-click to focus** on a depth level (hides layers above)
-- **Depth filter** - collapse top N layers to focus on deep calls
-- **Hover** for detailed timing information
+### Flame Graph Views
+
+**Time Order** (default)
+- Spans positioned by actual execution time
+- Click to zoom into a span's time range
+- Double-click to focus on a depth level
+
+**Left Heavy** (aggregated)
+- Spans aggregated by stack path
+- Sorted by total time (heaviest on left)
+- Great for identifying where time is actually spent
+- Double-click to focus on a depth level
+
+### Auto-collapse on Zoom
+
+Enable the **Auto-collapse** checkbox for a powerful workflow:
+- Click any span to zoom AND collapse all parent levels
+- The clicked span becomes the visual "root"
+- Only see that span and its descendants
+- Click again or "Reset Zoom" to restore
+
+### Other Features
+
+- **Depth filter** - Collapse top N layers to focus on deep calls
 - **Maximize** button for full-screen analysis
 - **Scrollable** for very deep call stacks
+- **Hover** for detailed timing information
 
 ### Frame Stats
 - Aggregated per-method statistics
@@ -42,10 +61,11 @@ Or use any static file server (Node's `npx serve`, PHP's built-in server, etc.)
 
 | Action | Result |
 |--------|--------|
-| Click span | Zoom to that span's time range |
-| Click again | Reset zoom |
+| Click span (Time Order) | Zoom to that span's time range |
+| Click same span again | Reset zoom |
 | Double-click span | Hide all levels above (focus) |
 | Double-click again | Show all levels |
+| Auto-collapse + Click | Zoom AND collapse parents |
 | Collapse top +/− | Incrementally hide/show top layers |
 | ⊕ button | Maximize flame graph |
 | ✕ or backdrop | Close maximized view |
@@ -88,25 +108,6 @@ Expected JSON structure:
 - Babel Standalone (for JSX transformation)
 - Google Fonts: JetBrains Mono, Space Grotesk
 
-## Generating Speedscope Files
-
-Using `QA_Create_Html_Transformations`:
-
-```python
-with create_html_transformations as _:
-    _.speedscope__for__html(html=html, html_type='my-test')
-```
-
-Or via `Timestamp_Collector`:
-
-```python
-_timestamp_collector_ = Timestamp_Collector(name="my_test")
-with _timestamp_collector_:
-    result = my_function()
-
-speedscope_data = _timestamp_collector_.to_speedscope()
-```
-
 ## File Naming
 
 Files are identified by extracting a key from the filename:
@@ -119,6 +120,7 @@ Files are identified by extracting a key from the filename:
 ## Technical Notes
 
 - Flame graph is pure SVG with React - no D3
+- Left Heavy view aggregates by stack path, sorts by total time
 - Colors assigned by frame index (consistent per method)
 - All state managed in React hooks
 - No build step required - Babel transforms JSX in browser
