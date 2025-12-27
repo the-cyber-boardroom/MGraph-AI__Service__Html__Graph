@@ -4,7 +4,8 @@ from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Tran
 from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                                   import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document    import Html__To__Html_MGraph__Document
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                                      import Timestamp_Collector
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis                            import Timestamp_Collector__Analysis
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Analysis import Timestamp_Collector__Analysis
+
 from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block import timestamp_block
 
 # ═══════════════════════════════════════════════════════════════════════════

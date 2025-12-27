@@ -14,7 +14,8 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request       import Schema__Graph__From_Html__Request
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Url__Request        import Schema__Graph__From_Url__Request
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Html__From_Url__Request         import Schema__Html__From_Url__Request
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import Schema__Transformations__List__Response, Schema__Transformation__Info, Schema__Graph__Dot__Response
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import Schema__Transformations__List__Response, Schema__Transformation__Info, Schema__Graph__Dot__Response, \
+    Schema__Graph__Response__Base
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service import Html_Graph__Export__Service
 from mgraph_ai_service_html_graph.service.html_url.Html__Url__Fetcher                    import Html__Url__Fetcher
 
@@ -67,7 +68,10 @@ class Routes__Graph(Fast_API__Routes):                                          
     # ═══════════════════════════════════════════════════════════════════════════
 
     @route_path("/from/html/to/{engine}/{transformation}")
-    def from_html_to_transformation(self, engine: str, transformation:str, request: Schema__Graph__From_Html__Request) -> Schema__Graph__Dot__Response:
+    def from_html_to_transformation(self, engine            : str,
+                                          transformation    : str,
+                                          request           : Schema__Graph__From_Html__Request
+                                     ) -> Schema__Graph__Response__Base:
         if engine == 'default':
             render_method = self.graph_service.to_dot
         elif engine == 'dot':

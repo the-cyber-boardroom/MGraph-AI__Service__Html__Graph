@@ -209,3 +209,4 @@ html-mgraph.png
 tests/unit/service/html_render/pngs
 package-lock.json
 *.png
+tests/unit/fast_api/routes/_traces
