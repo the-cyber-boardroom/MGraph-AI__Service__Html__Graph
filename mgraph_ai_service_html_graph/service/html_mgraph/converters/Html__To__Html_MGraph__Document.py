@@ -28,7 +28,6 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
 from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                      import Html__To__Html_Dict
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
 
 SCRIPT_TAGS : Set = {'script'}                                              # Tags that go to Scripts graph
 STYLE_TAGS  : Set = {'style', 'link'}                                       # Tags that go to Styles graph
@@ -168,6 +167,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
 
         self._process_body_children(document, body_node_id, body_dict, 'body')  # Process children
 
+    @timestamp(name="process_body_children")
     def _process_body_children(self, document    : Html_MGraph__Document ,
                                      parent_id   : Node_Id               ,
                                      parent_dict : Dict[str, Any]        ,
@@ -195,6 +195,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                 self._process_body__element(document   , parent_id, node     ,
                                             position   , tag      , node_path)
 
+    @timestamp(name="_process_body__text_node")
     def _process_body__text_node(self, document  : Html_MGraph__Document ,
                                        parent_id : Node_Id               ,
                                        node      : Dict[str, Any]        ,
@@ -205,6 +206,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                                             parent_id = parent_id ,
                                             position  = position  )
 
+    @timestamp(name="_process_body__element")
     def _process_body__element(self, document  : Html_MGraph__Document ,
                                      parent_id : Node_Id               ,
                                      node      : Dict[str, Any]        ,
@@ -230,6 +232,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                                            node_id   = node_id              )
         document.body_graph.add_child(parent_id, node_id, position)
 
+    @timestamp(name="_process_body__register_attrs")
     def _process_body__register_attrs(self, document : Html_MGraph__Document ,
                                             node_id  : Node_Id               ,
                                             tag      : str                   ,

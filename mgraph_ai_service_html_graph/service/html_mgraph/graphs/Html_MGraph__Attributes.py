@@ -2,9 +2,10 @@ from typing                                                                     
 from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph              import Schema__Html_MGraph__Stats__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
+from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block     import timestamp_block
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp                 import timestamp
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               import Safe_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
 
 
 class Html_MGraph__Attributes(Html_MGraph__Base):                               # Graph for tags and attributes of all elements
@@ -64,7 +65,8 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
     # Build Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe
+    @timestamp(name='register_element')
     def register_element(self, node_id : Node_Id ,                              # Element node_id (same as in Body/Head)
                                tag     : str                                    # HTML tag name
                         ) -> None:                                              # Register an element with its tag
@@ -76,7 +78,8 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
                       to_node_id   = node_id               ,
                       predicate    = self.PREDICATE_ELEMENT)
 
-    @type_safe
+    #@type_safe
+    @timestamp(name='add_attribute')
     def add_attribute(self,                                               # Add an attribute to an element using three-node model.
                       node_id    : Node_Id       ,                        # Element node_id
                       attr_name  : str           ,                        # Attribute name (e.g., "class")
@@ -84,24 +87,30 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
                       position   : int     = 0                            # Position for ordering (round-trip)
                ) -> Node_Id:                                              # Return Node_Id created
 
+        with timestamp_block(name='new_element_node'):
+            instance_node = self.new_element_node(node_path = Node_Path(str(position)))         # 1. Create instance node (always new, stores position)
 
-        instance_node = self.new_element_node(node_path = Node_Path(str(position)))         # 1. Create instance node (always new, stores position)
+        with timestamp_block(name='new_edge 1'):
+            self.new_edge(from_node_id = node_id              ,                                 # 2. Link element → instance
+                          to_node_id   = instance_node.node_id,
+                          predicate    = self.PREDICATE_ATTR  )
 
-        self.new_edge(from_node_id = node_id              ,                                 # 2. Link element → instance
-                      to_node_id   = instance_node.node_id,
-                      predicate    = self.PREDICATE_ATTR  )
+        with timestamp_block(name='_get_or_create_name_node'):
+            name_node = self._get_or_create_name_node(attr_name)                                # 3. Get or create name node (reused)
 
-        name_node = self._get_or_create_name_node(attr_name)                                # 3. Get or create name node (reused)
-
-        self.new_edge(from_node_id = instance_node.node_id,                                 # 4. Link instance → name
-                      to_node_id   = name_node.node_id    ,
-                      predicate    = self.PREDICATE_NAME  )
+        with timestamp_block(name='new_edge 2'):
+            self.new_edge(from_node_id = instance_node.node_id,                                 # 4. Link instance → name
+                          to_node_id   = name_node.node_id    ,
+                          predicate    = self.PREDICATE_NAME  )
 
         if attr_value is not None:                                                          # 5. Only create value node if value is not None
-            value_node = self._get_or_create_value_node(attr_value)
-            self.new_edge(from_node_id = instance_node.node_id,
-                          to_node_id   = value_node.node_id   ,
-                          predicate    = self.PREDICATE_VALUE )
+            with timestamp_block(name='_get_or_create_value_node'):
+                value_node = self._get_or_create_value_node(attr_value)
+
+            with timestamp_block(name='new_edge 3'):
+                self.new_edge(from_node_id = instance_node.node_id,
+                              to_node_id   = value_node.node_id   ,
+                              predicate    = self.PREDICATE_VALUE )
 
         return instance_node.node_id
 
@@ -131,12 +140,15 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
 
     def _get_or_create_value_node(self, attr_value: str):
         # O(1) lookup instead of O(n) scan
-        if attr_value in self.value_node_cache:
-            return self.node(self.value_node_cache[attr_value])
+        with timestamp_block(name='find in value_node_cache'):
+            if attr_value in self.value_node_cache:
+                return self.node(self.value_node_cache[attr_value])
 
         # Create new value node
-        node = self.new_value_node(value=attr_value, node_path=Node_Path(self.NODE_PATH_VALUE))
-        self.value_node_cache[attr_value] = node.node_id
+        with timestamp_block(name='new_value_node'):
+            node = self.new_value_node(value=attr_value, node_path=Node_Path(self.NODE_PATH_VALUE))
+            self.value_node_cache[attr_value] = node.node_id
+
         return node
 
     #     """Get existing value node or create new one (for reuse)."""

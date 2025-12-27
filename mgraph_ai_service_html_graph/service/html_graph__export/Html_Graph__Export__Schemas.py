@@ -11,6 +11,7 @@ from osbot_utils.type_safe.Type_Safe     import Type_Safe
 # Request Schemas
 # ═══════════════════════════════════════════════════════════════════════════════════════
 
+# todo: rename this since the name is clashing with 'mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request.Schema__Graph__From_Html__Request'
 class Schema__Graph__From_Html__Request(Type_Safe):                              # Request to convert HTML to graph
     html           : str  = ''                                                   # HTML content to parse
     transformation : str  = 'default'                                            # Transformation name to apply

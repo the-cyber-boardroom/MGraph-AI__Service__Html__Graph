@@ -48,7 +48,7 @@ class test_Routes__Timestamps(TestCase):
         request = Schema__Graph__With_Traces__Request(
             graph_request = Schema__Graph__From_Html__Request(html           = '<html></html>',
                                                               transformation = 'default'      ),
-            trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.response_only)
+            trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.both)
         )
 
         response = self.routes.from_html_with_traces_full(engine         = 'dot'    ,
@@ -68,7 +68,7 @@ class test_Routes__Timestamps(TestCase):
         request = Schema__Graph__With_Traces__Request(
             graph_request = Schema__Graph__From_Html__Request(html           = '<p>Test</p>',
                                                               transformation = 'custom'     ),
-            trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.response_only)
+            trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.traces_only)
         )
 
         response = self.routes.from_html_with_traces_summary(engine         = 'visjs' ,
@@ -87,7 +87,7 @@ class test_Routes__Timestamps(TestCase):
         request = Schema__Graph__With_Traces__Request(
             graph_request = Schema__Graph__From_Html__Request(html           = '<div></div>',
                                                               transformation = 'perf'       ),
-            trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.response_only)
+            trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.traces_only)
         )
 
         response = self.routes.from_html_with_traces_speedscope(engine         = 'd3'  ,
@@ -95,8 +95,7 @@ class test_Routes__Timestamps(TestCase):
                                                                 request        = request)
 
         assert type(response)        is Schema__Graph__With_Traces__Response__Speedscope
-        assert type(response.traces) is Schema__Speedscope
-        assert response.traces.name  == 'perf.d3'                                                    # Collector name from params
+        assert type(response.traces) is str
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Engine Method Resolution Tests

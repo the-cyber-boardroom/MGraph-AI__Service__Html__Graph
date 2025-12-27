@@ -1,3 +1,16 @@
+def generate__test_html(element_count: int) -> str:          # Generate HTML with N div elements, each with attributes
+    items = "\n".join(
+        f'        <div class="item item-{i}" data-id="{i}" data-type="widget">'
+        f'<span class="label">Item {i}</span></div>'
+        for i in range(element_count)
+    )
+    return f'''<html lang="en">
+    <head><title>Scaled Test ({element_count} elements)</title></head>
+    <body class="container">
+        <div class="items">{items}</div>
+    </body>
+</html>'''
+
 SIMPLE_HTML = '<html><body><div class="main" id="content">Hello World</div></body></html>'
 
 NESTED_HTML = '''

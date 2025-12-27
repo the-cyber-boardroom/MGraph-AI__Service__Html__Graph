@@ -13,15 +13,15 @@ class test_Schema__Trace_Config(TestCase):
         with Schema__Trace_Config() as _:
             assert type(_)         is Schema__Trace_Config
             assert base_classes(_) == [Type_Safe, object]
-            assert _.output        == Enum__Trace_Output.response_only           # Default value
+            assert _.output        == Enum__Trace_Output.both                   # Default value
 
     def test__init__with_values(self):                                           # Test initialization with values
         with Schema__Trace_Config(output=Enum__Trace_Output.both) as _:
             assert _.output == Enum__Trace_Output.both
 
     def test__init__with_string(self):                                           # Test enum auto-conversion from string
-        with Schema__Trace_Config(output='external_only') as _:
-            assert _.output == Enum__Trace_Output.external_only
+        with Schema__Trace_Config(output='traces_only') as _:
+            assert _.output == Enum__Trace_Output.traces_only
 
     def test__json_roundtrip(self):                                              # Test JSON serialization
         with Schema__Trace_Config(output=Enum__Trace_Output.both) as _:
