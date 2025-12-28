@@ -189,7 +189,7 @@ function SpeedscopeAnalyzer() {
   const [expandedChart, setExpandedChart] = useState(false);
   const [depthOffset, setDepthOffset] = useState(0);
   const [flameMode, setFlameMode] = useState('timeOrder'); // 'timeOrder' or 'leftHeavy'
-  const [autoCollapseOnZoom, setAutoCollapseOnZoom] = useState(false);
+  const [autoCollapseOnZoom, setAutoCollapseOnZoom] = useState(true);
   const [zoomRange, setZoomRange] = useState(null);
 
   const profiles = useMemo(() => processSpeedscopeFiles(files), [files]);
@@ -256,7 +256,7 @@ function SpeedscopeAnalyzer() {
     const rowHeight = isExpanded ? 26 : 24;
     const visibleMaxDepth = Math.max(1, maxDepth - depthOffset);
     const graphHeight = Math.min(isExpanded ? 800 : 600, Math.max(200, visibleMaxDepth * rowHeight + 50));
-    const graphWidth = isExpanded ? 1200 : 760;
+    const graphWidth = isExpanded ? window.innerWidth - 100 : window.innerWidth - 320;
     
     const getSpanColor = (span) => colors[span.frame % colors.length];
 

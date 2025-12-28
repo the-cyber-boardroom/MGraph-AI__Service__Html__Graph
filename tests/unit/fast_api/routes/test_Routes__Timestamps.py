@@ -12,7 +12,7 @@ from mgraph_ai_service_html_graph.schemas.timestamps.Schema__Graph__With_Traces_
 from mgraph_ai_service_html_graph.schemas.timestamps.Schema__Graph__With_Traces__Response__Summary       import Schema__Graph__With_Traces__Response__Summary
 from mgraph_ai_service_html_graph.schemas.timestamps.Schema__Graph__With_Traces__Response__Speedscope    import Schema__Graph__With_Traces__Response__Speedscope
 from mgraph_ai_service_html_graph.schemas.timestamps.enums.Enum__Trace_Output                            import Enum__Trace_Output
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas                 import Schema__Graph__From_Html__Request, Schema__Graph__Response__Base, Schema__Graph__Dot__Response
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas                 import Schema__Graph__Export__From_Html__Request, Schema__Graph__Response__Base, Schema__Graph__Dot__Response
 from osbot_utils.testing.__ import __
 
 
@@ -46,8 +46,8 @@ class test_Routes__Timestamps(TestCase):
 
     def test_from_html_with_traces_full(self):                                                       # Test full trace route
         request = Schema__Graph__With_Traces__Request(
-            graph_request = Schema__Graph__From_Html__Request(html           = '<html></html>',
-                                                              transformation = 'default'      ),
+            graph_request = Schema__Graph__Export__From_Html__Request(html           = '<html></html>',
+                                                                      transformation = 'default'      ),
             trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.both)
         )
 
@@ -66,8 +66,8 @@ class test_Routes__Timestamps(TestCase):
 
     def test_from_html_with_traces_summary(self):                                                    # Test summary trace route
         request = Schema__Graph__With_Traces__Request(
-            graph_request = Schema__Graph__From_Html__Request(html           = '<p>Test</p>',
-                                                              transformation = 'custom'     ),
+            graph_request = Schema__Graph__Export__From_Html__Request(html           = '<p>Test</p>',
+                                                                      transformation = 'custom'     ),
             trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.traces_only)
         )
 
@@ -85,8 +85,8 @@ class test_Routes__Timestamps(TestCase):
 
     def test_from_html_with_traces_speedscope(self):                                                 # Test speedscope trace route
         request = Schema__Graph__With_Traces__Request(
-            graph_request = Schema__Graph__From_Html__Request(html           = '<div></div>',
-                                                              transformation = 'perf'       ),
+            graph_request = Schema__Graph__Export__From_Html__Request(html           = '<div></div>',
+                                                                      transformation = 'perf'       ),
             trace_config  = Schema__Trace_Config(output=Enum__Trace_Output.traces_only)
         )
 
