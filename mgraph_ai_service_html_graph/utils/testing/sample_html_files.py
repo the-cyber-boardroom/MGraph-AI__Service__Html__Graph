@@ -1,3 +1,16 @@
+from enum import Enum
+
+
+
+class Enum__Sample__Html__File__Name(str, Enum):
+    SIMPLE_HTML              = 'simple-html'
+    NESTED_HTML              = 'nested-html'
+    HTML__WITH_ONE_PARAGRAPH = 'html-with-one-paragraph'
+    HTML__WITH_SOME_TAGS     = 'html-with-some-tags'
+    HTML__BOOTSTRAP_EXAMPLE  = 'html-bootstrap-example'
+
+# todo: these static methods should be converted into a class and instance methods
+
 def generate__test_html(element_count: int) -> str:          # Generate HTML with N div elements, each with attributes
     items = "\n".join(
         f'        <div class="item item-{i}" data-id="{i}" data-type="widget">'
@@ -11,9 +24,10 @@ def generate__test_html(element_count: int) -> str:          # Generate HTML wit
     </body>
 </html>'''
 
+
 SIMPLE_HTML = '<html><body><div class="main" id="content">Hello World</div></body></html>'
 
-NESTED_HTML = '''
+NESTED_HTML = '''\
 <html>
     <body>
         <div class="main" id="content">
@@ -62,3 +76,10 @@ HTML__BOOTSTRAP_EXAMPLE = """
     </body>
 </html>
 """
+
+
+html_test_files = { Enum__Sample__Html__File__Name.SIMPLE_HTML              : SIMPLE_HTML             ,
+                    Enum__Sample__Html__File__Name.NESTED_HTML              : NESTED_HTML             ,
+                    Enum__Sample__Html__File__Name.HTML__WITH_ONE_PARAGRAPH : HTML__WITH_ONE_PARAGRAPH,
+                    Enum__Sample__Html__File__Name.HTML__WITH_SOME_TAGS     : HTML__WITH_SOME_TAGS    ,
+                    Enum__Sample__Html__File__Name.HTML__BOOTSTRAP_EXAMPLE  : HTML__BOOTSTRAP_EXAMPLE }
