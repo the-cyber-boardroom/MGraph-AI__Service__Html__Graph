@@ -63,12 +63,12 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 20px;
+      padding: 10px 16px;
       background: transparent;
       border: none;
       color: #888;
       font-family: inherit;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       border-radius: 6px;
@@ -86,7 +86,7 @@
     }
     
     .nav-btn .icon {
-      font-size: 16px;
+      font-size: 14px;
     }
     
     .nav-btn .badge {
@@ -179,46 +179,6 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    
-    /* Descriptions panel */
-    .descriptions {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,0.9) 30%);
-      padding: 40px 24px 16px;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    
-    .content:hover .descriptions {
-      opacity: 1;
-    }
-    
-    .desc-card {
-      display: inline-block;
-      background: #151515;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 12px 16px;
-      max-width: 400px;
-      pointer-events: auto;
-    }
-    
-    .desc-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #4ecdc4;
-      margin-bottom: 4px;
-    }
-    
-    .desc-text {
-      font-size: 12px;
-      color: #888;
-      line-height: 1.4;
-    }
   </style>
 </head>
 <body>
@@ -234,6 +194,11 @@
           <span class="icon">🌳</span>
           Call Tree
           <span class="badge">X-Ray</span>
+        </button>
+        <button class="nav-btn" data-target="network_graph">
+          <span class="icon">🕸️</span>
+          Network
+          <span class="badge">Graph</span>
         </button>
         <button class="nav-btn" data-target="speedscope">
           <span class="icon">🔥</span>
@@ -263,34 +228,26 @@
       </div>
       
       <iframe class="frame active" id="frame-call_tree" src="./call_tree/index.html"></iframe>
+      <iframe class="frame" id="frame-network_graph" data-src="./network-graph/index.html"></iframe>
       <iframe class="frame" id="frame-speedscope" data-src="./speedscope/index.html"></iframe>
       <iframe class="frame" id="frame-summary_full" data-src="./summary_full/index.html"></iframe>
-      
-<!--      <div class="descriptions">-->
-<!--        <div class="desc-card" id="desc-call_tree">-->
-<!--          <div class="desc-title">Call Tree Visualizer</div>-->
-<!--          <div class="desc-text">Jaeger-style X-Ray view. Expandable tree with timeline bars. Click bars to focus, use depth controls to navigate.</div>-->
-<!--        </div>-->
-<!--        <div class="desc-card" id="desc-speedscope" style="display:none">-->
-<!--          <div class="desc-title">Speedscope Analyzer</div>-->
-<!--          <div class="desc-text">Flame graph visualization. Time Order and Left Heavy views. Click spans to zoom, compare multiple profiles.</div>-->
-<!--        </div>-->
-<!--        <div class="desc-card" id="desc-summary_full" style="display:none">-->
-<!--          <div class="desc-title">Profile Summary</div>-->
-<!--          <div class="desc-text">Aggregate statistics and method breakdown. Quick overview of performance hotspots.</div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
+    </div>
   </div>
   
   <script>
     const navBtns = document.querySelectorAll('.nav-btn');
     const frames = document.querySelectorAll('.frame');
-    const descs = document.querySelectorAll('.desc-card');
     const openNewTab = document.getElementById('openNewTab');
     const loading = document.getElementById('loading');
     
     let currentTarget = 'call_tree';
+    
+    const paths = {
+      'call_tree': './call_tree/index.html',
+      'network_graph': './network-graph/index.html',
+      'speedscope': './speedscope/index.html',
+      'summary_full': './summary_full/index.html'
+    };
     
     // Lazy load iframes
     function loadFrame(target) {
@@ -325,10 +282,6 @@
         frames.forEach(f => f.classList.remove('active'));
         document.getElementById(`frame-${target}`).classList.add('active');
         
-        // Update descriptions
-        // descs.forEach(d => d.style.display = 'none');
-        // document.getElementById(`desc-${target}`).style.display = 'block';
-        
         // Load frame if needed
         loadFrame(target);
         
@@ -339,11 +292,6 @@
     
     // Update new tab link
     function updateNewTabLink(target) {
-      const paths = {
-        'call_tree': './call_tree/index.html',
-        'speedscope': './speedscope/index.html',
-        'summary_full': './summary_full/index.html'
-      };
       openNewTab.href = paths[target];
       openNewTab.target = '_blank';
     }

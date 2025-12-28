@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Graph Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #root { height: 100%; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useCallback, useMemo, useEffect, useRef } = React;
+
+// Extract key from filename
+const extractKey = (filename) => {
+  let name = filename.replace(/\.json$/, '').replace(/_json$/, '');
+  name = name.replace(/^full_+/, '');
+  name = name.replace(/^_+|_+$/g, '');
+  return name || filename;
+};
+
+// Process call tree into SCHEMA graph (aggregated by method name)
+const processToSchemaGraph = (callTree) => {
+  const methodStats = new Map();
+  const edges = new Map();
+  let rootName = null;
+  
+  const walkTree = (nodes, parent = null) => {
+    nodes.forEach(node => {
+      if (!rootName && node.depth === 0) rootName = node.name;
+      
+      const existing = methodStats.get(node.name) || { 
+        name: node.name, 
+        count: 0, 
+        totalMs: 0, 
+        selfMs: 0,
+        maxDepth: 0,
+        minDepth: Infinity,
+        callers: new Set(),
+        callees: new Set()
+      };
+      existing.count += 1;
+      existing.totalMs += node.duration_ms || 0;
+      existing.selfMs += node.self_ms || 0;
+      existing.maxDepth = Math.max(existing.maxDepth, node.depth);
+      existing.minDepth = Math.min(existing.minDepth, node.depth);
+      methodStats.set(node.name, existing);
+      
+      if (parent) {
+        const edgeKey = `${parent}|||${node.name}`;
+        edges.set(edgeKey, (edges.get(edgeKey) || 0) + 1);
+        methodStats.get(parent).callees.add(node.name);
+        existing.callers.add(parent);
+      }
+      
+      if (node.children?.length) {
+        walkTree(node.children, node.name);
+      }
+    });
+  };
+  walkTree(callTree);
+  
+  let totalSelfMs = 0;
+  let maxCount = 0;
+  let maxTotalMs = 0;
+  methodStats.forEach(stat => {
+    totalSelfMs += stat.selfMs;
+    maxCount = Math.max(maxCount, stat.count);
+    maxTotalMs = Math.max(maxTotalMs, stat.totalMs);
+  });
+  
+  const nodes = Array.from(methodStats.values()).map(stat => ({
+    id: stat.name,
+    label: stat.name,
+    ...stat,
+    selfPct: totalSelfMs > 0 ? (stat.selfMs / totalSelfMs) * 100 : 0
+  }));
+  
+  const links = Array.from(edges.entries()).map(([key, count]) => {
+    const [source, target] = key.split('|||');
+    return { source, target, count };
+  });
+  
+  const maxEdgeCount = Math.max(...links.map(l => l.count), 1);
+  
+  return { nodes, links, totalSelfMs, maxCount, maxTotalMs, maxEdgeCount, rootName };
+};
+
+// Process call tree into EXECUTION graph (one node per call)
+const processToExecutionGraph = (callTree) => {
+  const nodes = [];
+  const links = [];
+  let totalSelfMs = 0;
+  let maxTotalMs = 0;
+  let rootId = null;
+  
+  const walkTree = (treeNodes, parentId = null) => {
+    treeNodes.forEach(node => {
+      const nodeId = `call_${node.call_index}`;
+      if (node.depth === 0) rootId = nodeId;
+      totalSelfMs += node.self_ms || 0;
+      maxTotalMs = Math.max(maxTotalMs, node.duration_ms || 0);
+      
+      nodes.push({
+        id: nodeId,
+        label: node.name,
+        name: node.name,
+        callIndex: node.call_index,
+        depth: node.depth,
+        totalMs: node.duration_ms || 0,
+        selfMs: node.self_ms || 0,
+        count: 1
+      });
+      
+      if (parentId) {
+        links.push({ source: parentId, target: nodeId, count: 1 });
+      }
+      
+      if (node.children?.length) {
+        walkTree(node.children, nodeId);
+      }
+    });
+  };
+  walkTree(callTree);
+  
+  nodes.forEach(n => {
+    n.selfPct = totalSelfMs > 0 ? (n.selfMs / totalSelfMs) * 100 : 0;
+  });
+  
+  return { nodes, links, totalSelfMs, maxCount: 1, maxTotalMs, maxEdgeCount: 1, rootId };
+};
+
+// Process file
+const processFile = (file) => {
+  if (!file.data?.traces?.call_tree) return null;
+  
+  const traces = file.data.traces;
+  const metadata = traces.metadata || {};
+  const callTree = traces.call_tree || [];
+  
+  const schema = processToSchemaGraph(callTree);
+  const execution = processToExecutionGraph(callTree);
+  
+  return {
+    key: extractKey(file.name),
+    name: metadata.name || file.name,
+    schema,
+    execution,
+    metadata
+  };
+};
+
+// Color scale for hotspots
+const getHotspotColor = (selfPct) => {
+  if (selfPct > 15) return '#ff6b6b';
+  if (selfPct > 8) return '#ffa502';
+  if (selfPct > 3) return '#ffd93d';
+  if (selfPct > 1) return '#6bcb77';
+  return '#4ecdc4';
+};
+
+// Format duration
+const formatDuration = (ms) => {
+  if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`;
+  if (ms >= 1) return `${ms.toFixed(2)}ms`;
+  return `${(ms * 1000).toFixed(1)}µs`;
+};
+
+// D3 Graph Component - ISOLATED from React state for hover using React.memo
+const GraphVisualization = React.memo(({ 
+  data, 
+  width, 
+  height, 
+  sizeBy, 
+  onNodeClick, 
+  selectedNode,
+  setHoveredNode,
+  fitTrigger, 
+  graphMode,
+  layoutMode
+}) => {
+  const svgRef = useRef(null);
+  const gRef = useRef(null);
+  const zoomRef = useRef(null);
+  const simulationRef = useRef(null);
+  
+  // Store hover setter in ref - changes to this won't trigger re-render
+  const hoverSetterRef = useRef(setHoveredNode);
+  hoverSetterRef.current = setHoveredNode;
+  
+  // Fit to view function
+  const fitToView = useCallback(() => {
+    if (!gRef.current || !svgRef.current || !zoomRef.current) return;
+    
+    const bounds = gRef.current.node().getBBox();
+    if (bounds.width === 0 || bounds.height === 0) return;
+    
+    const padding = 60;
+    const scale = Math.min(
+      (width - padding * 2) / bounds.width,
+      (height - padding * 2) / bounds.height,
+      2
+    );
+    const tx = width / 2 - (bounds.x + bounds.width / 2) * scale;
+    const ty = height / 2 - (bounds.y + bounds.height / 2) * scale;
+    
+    d3.select(svgRef.current).transition().duration(300).call(
+      zoomRef.current.transform,
+      d3.zoomIdentity.translate(tx, ty).scale(scale)
+    );
+  }, [width, height]);
+  
+  // Fit when trigger changes
+  useEffect(() => {
+    if (fitTrigger > 0) {
+      setTimeout(fitToView, 100);
+    }
+  }, [fitTrigger, fitToView]);
+  
+  // Build graph - setHoveredNode NOT in dependencies!
+  useEffect(() => {
+    if (!data || !svgRef.current || width === 0 || height === 0) return;
+    
+    // Stop any existing simulation
+    if (simulationRef.current) {
+      simulationRef.current.stop();
+      simulationRef.current = null;
+    }
+    
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
+    
+    const g = svg.append('g');
+    gRef.current = g;
+    
+    // Zoom behavior
+    const zoom = d3.zoom()
+      .scaleExtent([0.05, 4])
+      .on('zoom', (event) => {
+        g.attr('transform', event.transform);
+      });
+    zoomRef.current = zoom;
+    svg.call(zoom);
+    
+    // Deep copy for D3 mutation
+    const nodes = data.nodes.map(n => ({ ...n }));
+    const links = data.links.map(l => ({ source: l.source, target: l.target, count: l.count }));
+    
+    // Size scale
+    const sizeScale = d3.scaleSqrt()
+      .domain([0, sizeBy === 'count' ? Math.max(data.maxCount, 1) : Math.max(data.maxTotalMs, 1)])
+      .range([5, 30]);
+    
+    // Edge width scale
+    const edgeScale = d3.scaleLinear()
+      .domain([1, Math.max(data.maxEdgeCount, 1)])
+      .range([1, 4]);
+    
+    // Arrow marker
+    svg.append('defs').append('marker')
+      .attr('id', 'arrowhead')
+      .attr('viewBox', '-0 -5 10 10')
+      .attr('refX', 12)
+      .attr('refY', 0)
+      .attr('orient', 'auto')
+      .attr('markerWidth', 4)
+      .attr('markerHeight', 4)
+      .append('path')
+      .attr('d', 'M 0,-5 L 10,0 L 0,5')
+      .attr('fill', '#555');
+    
+    // Hover handler via ref - doesn't cause component re-render
+    const handleHover = (nodeData) => {
+      if (hoverSetterRef.current) {
+        hoverSetterRef.current(nodeData);
+      }
+    };
+    
+    if (layoutMode === 'tree' || layoutMode === 'radial') {
+      // Build hierarchy from links
+      const nodeMap = new Map(nodes.map(n => [n.id, { ...n, children: [] }]));
+      const rootId = graphMode === 'execution' ? data.rootId : data.rootName;
+      
+      links.forEach(link => {
+        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+        const parent = nodeMap.get(sourceId);
+        const child = nodeMap.get(targetId);
+        if (parent && child) {
+          parent.children.push(child);
+        }
+      });
+      
+      const root = nodeMap.get(rootId) || nodeMap.values().next().value;
+      if (!root) return;
+      
+      const hierarchy = d3.hierarchy(root);
+      
+      if (layoutMode === 'radial') {
+        const treeLayout = d3.tree()
+          .size([2 * Math.PI, Math.min(width, height) / 2 - 100])
+          .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
+        
+        treeLayout(hierarchy);
+        
+        hierarchy.each(d => {
+          const angle = d.x;
+          const radius = d.y;
+          d.x = radius * Math.cos(angle - Math.PI / 2) + width / 2;
+          d.y = radius * Math.sin(angle - Math.PI / 2) + height / 2;
+        });
+      } else {
+        const treeLayout = d3.tree().size([width - 100, height - 100]);
+        treeLayout(hierarchy);
+        
+        hierarchy.each(d => {
+          d.x += 50;
+          d.y += 50;
+        });
+      }
+      
+      // Draw links
+      g.append('g')
+        .selectAll('path')
+        .data(hierarchy.links())
+        .enter().append('path')
+        .attr('fill', 'none')
+        .attr('stroke', '#444')
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.linkVertical().x(d => d.x).y(d => d.y));
+      
+      // Draw nodes
+      const nodeSelection = g.append('g')
+        .selectAll('g')
+        .data(hierarchy.descendants())
+        .enter().append('g')
+        .attr('transform', d => `translate(${d.x},${d.y})`)
+        .attr('cursor', 'pointer');
+      
+      nodeSelection.append('circle')
+        .attr('r', d => sizeScale(sizeBy === 'count' ? (d.data.count || 1) : (d.data.totalMs || 1)))
+        .attr('fill', d => getHotspotColor(d.data.selfPct || 0))
+        .attr('stroke', d => selectedNode === d.data.id ? '#fff' : '#222')
+        .attr('stroke-width', d => selectedNode === d.data.id ? 3 : 1.5)
+        .attr('opacity', 0.9);
+      
+      nodeSelection.append('text')
+        .text(d => {
+          const label = d.data.label || d.data.name || d.data.id;
+          return label.length > 16 ? label.slice(0, 14) + '...' : label;
+        })
+        .attr('text-anchor', 'middle')
+        .attr('dy', d => sizeScale(sizeBy === 'count' ? (d.data.count || 1) : (d.data.totalMs || 1)) + 12)
+        .attr('font-size', '9px')
+        .attr('fill', '#777')
+        .attr('pointer-events', 'none');
+      
+      nodeSelection
+        .on('mouseover', (event, d) => handleHover(d.data))
+        .on('click', (event, d) => {
+          event.stopPropagation();
+          onNodeClick(d.data);
+        });
+      
+      setTimeout(fitToView, 100);
+      
+    } else {
+      // Force layout
+      const simulation = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id).distance(80))
+        .force('charge', d3.forceManyBody().strength(-200))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs) + 3));
+      
+      simulationRef.current = simulation;
+      
+      // Draw links
+      const linkSelection = g.append('g')
+        .selectAll('line')
+        .data(links)
+        .enter().append('line')
+        .attr('stroke', '#444')
+        .attr('stroke-opacity', 0.7)
+        .attr('stroke-width', d => edgeScale(d.count))
+        .attr('marker-end', 'url(#arrowhead)');
+      
+      // Draw nodes
+      const nodeSelection = g.append('g')
+        .selectAll('g')
+        .data(nodes)
+        .enter().append('g')
+        .attr('cursor', 'pointer')
+        .call(d3.drag()
+          .on('start', (event, d) => {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+          })
+          .on('drag', (event, d) => {
+            d.fx = event.x;
+            d.fy = event.y;
+          })
+          .on('end', (event, d) => {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+          }));
+      
+      nodeSelection.append('circle')
+        .attr('r', d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs))
+        .attr('fill', d => getHotspotColor(d.selfPct))
+        .attr('stroke', d => selectedNode === d.id ? '#fff' : '#222')
+        .attr('stroke-width', d => selectedNode === d.id ? 3 : 1.5)
+        .attr('opacity', 0.9);
+      
+      nodeSelection.append('text')
+        .text(d => {
+          const label = d.label || d.name;
+          return label.length > 16 ? label.slice(0, 14) + '...' : label;
+        })
+        .attr('text-anchor', 'middle')
+        .attr('dy', d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs) + 12)
+        .attr('font-size', '9px')
+        .attr('fill', '#777')
+        .attr('pointer-events', 'none');
+      
+      nodeSelection
+        .on('mouseover', (event, d) => handleHover(d))
+        .on('click', (event, d) => {
+          event.stopPropagation();
+          onNodeClick(d);
+        });
+      
+      simulation.on('tick', () => {
+        linkSelection
+          .attr('x1', d => d.source.x)
+          .attr('y1', d => d.source.y)
+          .attr('x2', d => d.target.x)
+          .attr('y2', d => d.target.y);
+        
+        nodeSelection.attr('transform', d => `translate(${d.x},${d.y})`);
+      });
+      
+      simulation.on('end', () => {
+        setTimeout(fitToView, 50);
+      });
+    }
+    
+    svg.on('click', () => onNodeClick(null));
+    
+    return () => {
+      if (simulationRef.current) {
+        simulationRef.current.stop();
+      }
+    };
+  }, [data, width, height, sizeBy, selectedNode, onNodeClick, graphMode, layoutMode, fitToView]);
+  
+  return (
+    <svg 
+      ref={svgRef} 
+      width={width} 
+      height={height}
+      style={{ background: '#0a0a0a', display: 'block' }}
+    />
+  );
+});
+
+// Main Component
+function NetworkGraphVisualizer() {
+  const [files, setFiles] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedKey, setSelectedKey] = useState(null);
+  const [graphMode, setGraphMode] = useState('schema');
+  const [layoutMode, setLayoutMode] = useState('force');
+  const [sizeBy, setSizeBy] = useState('totalMs');
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const [fitTrigger, setFitTrigger] = useState(0);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const containerRef = useRef(null);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  
+  // Process files
+  const graphs = useMemo(() => 
+    files.map(f => processFile(f)).filter(Boolean),
+    [files]
+  );
+  
+  const selectedGraph = useMemo(() => 
+    graphs.find(g => g.key === selectedKey) || graphs[0],
+    [graphs, selectedKey]
+  );
+  
+  const currentData = useMemo(() => {
+    if (!selectedGraph) return null;
+    return graphMode === 'schema' ? selectedGraph.schema : selectedGraph.execution;
+  }, [selectedGraph, graphMode]);
+  
+  // Auto-select first
+  useEffect(() => {
+    if (graphs.length > 0 && !selectedKey) {
+      setSelectedKey(graphs[0].key);
+    }
+  }, [graphs, selectedKey]);
+  
+  // Reset selection when graph changes
+  useEffect(() => {
+    setSelectedNode(null);
+    setHoveredNode(null);
+    setFitTrigger(0);
+  }, [selectedKey, graphMode, layoutMode]);
+  
+  // Measure container ONCE on mount
+  useEffect(() => {
+    const measure = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          setDimensions({ width: rect.width, height: rect.height });
+        }
+      }
+    };
+    
+    const timer = setTimeout(measure, 50);
+    window.addEventListener('resize', measure);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+  
+  const handleDrop = useCallback(async (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFiles = Array.from(e.dataTransfer.files).filter(f => 
+      f.name.endsWith('.json') || f.name.endsWith('_json')
+    );
+    const newFiles = await Promise.all(droppedFiles.map(async (file) => {
+      const text = await file.text();
+      try { return { name: file.name, data: JSON.parse(text) }; }
+      catch { return null; }
+    }));
+    setFiles(prev => {
+      const existing = new Set(prev.map(f => f.name));
+      return [...prev, ...newFiles.filter(f => f && !existing.has(f.name))];
+    });
+  }, []);
+  
+  // Stable click handler
+  const handleNodeClick = useCallback((node) => {
+    setSelectedNode(node ? node.id : null);
+  }, []);
+  
+  // Related nodes for selected node
+  const relatedNodes = useMemo(() => {
+    if (!selectedNode || !currentData || graphMode !== 'schema') return null;
+    const node = currentData.nodes.find(n => n.id === selectedNode);
+    if (!node || !node.callers) return null;
+    return {
+      callers: Array.from(node.callers),
+      callees: Array.from(node.callees)
+    };
+  }, [selectedNode, currentData, graphMode]);
+
+  const buttonStyle = {
+    background: '#1a1a1a',
+    border: '1px solid #333',
+    color: '#888',
+    padding: '6px 12px',
+    borderRadius: 4,
+    fontSize: 11,
+    cursor: 'pointer'
+  };
+
+  const displayNode = hoveredNode || (selectedNode && currentData?.nodes.find(n => n.id === selectedNode));
+
+  const toolbarContent = (
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <span style={{ fontSize: 9, color: '#666', textTransform: 'uppercase' }}>Data Mode</span>
+        <div style={{ display: 'flex', gap: 2, background: '#1a1a1a', padding: 2, borderRadius: 4, border: '1px solid #333' }}>
+          {['schema', 'execution'].map(mode => (
+            <button key={mode} onClick={() => setGraphMode(mode)} style={{
+              padding: '6px 12px', fontSize: 11, border: 'none', borderRadius: 3, cursor: 'pointer',
+              background: graphMode === mode ? '#4ecdc4' : 'transparent',
+              color: graphMode === mode ? '#000' : '#888'
+            }}>{mode.charAt(0).toUpperCase() + mode.slice(1)}</button>
+          ))}
+        </div>
+      </div>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <span style={{ fontSize: 9, color: '#666', textTransform: 'uppercase' }}>Layout</span>
+        <div style={{ display: 'flex', gap: 2, background: '#1a1a1a', padding: 2, borderRadius: 4, border: '1px solid #333' }}>
+          {['force', 'tree', 'radial'].map(mode => (
+            <button key={mode} onClick={() => setLayoutMode(mode)} style={{
+              padding: '6px 10px', fontSize: 11, border: 'none', borderRadius: 3, cursor: 'pointer',
+              background: layoutMode === mode ? '#4ecdc4' : 'transparent',
+              color: layoutMode === mode ? '#000' : '#888'
+            }}>{mode.charAt(0).toUpperCase() + mode.slice(1)}</button>
+          ))}
+        </div>
+      </div>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <span style={{ fontSize: 9, color: '#666', textTransform: 'uppercase' }}>Node Size</span>
+        <div style={{ display: 'flex', gap: 2, background: '#1a1a1a', padding: 2, borderRadius: 4, border: '1px solid #333' }}>
+          {[['totalMs', 'Duration'], ['count', 'Count']].map(([val, label]) => (
+            <button key={val} onClick={() => setSizeBy(val)} style={{
+              padding: '6px 12px', fontSize: 11, border: 'none', borderRadius: 3, cursor: 'pointer',
+              background: sizeBy === val ? '#4ecdc4' : 'transparent',
+              color: sizeBy === val ? '#000' : '#888'
+            }}>{label}</button>
+          ))}
+        </div>
+      </div>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <span style={{ fontSize: 9, color: '#666', textTransform: 'uppercase' }}>Actions</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button onClick={() => setFitTrigger(t => t + 1)} style={buttonStyle}>Fit to View</button>
+          {selectedNode && (
+            <button onClick={() => setSelectedNode(null)} style={{ ...buttonStyle, background: 'rgba(78, 205, 196, 0.15)', color: '#4ecdc4', borderColor: '#4ecdc4' }}>
+              Clear Selection
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <div style={{
+      fontFamily: "'Space Grotesk', -apple-system, sans-serif",
+      background: '#0d0d0d',
+      color: '#e0e0e0',
+      height: '100vh',
+      display: 'grid',
+      gridTemplateColumns: '240px 1fr',
+      gridTemplateRows: 'auto 1fr auto',
+      overflow: 'hidden'
+    }}>
+      {/* Maximized overlay */}
+      {isMaximized && currentData && (
+        <div onClick={(e) => e.target === e.currentTarget && setIsMaximized(false)} style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0, 0, 0, 0.95)', zIndex: 1000,
+          display: 'flex', flexDirection: 'column', padding: 16
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, marginBottom: 12, padding: '0 8px' }}>
+            {toolbarContent}
+            <div style={{ marginLeft: 'auto' }}>
+              <button onClick={() => setIsMaximized(false)} style={{
+                width: 32, height: 32, background: '#2a1a1a', border: '1px solid #ff6b6b44',
+                color: '#888', borderRadius: 6, cursor: 'pointer', fontSize: 18,
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>✕</button>
+            </div>
+          </div>
+          <div style={{ flex: 1, borderRadius: 8, overflow: 'hidden' }}>
+            <GraphVisualization
+              data={currentData}
+              width={window.innerWidth - 32}
+              height={window.innerHeight - 100}
+              sizeBy={sizeBy}
+              selectedNode={selectedNode}
+              onNodeClick={handleNodeClick}
+              setHoveredNode={setHoveredNode}
+              fitTrigger={fitTrigger}
+              graphMode={graphMode}
+              layoutMode={layoutMode}
+            />
+          </div>
+        </div>
+      )}
+      
+      {/* Header */}
+      <header style={{
+        gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 20,
+        padding: '14px 20px', background: '#111', borderBottom: '1px solid #1a1a1a'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, fontSize: 16, color: '#4ecdc4', whiteSpace: 'nowrap' }}>
+          <div style={{ width: 20, height: 20, background: 'linear-gradient(135deg, #a55eea, #45aaf2)', borderRadius: 4 }} />
+          Network Graph Visualizer
+        </div>
+        <div style={{
+          flex: 1, border: `2px dashed ${isDragging ? '#4ecdc4' : '#333'}`, borderRadius: 6,
+          padding: '10px 20px', textAlign: 'center',
+          color: isDragging ? '#4ecdc4' : '#666',
+          background: isDragging ? 'rgba(78, 205, 196, 0.1)' : 'transparent', fontSize: 13
+        }}
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+        >
+          Drag & drop full_*.json files
+        </div>
+      </header>
+      
+      {/* Sidebar */}
+      <aside style={{
+        gridRow: '2 / 4', background: '#111', borderRight: '1px solid #1a1a1a',
+        padding: 12, overflowY: 'auto', display: 'flex', flexDirection: 'column'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: '#666' }}>
+            Profiles ({graphs.length})
+          </span>
+          <button onClick={() => setFiles([])} style={{ ...buttonStyle, padding: '3px 8px', fontSize: 10 }}>Clear</button>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {graphs.map(graph => (
+            <div key={graph.key} onClick={() => setSelectedKey(graph.key)} style={{
+              display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px',
+              background: selectedKey === graph.key ? 'rgba(78, 205, 196, 0.1)' : '#151515',
+              border: `1px solid ${selectedKey === graph.key ? '#4ecdc4' : '#2a2a2a'}`,
+              borderRadius: 5, cursor: 'pointer'
+            }}>
+              <div style={{
+                width: 14, height: 14, borderRadius: 3,
+                border: `2px solid ${selectedKey === graph.key ? '#4ecdc4' : '#444'}`,
+                background: selectedKey === graph.key ? '#4ecdc4' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, marginTop: 1, fontSize: 10, color: '#000', fontWeight: 'bold'
+              }}>{selectedKey === graph.key && '✓'}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 500, fontSize: 12, color: '#e0e0e0', wordBreak: 'break-word' }}>{graph.key}</div>
+                <div style={{ fontSize: 10, color: '#4ecdc4', marginTop: 2 }}>
+                  {graph.schema.nodes.length} methods · {graph.execution.nodes.length} calls
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div style={{ marginTop: 12, padding: 10, background: '#0a0a0a', borderRadius: 5, border: '1px solid #222' }}>
+          <div style={{ fontSize: 10, color: '#666', marginBottom: 4 }}>
+            {graphMode === 'schema' ? '📊 Schema Mode' : '🔄 Execution Mode'}
+          </div>
+          <div style={{ fontSize: 9, color: '#555', lineHeight: 1.4 }}>
+            {graphMode === 'schema' 
+              ? 'Methods aggregated by name. Shows which methods call which others.'
+              : 'Each node is one call. Shows actual execution flow.'}
+          </div>
+        </div>
+        
+        <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid #2a2a2a' }}>
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: '#666', marginBottom: 8 }}>
+            {selectedNode ? 'Selected Node' : 'Node Details'}
+          </div>
+          {displayNode ? (
+            <div style={{ background: '#151515', border: '1px solid #333', borderRadius: 5, padding: 10 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#fff', marginBottom: 8, wordBreak: 'break-all', lineHeight: 1.3 }}>
+                {displayNode.label || displayNode.name || displayNode.id}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 10, color: '#888' }}>
+                {graphMode === 'execution' && displayNode.callIndex !== undefined && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Call Index:</span><span>#{displayNode.callIndex}</span></div>
+                )}
+                {graphMode === 'schema' && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Calls:</span><strong style={{ color: '#4ecdc4' }}>{displayNode.count}×</strong></div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Total Time:</span><strong style={{ color: '#4ecdc4' }}>{formatDuration(displayNode.totalMs)}</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Self Time:</span><strong style={{ color: '#4ecdc4' }}>{formatDuration(displayNode.selfMs)} ({displayNode.selfPct?.toFixed(1) || 0}%)</strong></div>
+                {graphMode === 'schema' && displayNode.callers && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Callers:</span><span>{displayNode.callers?.size || 0}</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Callees:</span><span>{displayNode.callees?.size || 0}</span></div>
+                  </>
+                )}
+                {graphMode === 'execution' && displayNode.depth !== undefined && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Depth:</span><span>{displayNode.depth}</span></div>
+                )}
+              </div>
+              {relatedNodes && (
+                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #2a2a2a' }}>
+                  {relatedNodes.callers.length > 0 && (
+                    <div style={{ marginBottom: 6 }}>
+                      <div style={{ fontSize: 9, color: '#666', marginBottom: 2 }}>Called by:</div>
+                      <div style={{ fontSize: 9, color: '#6bcb77', lineHeight: 1.4 }}>
+                        {relatedNodes.callers.slice(0, 5).join(', ')}{relatedNodes.callers.length > 5 && ` +${relatedNodes.callers.length - 5} more`}
+                      </div>
+                    </div>
+                  )}
+                  {relatedNodes.callees.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 9, color: '#666', marginBottom: 2 }}>Calls:</div>
+                      <div style={{ fontSize: 9, color: '#45aaf2', lineHeight: 1.4 }}>
+                        {relatedNodes.callees.slice(0, 5).join(', ')}{relatedNodes.callees.length > 5 && ` +${relatedNodes.callees.length - 5} more`}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ color: '#444', fontSize: 10, fontStyle: 'italic', padding: '16px 0', textAlign: 'center' }}>
+              Hover over a node to see details
+            </div>
+          )}
+        </div>
+      </aside>
+      
+      {/* Main content */}
+      <main style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {graphs.length > 0 && (
+          <div style={{
+            display: 'flex', alignItems: 'flex-end', gap: 20, padding: '12px 16px',
+            background: '#0d0d0d', borderBottom: '1px solid #1a1a1a', flexShrink: 0
+          }}>
+            {toolbarContent}
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
+              <span style={{ fontSize: 10, color: '#555', fontStyle: 'italic' }}>
+                {layoutMode === 'force' ? 'Drag nodes · ' : ''}Scroll to zoom
+              </span>
+              {currentData && (
+                <>
+                  <span style={{ fontSize: 11, color: '#888' }}>Nodes: <strong style={{ color: '#4ecdc4' }}>{currentData.nodes.length}</strong></span>
+                  <span style={{ fontSize: 11, color: '#888' }}>Edges: <strong style={{ color: '#4ecdc4' }}>{currentData.links.length}</strong></span>
+                </>
+              )}
+              <button onClick={() => setIsMaximized(true)} style={{
+                width: 28, height: 28, background: '#1a1a1a', border: '1px solid #333',
+                color: '#888', borderRadius: 4, cursor: 'pointer', fontSize: 16,
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }} title="Maximize">⊕</button>
+            </div>
+          </div>
+        )}
+        
+        <div ref={containerRef} style={{ flex: 1, overflow: 'hidden', position: 'relative', minHeight: 0 }}>
+          {!currentData ? (
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: '#444', fontStyle: 'italic' }}>
+              Drop a full_*.json file to visualize the call graph
+            </div>
+          ) : (
+            <GraphVisualization
+              data={currentData}
+              width={dimensions.width}
+              height={dimensions.height}
+              sizeBy={sizeBy}
+              selectedNode={selectedNode}
+              onNodeClick={handleNodeClick}
+              setHoveredNode={setHoveredNode}
+              fitTrigger={fitTrigger}
+              graphMode={graphMode}
+              layoutMode={layoutMode}
+            />
+          )}
+        </div>
+      </main>
+      
+      {/* Legend */}
+      <footer style={{
+        gridColumn: '2', display: 'flex', alignItems: 'center', gap: 14,
+        padding: '10px 16px', background: '#111', borderTop: '1px solid #1a1a1a',
+        fontSize: 10, color: '#888'
+      }}>
+        <span>Hotspot (self time %):</span>
+        {[
+          { color: '#4ecdc4', label: '<1%' },
+          { color: '#6bcb77', label: '1-3%' },
+          { color: '#ffd93d', label: '3-8%' },
+          { color: '#ffa502', label: '8-15%' },
+          { color: '#ff6b6b', label: '>15%' }
+        ].map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: item.color }} />
+            <span>{item.label}</span>
+          </div>
+        ))}
+        <span style={{ marginLeft: 'auto', color: '#555' }}>
+          {graphMode === 'schema' ? 'Edge width = call frequency' : 'Edges = execution flow'}
+        </span>
+      </footer>
+    </div>
+  );
+}
+
+// Render
+ReactDOM.render(<NetworkGraphVisualizer />, document.getElementById('root'));
+  </script>
+</body>
+</html>
