@@ -200,6 +200,11 @@
           Network
           <span class="badge">Graph</span>
         </button>
+        <button class="nav-btn" data-target="three_d">
+          <span class="icon">🎲</span>
+          3D View
+          <span class="badge">WebGL</span>
+        </button>
         <button class="nav-btn" data-target="speedscope">
           <span class="icon">🔥</span>
           Speedscope
@@ -217,7 +222,7 @@
           <span>↗</span>
           Open in new tab
         </a>
-        <span class="version">v0.2</span>
+        <span class="version">v0.3</span>
       </div>
     </header>
     
@@ -229,6 +234,7 @@
       
       <iframe class="frame active" id="frame-call_tree" src="./call_tree/index.html"></iframe>
       <iframe class="frame" id="frame-network_graph" data-src="./network-graph/index.html"></iframe>
+      <iframe class="frame" id="frame-three_d" data-src="./3d-viewer/index.html"></iframe>
       <iframe class="frame" id="frame-speedscope" data-src="./speedscope/index.html"></iframe>
       <iframe class="frame" id="frame-summary_full" data-src="./summary_full/index.html"></iframe>
     </div>
@@ -245,6 +251,7 @@
     const paths = {
       'call_tree': './call_tree/index.html',
       'network_graph': './network-graph/index.html',
+      'three_d': './3d-viewer/index.html',
       'speedscope': './speedscope/index.html',
       'summary_full': './summary_full/index.html'
     };
