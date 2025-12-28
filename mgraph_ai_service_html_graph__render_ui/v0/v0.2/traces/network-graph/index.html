@@ -340,21 +340,46 @@ const GraphVisualization = React.memo(({
     };
     
     if (layoutMode === 'tree' || layoutMode === 'radial') {
-      // Build hierarchy from links
-      const nodeMap = new Map(nodes.map(n => [n.id, { ...n, children: [] }]));
+      // Build hierarchy from links - need to handle cycles in schema mode
       const rootId = graphMode === 'execution' ? data.rootId : data.rootName;
       
+      // Build adjacency list
+      const adjacency = new Map();
+      nodes.forEach(n => adjacency.set(n.id, []));
       links.forEach(link => {
         const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
         const targetId = typeof link.target === 'object' ? link.target.id : link.target;
-        const parent = nodeMap.get(sourceId);
-        const child = nodeMap.get(targetId);
-        if (parent && child) {
-          parent.children.push(child);
+        if (adjacency.has(sourceId)) {
+          adjacency.get(sourceId).push(targetId);
         }
       });
       
-      const root = nodeMap.get(rootId) || nodeMap.values().next().value;
+      // Build tree structure with cycle detection (BFS to create proper tree)
+      const nodeDataMap = new Map(nodes.map(n => [n.id, n]));
+      const visited = new Set();
+      
+      const buildTree = (nodeId) => {
+        if (visited.has(nodeId)) return null; // Break cycles
+        visited.add(nodeId);
+        
+        const nodeData = nodeDataMap.get(nodeId);
+        if (!nodeData) return null;
+        
+        const treeNode = { ...nodeData, children: [] };
+        const childIds = adjacency.get(nodeId) || [];
+        
+        for (const childId of childIds) {
+          const childTree = buildTree(childId);
+          if (childTree) {
+            treeNode.children.push(childTree);
+          }
+        }
+        
+        return treeNode;
+      };
+      
+      const rootNodeId = rootId || nodes[0]?.id;
+      const root = buildTree(rootNodeId);
       if (!root) return;
       
       const hierarchy = d3.hierarchy(root);
@@ -789,13 +814,13 @@ function NetworkGraphVisualizer() {
               label="Min" 
               value={graphSettings.nodeMinSize} 
               onChange={v => updateSetting('nodeMinSize', v)}
-              min={1} max={20} step={1} unit="px"
+              min={0} max={20} step={1} unit="px"
             />
             <Slider 
               label="Max" 
               value={graphSettings.nodeMaxSize} 
               onChange={v => updateSetting('nodeMaxSize', v)}
-              min={10} max={80} step={1} unit="px"
+              min={0} max={80} step={1} unit="px"
             />
           </div>
         </div>
@@ -808,13 +833,13 @@ function NetworkGraphVisualizer() {
               label="Font Size" 
               value={graphSettings.fontSize} 
               onChange={v => updateSetting('fontSize', v)}
-              min={4} max={16} step={1} unit="px"
+              min={0} max={16} step={1} unit="px"
             />
             <Slider 
               label="Label Len" 
               value={graphSettings.labelMaxLength} 
               onChange={v => updateSetting('labelMaxLength', v)}
-              min={8} max={40} step={1} unit="ch"
+              min={0} max={40} step={1} unit="ch"
             />
           </div>
         </div>
@@ -829,13 +854,13 @@ function NetworkGraphVisualizer() {
                   label="Link Dist" 
                   value={graphSettings.linkDistance} 
                   onChange={v => updateSetting('linkDistance', v)}
-                  min={20} max={200} step={5} unit="px"
+                  min={0} max={200} step={5} unit="px"
                 />
                 <Slider 
                   label="Repulsion" 
                   value={-graphSettings.chargeStrength} 
                   onChange={v => updateSetting('chargeStrength', -v)}
-                  min={50} max={500} step={10}
+                  min={0} max={500} step={10}
                 />
                 <Slider 
                   label="Collision" 
@@ -855,13 +880,13 @@ function NetworkGraphVisualizer() {
                   label="Radius" 
                   value={graphSettings.radialRadius} 
                   onChange={v => updateSetting('radialRadius', v)}
-                  min={100} max={800} step={20} unit="px"
+                  min={0} max={800} step={20} unit="px"
                 />
                 <Slider 
                   label="Separation" 
                   value={graphSettings.radialSeparation} 
                   onChange={v => updateSetting('radialSeparation', v)}
-                  min={0.5} max={5} step={0.1}
+                  min={0} max={5} step={0.1}
                 />
               </div>
             </>
