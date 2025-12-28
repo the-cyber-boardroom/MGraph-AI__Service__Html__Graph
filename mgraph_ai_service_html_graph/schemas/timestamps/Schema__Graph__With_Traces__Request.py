@@ -7,6 +7,6 @@ from mgraph_ai_service_html_graph.schemas.timestamps.Schema__Trace_Config       
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import Schema__Graph__Export__From_Html__Request
 
 
-class Schema__Graph__With_Traces__Request(Type_Safe):                            # Request combining graph request with trace config
-    graph_request : Schema__Graph__Export__From_Html__Request                    # The graph conversion request
-    trace_config  : Schema__Trace_Config                                         # Trace capture configuration
+class Schema__Graph__With_Traces__Request(Type_Safe):                             # Request combining graph request with trace config
+    graph_request : Schema__Graph__Export__From_Html__Request = None              # The graph conversion request | todo: see also why this one has the same problem with FastAPI and pydantic
+    trace_config  : Schema__Trace_Config  = None                                  # Trace capture configuration | todo: look at why this needs to be None or it breaks the fast api deployment in Lambda
