@@ -185,16 +185,26 @@ const GraphVisualization = React.memo(({
   setHoveredNode,
   fitTrigger, 
   graphMode,
-  layoutMode
+  layoutMode,
+  graphSettings
 }) => {
   const svgRef = useRef(null);
   const gRef = useRef(null);
   const zoomRef = useRef(null);
   const simulationRef = useRef(null);
+  const nodeSelectionRef = useRef(null);
+  const linkSelectionRef = useRef(null);
+  const nodesDataRef = useRef(null);
+  const graphSettingsRef = useRef(graphSettings);
   
   // Store hover setter in ref - changes to this won't trigger re-render
   const hoverSetterRef = useRef(setHoveredNode);
   hoverSetterRef.current = setHoveredNode;
+  
+  // Keep graphSettings ref updated
+  useEffect(() => {
+    graphSettingsRef.current = graphSettings;
+  }, [graphSettings]);
   
   // Fit to view function
   const fitToView = useCallback(() => {
@@ -225,9 +235,53 @@ const GraphVisualization = React.memo(({
     }
   }, [fitTrigger, fitToView]);
   
-  // Build graph - setHoveredNode NOT in dependencies!
+  // Live update effect for graphSettings - updates without full rebuild
+  useEffect(() => {
+    if (!gRef.current || !data) return;
+    
+    const { nodeMinSize, nodeMaxSize, fontSize, labelMaxLength } = graphSettings;
+    
+    // Rebuild size scale
+    const sizeScale = d3.scaleSqrt()
+      .domain([0, sizeBy === 'count' ? Math.max(data.maxCount, 1) : Math.max(data.maxTotalMs, 1)])
+      .range([nodeMinSize, nodeMaxSize]);
+    
+    // Update circles
+    gRef.current.selectAll('circle')
+      .attr('r', d => {
+        const nodeData = d.data || d;
+        return sizeScale(sizeBy === 'count' ? (nodeData.count || 1) : (nodeData.totalMs || 1));
+      });
+    
+    // Update text
+    gRef.current.selectAll('text')
+      .attr('font-size', `${fontSize}px`)
+      .attr('dy', d => {
+        const nodeData = d.data || d;
+        return sizeScale(sizeBy === 'count' ? (nodeData.count || 1) : (nodeData.totalMs || 1)) + fontSize + 3;
+      })
+      .text(d => {
+        const nodeData = d.data || d;
+        const label = nodeData.label || nodeData.name || nodeData.id;
+        return label.length > labelMaxLength ? label.slice(0, labelMaxLength - 2) + '...' : label;
+      });
+    
+    // Update force simulation parameters without restart (for force layout)
+    if (layoutMode === 'force' && simulationRef.current) {
+      const sim = simulationRef.current;
+      sim.force('link').distance(graphSettings.linkDistance);
+      sim.force('charge').strength(graphSettings.chargeStrength);
+      sim.force('collision').radius(d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs) + graphSettings.collisionPadding);
+      // Gentle reheat - not a full restart
+      sim.alpha(0.1).restart();
+    }
+  }, [graphSettings, data, sizeBy, layoutMode]);
+  
+  // Build graph - structural rebuild only when data/layout changes
   useEffect(() => {
     if (!data || !svgRef.current || width === 0 || height === 0) return;
+    
+    const settings = graphSettingsRef.current;
     
     // Stop any existing simulation
     if (simulationRef.current) {
@@ -253,11 +307,12 @@ const GraphVisualization = React.memo(({
     // Deep copy for D3 mutation
     const nodes = data.nodes.map(n => ({ ...n }));
     const links = data.links.map(l => ({ source: l.source, target: l.target, count: l.count }));
+    nodesDataRef.current = nodes;
     
-    // Size scale
+    // Size scale - using settings
     const sizeScale = d3.scaleSqrt()
       .domain([0, sizeBy === 'count' ? Math.max(data.maxCount, 1) : Math.max(data.maxTotalMs, 1)])
-      .range([5, 30]);
+      .range([settings.nodeMinSize, settings.nodeMaxSize]);
     
     // Edge width scale
     const edgeScale = d3.scaleLinear()
@@ -305,9 +360,12 @@ const GraphVisualization = React.memo(({
       const hierarchy = d3.hierarchy(root);
       
       if (layoutMode === 'radial') {
+        const radiusScale = settings.radialRadius;
+        const separation = settings.radialSeparation;
+        
         const treeLayout = d3.tree()
-          .size([2 * Math.PI, Math.min(width, height) / 2 - 100])
-          .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
+          .size([2 * Math.PI, radiusScale])
+          .separation((a, b) => (a.parent === b.parent ? 1 : separation) / Math.max(a.depth, 1));
         
         treeLayout(hierarchy);
         
@@ -345,6 +403,8 @@ const GraphVisualization = React.memo(({
         .attr('transform', d => `translate(${d.x},${d.y})`)
         .attr('cursor', 'pointer');
       
+      nodeSelectionRef.current = nodeSelection;
+      
       nodeSelection.append('circle')
         .attr('r', d => sizeScale(sizeBy === 'count' ? (d.data.count || 1) : (d.data.totalMs || 1)))
         .attr('fill', d => getHotspotColor(d.data.selfPct || 0))
@@ -355,11 +415,11 @@ const GraphVisualization = React.memo(({
       nodeSelection.append('text')
         .text(d => {
           const label = d.data.label || d.data.name || d.data.id;
-          return label.length > 16 ? label.slice(0, 14) + '...' : label;
+          return label.length > settings.labelMaxLength ? label.slice(0, settings.labelMaxLength - 2) + '...' : label;
         })
         .attr('text-anchor', 'middle')
-        .attr('dy', d => sizeScale(sizeBy === 'count' ? (d.data.count || 1) : (d.data.totalMs || 1)) + 12)
-        .attr('font-size', '9px')
+        .attr('dy', d => sizeScale(sizeBy === 'count' ? (d.data.count || 1) : (d.data.totalMs || 1)) + settings.fontSize + 3)
+        .attr('font-size', `${settings.fontSize}px`)
         .attr('fill', '#777')
         .attr('pointer-events', 'none');
       
@@ -375,10 +435,10 @@ const GraphVisualization = React.memo(({
     } else {
       // Force layout
       const simulation = d3.forceSimulation(nodes)
-        .force('link', d3.forceLink(links).id(d => d.id).distance(80))
-        .force('charge', d3.forceManyBody().strength(-200))
+        .force('link', d3.forceLink(links).id(d => d.id).distance(settings.linkDistance))
+        .force('charge', d3.forceManyBody().strength(settings.chargeStrength))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs) + 3));
+        .force('collision', d3.forceCollide().radius(d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs) + settings.collisionPadding));
       
       simulationRef.current = simulation;
       
@@ -391,6 +451,8 @@ const GraphVisualization = React.memo(({
         .attr('stroke-opacity', 0.7)
         .attr('stroke-width', d => edgeScale(d.count))
         .attr('marker-end', 'url(#arrowhead)');
+      
+      linkSelectionRef.current = linkSelection;
       
       // Draw nodes
       const nodeSelection = g.append('g')
@@ -414,6 +476,8 @@ const GraphVisualization = React.memo(({
             d.fy = null;
           }));
       
+      nodeSelectionRef.current = nodeSelection;
+      
       nodeSelection.append('circle')
         .attr('r', d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs))
         .attr('fill', d => getHotspotColor(d.selfPct))
@@ -424,11 +488,11 @@ const GraphVisualization = React.memo(({
       nodeSelection.append('text')
         .text(d => {
           const label = d.label || d.name;
-          return label.length > 16 ? label.slice(0, 14) + '...' : label;
+          return label.length > settings.labelMaxLength ? label.slice(0, settings.labelMaxLength - 2) + '...' : label;
         })
         .attr('text-anchor', 'middle')
-        .attr('dy', d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs) + 12)
-        .attr('font-size', '9px')
+        .attr('dy', d => sizeScale(sizeBy === 'count' ? d.count : d.totalMs) + settings.fontSize + 3)
+        .attr('font-size', `${settings.fontSize}px`)
         .attr('fill', '#777')
         .attr('pointer-events', 'none');
       
@@ -473,6 +537,32 @@ const GraphVisualization = React.memo(({
   );
 });
 
+// Slider component
+const Slider = ({ label, value, onChange, min, max, step = 1, unit = '' }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <span style={{ fontSize: 10, color: '#888', minWidth: 90 }}>{label}</span>
+    <input 
+      type="range" 
+      min={min} 
+      max={max} 
+      step={step}
+      value={value} 
+      onChange={e => onChange(Number(e.target.value))}
+      style={{ 
+        flex: 1, 
+        height: 4,
+        background: '#333',
+        borderRadius: 2,
+        cursor: 'pointer',
+        accentColor: '#4ecdc4'
+      }}
+    />
+    <span style={{ fontSize: 10, color: '#4ecdc4', minWidth: 40, textAlign: 'right' }}>
+      {value}{unit}
+    </span>
+  </div>
+);
+
 // Main Component
 function NetworkGraphVisualizer() {
   const [files, setFiles] = useState([]);
@@ -485,8 +575,30 @@ function NetworkGraphVisualizer() {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [fitTrigger, setFitTrigger] = useState(0);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [showSettings, setShowSettings] = useState(true);
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  
+  // Graph settings state
+  const [graphSettings, setGraphSettings] = useState({
+    // Node sizing
+    nodeMinSize: 3,
+    nodeMaxSize: 20,
+    // Text
+    fontSize: 8,
+    labelMaxLength: 16,
+    // Force layout
+    linkDistance: 60,
+    chargeStrength: -150,
+    collisionPadding: 2,
+    // Radial/Tree layout  
+    radialRadius: 300,
+    radialSeparation: 2
+  });
+  
+  const updateSetting = (key, value) => {
+    setGraphSettings(prev => ({ ...prev, [key]: value }));
+  };
   
   // Process files
   const graphs = useMemo(() => 
@@ -636,6 +748,134 @@ function NetworkGraphVisualizer() {
       </div>
     </>
   );
+  
+  // Settings panel content - 3 column layout
+  const settingsPanel = (
+    <div style={{
+      background: '#151515',
+      border: '1px solid #2a2a2a',
+      borderRadius: 6,
+      padding: 12,
+      marginTop: 8
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          Graph Settings
+        </span>
+        <button 
+          onClick={() => setGraphSettings({
+            nodeMinSize: 3,
+            nodeMaxSize: 20,
+            fontSize: 8,
+            labelMaxLength: 16,
+            linkDistance: 60,
+            chargeStrength: -150,
+            collisionPadding: 2,
+            radialRadius: 300,
+            radialSeparation: 2
+          })}
+          style={{ ...buttonStyle, padding: '2px 8px', fontSize: 9 }}
+        >
+          Reset
+        </button>
+      </div>
+      
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        {/* Node Size Settings */}
+        <div style={{ borderRight: '1px solid #2a2a2a', paddingRight: 16 }}>
+          <div style={{ fontSize: 9, color: '#555', marginBottom: 8, textTransform: 'uppercase' }}>Node Size</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <Slider 
+              label="Min" 
+              value={graphSettings.nodeMinSize} 
+              onChange={v => updateSetting('nodeMinSize', v)}
+              min={1} max={20} step={1} unit="px"
+            />
+            <Slider 
+              label="Max" 
+              value={graphSettings.nodeMaxSize} 
+              onChange={v => updateSetting('nodeMaxSize', v)}
+              min={10} max={80} step={1} unit="px"
+            />
+          </div>
+        </div>
+        
+        {/* Text Settings */}
+        <div style={{ borderRight: '1px solid #2a2a2a', paddingRight: 16 }}>
+          <div style={{ fontSize: 9, color: '#555', marginBottom: 8, textTransform: 'uppercase' }}>Text</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <Slider 
+              label="Font Size" 
+              value={graphSettings.fontSize} 
+              onChange={v => updateSetting('fontSize', v)}
+              min={4} max={16} step={1} unit="px"
+            />
+            <Slider 
+              label="Label Len" 
+              value={graphSettings.labelMaxLength} 
+              onChange={v => updateSetting('labelMaxLength', v)}
+              min={8} max={40} step={1} unit="ch"
+            />
+          </div>
+        </div>
+        
+        {/* Layout-specific Settings */}
+        <div>
+          {layoutMode === 'force' && (
+            <>
+              <div style={{ fontSize: 9, color: '#555', marginBottom: 8, textTransform: 'uppercase' }}>Force Layout</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Slider 
+                  label="Link Dist" 
+                  value={graphSettings.linkDistance} 
+                  onChange={v => updateSetting('linkDistance', v)}
+                  min={20} max={200} step={5} unit="px"
+                />
+                <Slider 
+                  label="Repulsion" 
+                  value={-graphSettings.chargeStrength} 
+                  onChange={v => updateSetting('chargeStrength', -v)}
+                  min={50} max={500} step={10}
+                />
+                <Slider 
+                  label="Collision" 
+                  value={graphSettings.collisionPadding} 
+                  onChange={v => updateSetting('collisionPadding', v)}
+                  min={0} max={20} step={1} unit="px"
+                />
+              </div>
+            </>
+          )}
+          
+          {layoutMode === 'radial' && (
+            <>
+              <div style={{ fontSize: 9, color: '#555', marginBottom: 8, textTransform: 'uppercase' }}>Radial Layout</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Slider 
+                  label="Radius" 
+                  value={graphSettings.radialRadius} 
+                  onChange={v => updateSetting('radialRadius', v)}
+                  min={100} max={800} step={20} unit="px"
+                />
+                <Slider 
+                  label="Separation" 
+                  value={graphSettings.radialSeparation} 
+                  onChange={v => updateSetting('radialSeparation', v)}
+                  min={0.5} max={5} step={0.1}
+                />
+              </div>
+            </>
+          )}
+          
+          {layoutMode === 'tree' && (
+            <div style={{ fontSize: 9, color: '#555', fontStyle: 'italic' }}>
+              Tree layout uses automatic spacing
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{
@@ -677,6 +917,7 @@ function NetworkGraphVisualizer() {
               fitTrigger={fitTrigger}
               graphMode={graphMode}
               layoutMode={layoutMode}
+              graphSettings={graphSettings}
             />
           </div>
         </div>
@@ -813,28 +1054,56 @@ function NetworkGraphVisualizer() {
       {/* Main content */}
       <main style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {graphs.length > 0 && (
-          <div style={{
-            display: 'flex', alignItems: 'flex-end', gap: 20, padding: '12px 16px',
-            background: '#0d0d0d', borderBottom: '1px solid #1a1a1a', flexShrink: 0
-          }}>
-            {toolbarContent}
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
-              <span style={{ fontSize: 10, color: '#555', fontStyle: 'italic' }}>
-                {layoutMode === 'force' ? 'Drag nodes · ' : ''}Scroll to zoom
-              </span>
-              {currentData && (
-                <>
-                  <span style={{ fontSize: 11, color: '#888' }}>Nodes: <strong style={{ color: '#4ecdc4' }}>{currentData.nodes.length}</strong></span>
-                  <span style={{ fontSize: 11, color: '#888' }}>Edges: <strong style={{ color: '#4ecdc4' }}>{currentData.links.length}</strong></span>
-                </>
-              )}
-              <button onClick={() => setIsMaximized(true)} style={{
-                width: 28, height: 28, background: '#1a1a1a', border: '1px solid #333',
-                color: '#888', borderRadius: 4, cursor: 'pointer', fontSize: 16,
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }} title="Maximize">⊕</button>
+          <>
+            <div style={{
+              display: 'flex', alignItems: 'flex-end', gap: 20, padding: '12px 16px',
+              background: '#0d0d0d', borderBottom: '1px solid #1a1a1a', flexShrink: 0
+            }}>
+              {toolbarContent}
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
+                <span style={{ fontSize: 10, color: '#555', fontStyle: 'italic' }}>
+                  {layoutMode === 'force' ? 'Drag nodes · ' : ''}Scroll to zoom
+                </span>
+                {currentData && (
+                  <>
+                    <span style={{ fontSize: 11, color: '#888' }}>Nodes: <strong style={{ color: '#4ecdc4' }}>{currentData.nodes.length}</strong></span>
+                    <span style={{ fontSize: 11, color: '#888' }}>Edges: <strong style={{ color: '#4ecdc4' }}>{currentData.links.length}</strong></span>
+                  </>
+                )}
+                <button onClick={() => setIsMaximized(true)} style={{
+                  width: 28, height: 28, background: '#1a1a1a', border: '1px solid #333',
+                  color: '#888', borderRadius: 4, cursor: 'pointer', fontSize: 16,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }} title="Maximize">⊕</button>
+              </div>
             </div>
-          </div>
+            
+            {/* Settings Panel */}
+            <div style={{
+              padding: '8px 16px',
+              background: '#0d0d0d',
+              borderBottom: '1px solid #1a1a1a',
+              flexShrink: 0
+            }}>
+              <button 
+                onClick={() => setShowSettings(!showSettings)}
+                style={{
+                  ...buttonStyle,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: showSettings ? 'rgba(78, 205, 196, 0.1)' : '#1a1a1a',
+                  borderColor: showSettings ? '#4ecdc4' : '#333',
+                  color: showSettings ? '#4ecdc4' : '#888'
+                }}
+              >
+                <span style={{ fontSize: 14 }}>⚙</span>
+                Graph Settings
+                <span style={{ fontSize: 10, marginLeft: 4 }}>{showSettings ? '▲' : '▼'}</span>
+              </button>
+              {showSettings && settingsPanel}
+            </div>
+          </>
         )}
         
         <div ref={containerRef} style={{ flex: 1, overflow: 'hidden', position: 'relative', minHeight: 0 }}>
@@ -854,6 +1123,7 @@ function NetworkGraphVisualizer() {
               fitTrigger={fitTrigger}
               graphMode={graphMode}
               layoutMode={layoutMode}
+              graphSettings={graphSettings}
             />
           )}
         </div>
