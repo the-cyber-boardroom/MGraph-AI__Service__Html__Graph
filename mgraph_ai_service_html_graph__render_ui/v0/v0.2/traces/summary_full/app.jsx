@@ -1,5 +1,5 @@
 // Browser-compatible version - uses global React and Recharts
-const { useState, useCallback, useMemo } = React;
+const { useState, useCallback, useMemo, useEffect } = React;
 const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, ComposedChart, Area } = Recharts;
 
 
@@ -126,6 +126,71 @@ function ProfileAnalyzer() {
   const [baselineKey, setBaselineKey] = useState(null);
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [expandedNodes, setExpandedNodes] = useState(new Set());
+
+  // =========================================================================
+  // TRACE DATA RECEIVER - Listen for data from parent Sample Loader
+  // =========================================================================
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'LOAD_TRACE_DATA') {
+        const { name, data, format } = event.data.payload;
+        console.log('[ProfileAnalyzer] Received trace data:', name, 'format:', format);
+
+        // Handle different formats
+        let processedData = data;
+        let fileName;
+
+        if (format === 'summary') {
+          // Summary format: traces is a JSON string that needs parsing
+          if (data.traces && typeof data.traces === 'string') {
+            try {
+              processedData = {
+                ...data,
+                traces: JSON.parse(data.traces)
+              };
+            } catch (e) {
+              console.error('[ProfileAnalyzer] Failed to parse traces:', e);
+            }
+          }
+          fileName = `summary_${name}.json`;
+          // Switch to summary mode
+          setAnalysisMode('summary');
+        } else if (format === 'full') {
+          fileName = `full_${name}.json`;
+          // Switch to full mode
+          setAnalysisMode('full');
+        } else {
+          fileName = `${format}_${name}.json`;
+        }
+
+        const newFile = { name: fileName, data: processedData };
+
+        setFiles(prev => {
+          const existing = new Set(prev.map(f => f.name));
+          if (existing.has(fileName)) {
+            return prev.map(f => f.name === fileName ? newFile : f);
+          }
+          return [...prev, newFile];
+        });
+
+        // Auto-select the new profile
+        setTimeout(() => {
+          const key = extractProfileKey(fileName);
+          setSelectedKeys(new Set([key]));
+        }, 50);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    // Notify parent we're ready
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'VISUALIZER_READY', visualizer: 'summary_full' }, '*');
+    }
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+  // =========================================================================
 
   const summaryProfiles = useMemo(() => mergeProfiles(files, 'summary'), [files]);
   const fullProfiles = useMemo(() => mergeProfiles(files, 'full'), [files]);

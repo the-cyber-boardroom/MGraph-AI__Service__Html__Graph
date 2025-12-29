@@ -822,6 +822,42 @@ function NetworkGraphVisualizer() {
   });
   
   const [highlightEdges, setHighlightEdges] = useState(true);
+
+  // =========================================================================
+  // TRACE DATA RECEIVER - Listen for data from parent Sample Loader
+  // =========================================================================
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'LOAD_TRACE_DATA') {
+        const { name, data } = event.data.payload;
+        console.log('[NetworkGraph] Received trace data:', name);
+
+        const fileName = `full_${name}.json`;
+        const newFile = { name: fileName, data };
+
+        setFiles(prev => {
+          const existing = new Set(prev.map(f => f.name));
+          if (existing.has(fileName)) {
+            return prev.map(f => f.name === fileName ? newFile : f);
+          }
+          return [...prev, newFile];
+        });
+
+        setTimeout(() => setSelectedKey(extractKey(fileName)), 50);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    // Notify parent we're ready
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'VISUALIZER_READY', visualizer: 'network_graph' }, '*');
+    }
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+  // =========================================================================
+
   
   // Extract layout-specific settings that require rebuild when changed
   const layoutSpecificSettings = useMemo(() => ({

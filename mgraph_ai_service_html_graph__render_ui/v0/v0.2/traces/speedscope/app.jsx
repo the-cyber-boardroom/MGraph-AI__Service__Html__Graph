@@ -192,6 +192,58 @@ function SpeedscopeAnalyzer() {
   const [autoCollapseOnZoom, setAutoCollapseOnZoom] = useState(true);
   const [zoomRange, setZoomRange] = useState(null);
 
+  // =========================================================================
+  // TRACE DATA RECEIVER - Listen for data from parent Sample Loader
+  // =========================================================================
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'LOAD_TRACE_DATA') {
+        const { name, data } = event.data.payload;
+        console.log('[Speedscope] Received trace data:', name);
+
+        // The API returns { graph, response_type, traces } where traces is a JSON string
+        // We need to parse the traces string to get the actual speedscope data
+        let speedscopeData = data;
+        if (data.traces && typeof data.traces === 'string') {
+          try {
+            speedscopeData = JSON.parse(data.traces);
+            console.log('[Speedscope] Parsed traces string');
+          } catch (e) {
+            console.error('[Speedscope] Failed to parse traces:', e);
+          }
+        }
+
+        const fileName = `speedscope_${name}.json`;
+        const newFile = { name: fileName, data: speedscopeData };
+        console.log('[Speedscope] with data', speedscopeData);
+
+        setFiles(prev => {
+          const existing = new Set(prev.map(f => f.name));
+          if (existing.has(fileName)) {
+            return prev.map(f => f.name === fileName ? newFile : f);
+          }
+          return [...prev, newFile];
+        });
+
+        // Auto-select the new profile
+        setTimeout(() => {
+          const key = extractProfileKey(fileName);
+          setSelectedKeys(new Set([key]));
+        }, 50);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    // Notify parent we're ready
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'VISUALIZER_READY', visualizer: 'speedscope' }, '*');
+    }
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+  // =========================================================================
+
   const profiles = useMemo(() => processSpeedscopeFiles(files), [files]);
   
   useEffect(() => {

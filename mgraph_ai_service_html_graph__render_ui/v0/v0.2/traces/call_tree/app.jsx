@@ -239,6 +239,43 @@ function CallTreeVisualizer() {
   const [colorMode, setColorMode] = useState('hotspot'); // 'hotspot' or 'method'
   const [showMethodStats, setShowMethodStats] = useState(false); // Accordion state
 
+  // =========================================================================
+  // TRACE DATA RECEIVER - Listen for data from parent Sample Loader
+  // =========================================================================
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'LOAD_TRACE_DATA') {
+        const { name, data } = event.data.payload;
+        console.log('[CallTree] Received trace data:', name);
+        
+        const fileName = `full_${name}.json`;
+        const newFile = { name: fileName, data };
+        
+        setFiles(prev => {
+          const existing = new Set(prev.map(f => f.name));
+          if (existing.has(fileName)) {
+            // Replace existing
+            return prev.map(f => f.name === fileName ? newFile : f);
+          }
+          return [...prev, newFile];
+        });
+        
+        // Auto-select the new file
+        setTimeout(() => setSelectedKey(extractKey(fileName)), 50);
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+    
+    // Notify parent we're ready
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'VISUALIZER_READY', visualizer: 'call_tree' }, '*');
+    }
+    
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+  // =========================================================================
+
   const profiles = useMemo(() =>
     files.map(f => processCallTreeFile(f)).filter(Boolean),
     [files]
@@ -349,13 +386,12 @@ function CallTreeVisualizer() {
           const collapseDescendants = (nodes) => {
             nodes.forEach(n => {
               next.delete(n.call_index);
-              if (n.children?.length) collapseDescendants(n.children);
+              if (n.children) collapseDescendants(n.children);
             });
           };
           collapseDescendants(node.children);
         }
       } else {
-        // Expanding - just expand this node (children stay collapsed)
         next.add(callIndex);
       }
       return next;
@@ -449,25 +485,18 @@ function CallTreeVisualizer() {
       setFocusNode(null);
     } else {
       setFocusNode(node);
-      // Auto-expand the focused node
-      if (node.children?.length) {
-        setExpandedNodes(prev => {
-          const next = new Set(prev);
-          next.add(node.call_index);
-          return next;
-        });
-      }
     }
   }, [focusNode]);
 
   const buttonStyle = {
+    padding: '6px 12px',
     background: '#1a1a1a',
     border: '1px solid #333',
     color: '#888',
-    padding: '6px 12px',
     borderRadius: 4,
     fontSize: 11,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    fontFamily: 'inherit'
   };
 
   return (
@@ -475,172 +504,82 @@ function CallTreeVisualizer() {
       fontFamily: "'Space Grotesk', -apple-system, sans-serif",
       background: '#0d0d0d',
       color: '#e0e0e0',
-      minHeight: '100vh',
-      display: 'grid',
-      gridTemplateColumns: '220px 1fr',
-      gridTemplateRows: 'auto 1fr'
+      height: '100vh',
+      display: 'flex',
+      overflow: 'hidden'
     }}>
-      {/* Maximize Overlay */}
+      {/* Maximized overlay */}
       {isMaximized && selectedProfile && (
         <div
-          onClick={(e) => e.target === e.currentTarget && setIsMaximized(false)}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0, 0, 0, 0.95)',
+            background: '#0d0d0d',
             zIndex: 1000,
             display: 'flex',
-            flexDirection: 'column',
-            padding: 20
+            flexDirection: 'column'
           }}
         >
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
-            marginBottom: 16
+            padding: '12px 16px',
+            background: '#111',
+            borderBottom: '1px solid #1a1a1a',
+            gap: 12
           }}>
-            {/* Depth control in overlay */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              background: '#1a1a1a',
-              padding: '4px 10px',
-              borderRadius: 4,
-              border: '1px solid #333'
-            }}>
-              <span style={{ fontSize: 11, color: '#888' }}>Depth:</span>
-              <button
-                onClick={() => setExpandDepth(Math.max(0, expandDepth - 1))}
-                disabled={expandDepth === 0}
-                style={{
-                  width: 22, height: 22, background: '#222', border: '1px solid #444',
-                  color: expandDepth === 0 ? '#444' : '#ccc', borderRadius: 3,
-                  cursor: expandDepth === 0 ? 'not-allowed' : 'pointer', fontSize: 14,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}
-              >−</button>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#4ecdc4', minWidth: 16, textAlign: 'center' }}>
-                {expandDepth}
-              </span>
-              <button
-                onClick={() => setExpandDepth(Math.min(selectedProfile?.maxDepth || 20, expandDepth + 1))}
-                style={{
-                  width: 22, height: 22, background: '#222', border: '1px solid #444',
-                  color: '#ccc', borderRadius: 3, cursor: 'pointer', fontSize: 14,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}
-              >+</button>
-            </div>
-
-            <button onClick={handleExpandAll} style={buttonStyle}>
-              Expand All
-            </button>
-
-            <button onClick={handleCollapseAll} style={buttonStyle}>
-              Collapse All
-            </button>
-
-            {/* Color mode toggle */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              background: '#1a1a1a',
-              padding: 2,
-              borderRadius: 4,
-              border: '1px solid #333'
-            }}>
-              <button
-                onClick={() => setColorMode('hotspot')}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: 10,
-                  border: 'none',
-                  borderRadius: 3,
-                  cursor: 'pointer',
-                  background: colorMode === 'hotspot' ? '#4ecdc4' : 'transparent',
-                  color: colorMode === 'hotspot' ? '#000' : '#888'
-                }}
-              >
-                Hotspot
-              </button>
-              <button
-                onClick={() => setColorMode('method')}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: 10,
-                  border: 'none',
-                  borderRadius: 3,
-                  cursor: 'pointer',
-                  background: colorMode === 'method' ? '#4ecdc4' : 'transparent',
-                  color: colorMode === 'method' ? '#000' : '#888'
-                }}
-              >
-                Method
-              </button>
-            </div>
-
-            {focusNode && (
-              <button
-                onClick={() => setFocusNode(null)}
-                style={{ ...buttonStyle, background: 'rgba(78, 205, 196, 0.15)', color: '#4ecdc4', borderColor: '#4ecdc4' }}
-              >
-                Reset Focus
-              </button>
-            )}
-
-            <span style={{ fontSize: 11, color: '#555', fontStyle: 'italic' }}>
-              Click bar to focus · Click again to reset
+            <span style={{ fontWeight: 600, color: '#4ecdc4' }}>{selectedProfile.key}</span>
+            <span style={{ color: '#666', fontSize: 12 }}>
+              {formatDuration(selectedProfile.totalDurationMs)} · {selectedProfile.nodeCount} calls
             </span>
-
-            <div style={{ marginLeft: 'auto' }}>
-              <button
-                onClick={() => setIsMaximized(false)}
-                style={{
-                  width: 32, height: 32, background: '#2a1a1a', border: '1px solid #ff6b6b44',
-                  color: '#888', borderRadius: 6, cursor: 'pointer', fontSize: 18,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}
-                title="Close"
-              >
-                ✕
-              </button>
-            </div>
+            <button
+              onClick={() => setIsMaximized(false)}
+              style={{
+                marginLeft: 'auto',
+                width: 32,
+                height: 32,
+                background: '#2a1a1a',
+                border: '1px solid #ff6b6b44',
+                color: '#888',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: 18
+              }}
+            >
+              ✕
+            </button>
           </div>
-
-          {/* Column headers */}
-          <div style={{
-            display: 'flex',
-            background: '#151515',
-            borderBottom: '1px solid #2a2a2a',
-            fontSize: 10,
-            textTransform: 'uppercase',
-            letterSpacing: 0.5,
-            color: '#666',
-            borderRadius: '8px 8px 0 0'
-          }}>
-            <div style={{ width: 400, minWidth: 400, padding: '8px 12px', borderRight: '1px solid #2a2a2a' }}>
-              Service & Operation
+          <div style={{ flex: 1, overflow: 'auto' }}>
+            {/* Column headers */}
+            <div style={{
+              display: 'flex',
+              background: '#151515',
+              borderBottom: '1px solid #2a2a2a',
+              fontSize: 10,
+              textTransform: 'uppercase',
+              letterSpacing: 0.5,
+              color: '#666',
+              position: 'sticky',
+              top: 0,
+              zIndex: 10
+            }}>
+              <div style={{ width: 350, minWidth: 350, padding: '8px 12px', borderRight: '1px solid #2a2a2a' }}>
+                Service & Operation
+              </div>
+              <div style={{ flex: 1, padding: '8px 12px', display: 'flex', justifyContent: 'space-between' }}>
+                {timeMarkers.map((m, i) => (
+                  <span key={i} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    {formatDuration(m.time)}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div style={{ flex: 1, padding: '8px 12px', display: 'flex', justifyContent: 'space-between' }}>
-              {timeMarkers.map((m, i) => (
-                <span key={i} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  {formatDuration(m.time)}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Tree rows in overlay */}
-          <div style={{ flex: 1, overflow: 'auto', background: '#0d0d0d', borderRadius: '0 0 8px 8px' }}>
             {filteredTree.map((node, idx) => (
               <TreeRow
-                key={`${node.call_index}-${idx}`}
+                key={`max-${node.call_index}-${idx}`}
                 node={node}
                 profile={selectedProfile}
                 expandedNodes={expandedNodes}
@@ -656,220 +595,213 @@ function CallTreeVisualizer() {
           </div>
         </div>
       )}
-      {/* Header - spans both columns */}
-      <header style={{
-        gridColumn: '1 / -1',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 20,
-        padding: '14px 20px',
+
+      {/* Sidebar */}
+      <aside style={{
+        width: 260,
+        minWidth: 260,
         background: '#111',
-        borderBottom: '1px solid #1a1a1a'
+        borderRight: '1px solid #1a1a1a',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          fontWeight: 600,
-          fontSize: 16,
-          color: '#4ecdc4',
-          whiteSpace: 'nowrap'
-        }}>
-          <div style={{
-            width: 20,
-            height: 20,
-            background: 'linear-gradient(135deg, #ffa502, #ff6b6b)',
-            borderRadius: 4
-          }} />
-          Call Tree Visualizer
-        </div>
+        {/* Drop zone header */}
         <div
           style={{
-            flex: 1,
-            border: `2px dashed ${isDragging ? '#4ecdc4' : '#333'}`,
-            borderRadius: 6,
-            padding: '10px 20px',
-            textAlign: 'center',
-            color: isDragging ? '#4ecdc4' : '#666',
-            background: isDragging ? 'rgba(78, 205, 196, 0.1)' : 'transparent',
-            fontSize: 13
+            padding: 16,
+            borderBottom: '1px solid #1a1a1a',
+            background: isDragging ? 'rgba(78, 205, 196, 0.1)' : 'transparent'
           }}
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
         >
-          Drag & drop full_*.json files
-        </div>
-      </header>
-
-      {/* Sidebar */}
-      <aside style={{
-        background: '#111',
-        borderRight: '1px solid #1a1a1a',
-        padding: 12,
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 10
-        }}>
-          <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: '#666' }}>
-            Profiles ({profiles.length})
-          </span>
-          <div style={{ display: 'flex', gap: 4 }}>
-            <button
-              onClick={() => setFiles([])}
-              style={{ ...buttonStyle, padding: '3px 8px', fontSize: 10 }}
-            >
-              Clear
-            </button>
+          <div style={{
+            border: `2px dashed ${isDragging ? '#4ecdc4' : '#333'}`,
+            borderRadius: 6,
+            padding: '16px 12px',
+            textAlign: 'center',
+            color: isDragging ? '#4ecdc4' : '#555',
+            fontSize: 12
+          }}>
+            Drop full_*.json files
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: showMethodStats ? 0 : 1 }}>
-          {profiles.map(profile => (
-            <div
-              key={profile.key}
-              onClick={() => setSelectedKey(profile.key)}
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 8,
-                padding: '8px 10px',
-                background: selectedKey === profile.key ? 'rgba(78, 205, 196, 0.1)' : '#151515',
-                border: `1px solid ${selectedKey === profile.key ? '#4ecdc4' : '#2a2a2a'}`,
-                borderRadius: 5,
-                cursor: 'pointer',
-                transition: 'all 0.15s'
-              }}
-            >
-              <div style={{
-                width: 14,
-                height: 14,
-                borderRadius: 3,
-                border: `2px solid ${selectedKey === profile.key ? '#4ecdc4' : '#444'}`,
-                background: selectedKey === profile.key ? '#4ecdc4' : 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                marginTop: 1,
-                fontSize: 10,
-                color: '#000',
-                fontWeight: 'bold'
-              }}>
-                {selectedKey === profile.key && '✓'}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Profiles list */}
+        <div style={{ flex: 1, overflow: 'auto', padding: 12 }}>
+          <div style={{
+            fontSize: 10,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            color: '#666',
+            marginBottom: 10,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span>Profiles ({profiles.length})</span>
+            {profiles.length > 0 && (
+              <button
+                onClick={() => setFiles([])}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#666',
+                  cursor: 'pointer',
+                  fontSize: 10
+                }}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {profiles.map(profile => (
+              <div
+                key={profile.key}
+                onClick={() => setSelectedKey(profile.key)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 8,
+                  padding: '8px 10px',
+                  background: selectedKey === profile.key ? 'rgba(78, 205, 196, 0.1)' : '#151515',
+                  border: `1px solid ${selectedKey === profile.key ? '#4ecdc4' : '#2a2a2a'}`,
+                  borderRadius: 5,
+                  cursor: 'pointer'
+                }}
+              >
                 <div style={{
-                  fontWeight: 500,
-                  fontSize: 12,
-                  color: '#e0e0e0',
-                  wordBreak: 'break-word'
+                  width: 14,
+                  height: 14,
+                  borderRadius: 3,
+                  border: `2px solid ${selectedKey === profile.key ? '#4ecdc4' : '#444'}`,
+                  background: selectedKey === profile.key ? '#4ecdc4' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: 1,
+                  fontSize: 10,
+                  color: '#000',
+                  fontWeight: 'bold'
                 }}>
-                  {profile.key}
+                  {selectedKey === profile.key && '✓'}
                 </div>
-                <div style={{ fontSize: 10, color: '#4ecdc4', marginTop: 2 }}>
-                  {formatDuration(profile.totalDurationMs)} · {profile.nodeCount} calls
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontWeight: 500,
+                    fontSize: 12,
+                    color: '#e0e0e0',
+                    wordBreak: 'break-word'
+                  }}>
+                    {profile.key}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#4ecdc4', marginTop: 2 }}>
+                    {formatDuration(profile.totalDurationMs)} · {profile.nodeCount} calls
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Method Stats Accordion */}
-        <div style={{ marginTop: 12, borderTop: '1px solid #2a2a2a', paddingTop: 12 }}>
-          <button
-            onClick={() => setShowMethodStats(!showMethodStats)}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: 'none',
-              border: 'none',
-              padding: '4px 0',
-              cursor: 'pointer',
-              color: '#888'
-            }}
-          >
-            <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              Methods ({methodStats.length})
-            </span>
-            <span style={{ fontSize: 10 }}>{showMethodStats ? '▼' : '▶'}</span>
-          </button>
+        {selectedProfile && (
+          <div style={{ borderTop: '1px solid #1a1a1a' }}>
+            <button
+              onClick={() => setShowMethodStats(!showMethodStats)}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                background: '#0a0a0a',
+                border: 'none',
+                borderBottom: showMethodStats ? '1px solid #1a1a1a' : 'none',
+                color: '#888',
+                fontSize: 10,
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontFamily: 'inherit'
+              }}
+            >
+              <span>Methods ({methodStats.length})</span>
+              <span style={{ fontSize: 8 }}>{showMethodStats ? '▼' : '▶'}</span>
+            </button>
 
-          {showMethodStats && (
-            <div style={{
-              marginTop: 8,
-              maxHeight: 300,
-              overflowY: 'auto',
-              background: '#0a0a0a',
-              borderRadius: 4,
-              border: '1px solid #222'
-            }}>
-              {methodStats.map((stat, idx) => (
-                <div
-                  key={stat.name}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '6px 8px',
-                    borderBottom: idx < methodStats.length - 1 ? '1px solid #1a1a1a' : 'none',
-                    fontSize: 10
-                  }}
-                >
-                  <div style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 2,
-                    background: methodColors.get(stat.name) || '#4ecdc4',
-                    flexShrink: 0
-                  }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
+            {showMethodStats && (
+              <div style={{
+                maxHeight: 250,
+                overflow: 'auto',
+                background: '#0a0a0a'
+              }}>
+                {methodStats.slice(0, 30).map((stat, idx) => (
+                  <div
+                    key={stat.name}
+                    style={{
+                      padding: '6px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      borderBottom: '1px solid #151515',
+                      fontSize: 10
+                    }}
+                  >
                     <div style={{
-                      color: '#ccc',
-                      whiteSpace: 'nowrap',
+                      width: 8,
+                      height: 8,
+                      borderRadius: 2,
+                      background: methodColors.get(stat.name) || '#4ecdc4',
+                      flexShrink: 0
+                    }} />
+                    <div style={{
+                      flex: 1,
+                      minWidth: 0,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 9
-                    }} title={stat.name}>
+                      whiteSpace: 'nowrap',
+                      color: '#ccc',
+                      fontFamily: "'JetBrains Mono', monospace"
+                    }}>
                       {stat.name}
                     </div>
-                    <div style={{ color: '#666', marginTop: 2 }}>
-                      <span style={{ color: '#4ecdc4' }}>{stat.count}×</span>
-                      {' · '}
-                      <span>{formatDuration(stat.totalMs)}</span>
+                    <div style={{ color: '#666', flexShrink: 0 }}>
+                      {stat.count}×
+                    </div>
+                    <div style={{ color: '#4ecdc4', flexShrink: 0, minWidth: 50, textAlign: 'right' }}>
+                      {formatDuration(stat.totalMs)}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Details Panel - shows hovered node info */}
-        <div style={{
-          marginTop: 'auto',
-          paddingTop: 12,
-          borderTop: '1px solid #2a2a2a'
-        }}>
-          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: '#666', marginBottom: 8 }}>
-            Details
+                ))}
+              </div>
+            )}
           </div>
+        )}
+
+        {/* Node details panel */}
+        <div style={{
+          padding: 12,
+          borderTop: '1px solid #1a1a1a',
+          background: '#0a0a0a'
+        }}>
+          <div style={{
+            fontSize: 10,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            color: '#666',
+            marginBottom: 8
+          }}>
+            Node Details
+          </div>
+
           {hoveredNode ? (
-            <div style={{
-              background: '#151515',
-              border: '1px solid #333',
-              borderRadius: 5,
-              padding: 10
-            }}>
+            <div style={{ background: '#151515', border: '1px solid #333', borderRadius: 5, padding: 10 }}>
               <div style={{
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: 11,
@@ -882,24 +814,34 @@ function CallTreeVisualizer() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 10, color: '#888' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Duration:</span>
-                  <strong style={{ color: '#4ecdc4' }}>{formatDuration(hoveredNode.duration_ms)}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Self:</span>
-                  <strong style={{ color: '#4ecdc4' }}>
-                    {formatDuration(hoveredNode.self_ms)}
-                    ({selectedProfile ? ((hoveredNode.self_ms / selectedProfile.totalSelfMs) * 100).toFixed(1) : 0}%)
-                  </strong>
+                  <span>Call Index:</span>
+                  <span>#{hoveredNode.call_index}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Depth:</span>
                   <span>{hoveredNode.depth}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Call Index:</span>
-                  <span>#{hoveredNode.call_index}</span>
+                  <span>Duration:</span>
+                  <strong style={{ color: '#4ecdc4' }}>{formatDuration(hoveredNode.duration_ms)}</strong>
                 </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Self Time:</span>
+                  <strong style={{ color: '#4ecdc4' }}>
+                    {formatDuration(hoveredNode.self_ms)}
+                    {selectedProfile && (
+                      <span style={{ color: '#888', fontWeight: 'normal' }}>
+                        {' '}({((hoveredNode.self_ms / selectedProfile.totalSelfMs) * 100).toFixed(1)}%)
+                      </span>
+                    )}
+                  </strong>
+                </div>
+                {hoveredNode.children && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Children:</span>
+                    <span>{hoveredNode.children.length}</span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -917,56 +859,62 @@ function CallTreeVisualizer() {
       </aside>
 
       {/* Main content */}
-      <main style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Toolbar */}
-        {profiles.length > 0 && (
+        {selectedProfile && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
+            gap: 12,
             padding: '10px 16px',
-            background: '#0d0d0d',
-            borderBottom: '1px solid #1a1a1a',
-            flexWrap: 'wrap'
+            background: '#111',
+            borderBottom: '1px solid #1a1a1a'
           }}>
-            <input
-              type="text"
-              placeholder="Search methods..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                background: '#1a1a1a',
-                border: '1px solid #333',
-                color: '#e0e0e0',
-                padding: '6px 10px',
-                borderRadius: 4,
-                fontSize: 12,
-                width: 160
-              }}
-            />
+            {/* Search */}
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Filter methods..."
+                style={{
+                  padding: '6px 12px',
+                  paddingLeft: 30,
+                  background: '#1a1a1a',
+                  border: '1px solid #333',
+                  borderRadius: 4,
+                  color: '#e0e0e0',
+                  fontSize: 12,
+                  width: 200,
+                  fontFamily: 'inherit'
+                }}
+              />
+              <span style={{
+                position: 'absolute',
+                left: 10,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#555',
+                fontSize: 12
+              }}>
+                🔍
+              </span>
+            </div>
 
             {/* Depth control */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              background: '#1a1a1a',
-              padding: '4px 10px',
-              borderRadius: 4,
-              border: '1px solid #333'
-            }}>
-              <span style={{ fontSize: 11, color: '#888' }}>Depth:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 10, color: '#666', textTransform: 'uppercase' }}>Depth:</span>
               <button
                 onClick={() => setExpandDepth(Math.max(0, expandDepth - 1))}
-                disabled={expandDepth === 0}
+                disabled={expandDepth <= 0}
                 style={{
                   width: 22,
                   height: 22,
                   background: '#222',
                   border: '1px solid #444',
-                  color: expandDepth === 0 ? '#444' : '#ccc',
+                  color: expandDepth <= 0 ? '#444' : '#ccc',
                   borderRadius: 3,
-                  cursor: expandDepth === 0 ? 'not-allowed' : 'pointer',
+                  cursor: expandDepth <= 0 ? 'not-allowed' : 'pointer',
                   fontSize: 14,
                   display: 'flex',
                   alignItems: 'center',

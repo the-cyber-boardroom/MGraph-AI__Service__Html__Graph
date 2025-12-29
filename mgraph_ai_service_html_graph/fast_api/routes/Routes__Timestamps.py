@@ -4,6 +4,7 @@
 #
 # URL pattern: /timestamps/graph/from/html/to/{engine}/{transformation}/{format}
 # ═══════════════════════════════════════════════════════════════════════════════
+from typing import Dict
 
 from osbot_fast_api.api.decorators.route_path                                                            import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                                          import Fast_API__Routes
@@ -42,32 +43,39 @@ class Routes__Timestamps(Fast_API__Routes):                                     
     def from_html_with_traces_full(self, engine        : str                                    ,
                                          transformation: str                                    ,
                                          request       : Schema__Graph__With_Traces__Request
-                                  ) -> Schema__Graph__With_Traces__Response__Full:
+                                    ) -> Dict:
+                                   #) -> Schema__Graph__With_Traces__Response__Full:            # todo: see why we are getting an Type_Sage to Pydantic error here (when we leave this conversion to pydantic)
+
         graph_response, export = self._execute_with_timestamps(engine, transformation, request)
+
         traces                 = export.to_export_full()
+
         response               = self.create_response__full(graph_response, request.trace_config, traces)
-        return response
+
+        return response.json()                                                                  # todo: as mentioned above, see why we need to return the raw json here (which works, but it would be better to return the type_safe object)
 
     @route_path("/graph/from/html/to/{engine}/{transformation}/summary")
     def from_html_with_traces_summary(self, engine        : str                                 ,
                                             transformation: str                                 ,
                                             request       : Schema__Graph__With_Traces__Request
-                                     ) -> Schema__Graph__With_Traces__Response__Summary:
+                                       ) -> Dict:                                                                   # todo: BUG: same as above
+                                     #) -> Schema__Graph__With_Traces__Response__Summary:
         graph_response, export = self._execute_with_timestamps(engine, transformation, request)
         traces                 = export.to_export_summary()
         response               = self.create_response__summary(graph_response, request.trace_config, traces)
-        return response
+        return response.json()                                                                                      # todo: BUG: same as above
 
 
     @route_path("/graph/from/html/to/{engine}/{transformation}/speedscope")
     def from_html_with_traces_speedscope(self, engine        : str                              ,
                                                transformation: str                              ,
                                                request       : Schema__Graph__With_Traces__Request
-                                        ) -> Schema__Graph__With_Traces__Response__Speedscope:
+                                            ) -> Dict:                                                              # todo: BUG: same as above
+                                        #) -> Schema__Graph__With_Traces__Response__Speedscope:
         graph_response, export = self._execute_with_timestamps(engine, transformation, request)
         traces                 = export.to_speedscope_json()
         response               = self.create_response__speedscope(graph_response, request.trace_config, traces)
-        return response
+        return response.json()                                                                                      # todo: BUG: same as above
         # return Schema__Graph__With_Traces__Response__Speedscope(graph  = graph_response,
         #                                                         traces = traces        )
 

@@ -175,9 +175,16 @@
       animation: spin 1s linear infinite;
       margin: 0 auto 16px;
     }
-    
+
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    /* Divider between nav and sample loader */
+    .header-divider {
+      width: 1px;
+      height: 24px;
+      background: #333;
     }
   </style>
 </head>
@@ -188,7 +195,7 @@
         <div class="logo-icon">◈</div>
         Trace Visualizers
       </a>
-      
+
       <nav class="nav">
         <button class="nav-btn active" data-target="call_tree">
           <span class="icon">🌳</span>
@@ -216,7 +223,12 @@
           <span class="badge">Profile</span>
         </button>
       </nav>
-      
+
+      <div class="header-divider"></div>
+
+      <!-- Sample Loader Container -->
+      <div id="sample-loader-container"></div>
+
       <div class="header-right">
         <a href="#" class="open-new-tab" id="openNewTab">
           <span>↗</span>
@@ -225,13 +237,13 @@
         <span class="version">v0.3</span>
       </div>
     </header>
-    
+
     <div class="content">
       <div class="loading" id="loading">
         <div class="loading-spinner"></div>
         <div>Loading visualizer...</div>
       </div>
-      
+
       <iframe class="frame active" id="frame-call_tree" src="./call_tree/index.html"></iframe>
       <iframe class="frame" id="frame-network_graph" data-src="./network-graph/index.html"></iframe>
       <iframe class="frame" id="frame-three_d" data-src="./3d-viewer/index.html"></iframe>
@@ -239,15 +251,18 @@
       <iframe class="frame" id="frame-summary_full" data-src="./summary_full/index.html"></iframe>
     </div>
   </div>
-  
+
+  <!-- Sample Loader Module -->
+  <script src="./sample-loader.js"></script>
+
   <script>
     const navBtns = document.querySelectorAll('.nav-btn');
     const frames = document.querySelectorAll('.frame');
     const openNewTab = document.getElementById('openNewTab');
     const loading = document.getElementById('loading');
-    
+
     let currentTarget = 'call_tree';
-    
+
     const paths = {
       'call_tree': './call_tree/index.html',
       'network_graph': './network-graph/index.html',
@@ -255,7 +270,7 @@
       'speedscope': './speedscope/index.html',
       'summary_full': './summary_full/index.html'
     };
-    
+
     // Lazy load iframes
     function loadFrame(target) {
       const frame = document.getElementById(`frame-${target}`);
@@ -269,41 +284,101 @@
         loading.style.display = 'none';
       }
     }
-    
+
     // Hide loading when first frame loads
     document.getElementById('frame-call_tree').onload = () => {
       loading.style.display = 'none';
     };
-    
+
     // Switch tabs
     navBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const target = btn.dataset.target;
         currentTarget = target;
-        
+
         // Update nav
         navBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
+
         // Update frames
         frames.forEach(f => f.classList.remove('active'));
         document.getElementById(`frame-${target}`).classList.add('active');
-        
+
         // Load frame if needed
         loadFrame(target);
-        
+
         // Update open in new tab link
         updateNewTabLink(target);
       });
     });
-    
+
     // Update new tab link
     function updateNewTabLink(target) {
       openNewTab.href = paths[target];
       openNewTab.target = '_blank';
     }
-    
+
     updateNewTabLink('call_tree');
+
+    // =========================================================================
+    // Initialize Sample Loader
+    // =========================================================================
+    SampleLoader.init('sample-loader-container', {
+      // Customize sample sizes if needed
+      sampleSizes: [1, 5, 10, 20, 30, 40, 50, 100],
+
+      // Customize named samples
+      namedSamples: [
+        'simple-html',
+        'html-with-some-tags',
+        'html-with-one-paragraph',
+        'html-bootstrap-example'
+      ],
+
+      // API endpoints
+      endpoints: {
+        htmlBySize: (size) => `/samples/html/with/size/${size}`,
+        htmlByName: (name) => `/samples/html/with/name/${name}`,
+        transform: (engine = 'dot', transformation = 'default', outputFormat = 'full') =>
+          `/timestamps/graph/from/html/to/${engine}/${transformation}/${outputFormat}`
+      },
+
+      // Transformation defaults
+      defaultEngine: 'dot',
+      defaultTransformation: 'default',
+
+      // Transform payload builder
+      transformPayload: (html) => ({
+        graph_request: {
+          html: html,
+          preset: "full_detail",
+          show_tag_nodes: true,
+          show_attr_nodes: true,
+          show_text_nodes: true,
+          color_scheme: "default"
+        },
+        trace_config: {
+          output: 'traces_only'
+        }
+      }),
+
+      // Target iframes
+      iframeSelectors: [
+        '#frame-call_tree',
+        '#frame-network_graph',
+        '#frame-three_d',
+        '#frame-speedscope',
+        '#frame-summary_full'
+      ],
+
+      // Callbacks (optional)
+      onDataLoaded: (data) => {
+        console.log('[Parent] Sample loaded:', data.name, 'format:', data.format);
+      },
+      onError: (err) => {
+        console.error('[Parent] Sample load error:', err);
+      }
+    });
   </script>
 </body>
 </html>

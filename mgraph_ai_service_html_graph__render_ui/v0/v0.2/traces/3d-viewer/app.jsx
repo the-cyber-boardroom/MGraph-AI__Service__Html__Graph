@@ -44,7 +44,7 @@ const NavButton = ({ onClick, children, title }) => (
   </button>
 );
 
-const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selectedNode, onNodeClick, setHoveredNode, fitTrigger, showEdges, graphSettings, highlightMode, navAction, setNavAction, hoverEnabled }) => {
+const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selectedNode, onNodeClick, setHoveredNode, fitTrigger, showEdges, graphSettings, highlightMode, navAction, setNavAction, hoverEnabled, showRoot, hideNonPath, showNodeLabels, showEdgeLabels, showGrid }) => {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const rendererRef = useRef(null);
@@ -52,9 +52,16 @@ const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selected
   const controlsRef = useRef(null);
   const nodesRef = useRef([]);
   const edgesRef = useRef([]);
+  const labelsRef = useRef([]);
+  const edgeLabelsRef = useRef([]);
   const animationIdRef = useRef(null);
   const raycasterRef = useRef(null);
   const mouseRef = useRef(new THREE.Vector2());
+  const parentMapRef = useRef(new Map()); // Maps child call_index -> parent call_index
+  const rootIndicesRef = useRef(new Set()); // Root node indices
+  const gridRef = useRef(null);
+  const nodePositionsRef = useRef(new Map()); // Cache layout positions
+  const flatNodesRef = useRef([]); // Cache flattened nodes
 
   useEffect(() => {
     if (!containerRef.current || !profile) return;
@@ -98,7 +105,9 @@ const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selected
 
     const grid = new THREE.GridHelper(200, 40, 0x222222, 0x1a1a1a);
     grid.position.y = -1;
+    grid.visible = false; // Hidden by default
     scene.add(grid);
+    gridRef.current = grid;
 
     const animate = () => {
       animationIdRef.current = requestAnimationFrame(animate);
@@ -265,18 +274,63 @@ const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selected
     setNavAction(null);
   }, [navAction, setNavAction]);
 
+  // Edge color scheme functions
+  const getEdgeColor = (parentNode, childNode, scheme, profile) => {
+    switch (scheme) {
+      case 'depth':
+        // Color based on child depth - deeper = warmer colors
+        const depthColors = [0x4ecdc4, 0x6bcb77, 0xffd93d, 0xffa502, 0xff6b6b, 0xff4757];
+        return depthColors[Math.min(childNode.depth, depthColors.length - 1)];
+      case 'rainbow':
+        // Rainbow based on call order
+        const hue = (childNode.call_index / profile.nodeCount) * 360;
+        return new THREE.Color().setHSL(hue / 360, 0.7, 0.5).getHex();
+      case 'heat':
+        // Heat map based on child's self time
+        const pct = childNode.self_ms / profile.totalSelfMs;
+        if (pct > 0.15) return 0xff6b6b;
+        if (pct > 0.08) return 0xffa502;
+        if (pct > 0.03) return 0xffd93d;
+        if (pct > 0.01) return 0x6bcb77;
+        return 0x4ecdc4;
+      case 'white':
+        return 0xffffff;
+      case 'teal':
+        return 0x4ecdc4;
+      case 'orange':
+        return 0xffa502;
+      default:
+        return 0x333333;
+    }
+  };
+
+  // LAYOUT EFFECT - Only recalculates positions when layout-affecting props change
   useEffect(() => {
-    if (!sceneRef.current || !profile) return;
-    const scene = sceneRef.current;
-
-    nodesRef.current.forEach(m => { scene.remove(m); m.geometry.dispose(); m.material.dispose(); });
-    nodesRef.current = [];
-    edgesRef.current.forEach(l => { scene.remove(l); l.geometry.dispose(); l.material.dispose(); });
-    edgesRef.current = [];
-
+    if (!profile) return;
+    
     const flatNodes = flattenTree(profile.callTree);
+    flatNodesRef.current = flatNodes;
     const nodePositions = new Map();
-    const { linkDistance, repulsion, collision, minNodeSize, maxNodeSize } = graphSettings;
+    const { linkDistance, repulsion, collision } = graphSettings;
+
+    // Build parent map and identify roots
+    const parentMap = new Map();
+    const rootIndices = new Set();
+    profile.callTree.forEach(root => rootIndices.add(root.call_index));
+    
+    const buildParentMap = (nodes, parentIndex = null) => {
+      nodes.forEach(node => {
+        if (parentIndex !== null) {
+          parentMap.set(node.call_index, parentIndex);
+        }
+        if (node.children?.length) {
+          buildParentMap(node.children, node.call_index);
+        }
+      });
+    };
+    buildParentMap(profile.callTree);
+    parentMapRef.current = parentMap;
+    rootIndicesRef.current = rootIndices;
 
     if (layoutMode === 'tree') {
       const layoutNode = (node, x, z, depth, si, sc) => {
@@ -325,9 +379,57 @@ const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selected
       }
       positions.forEach(p => nodePositions.set(p.node.call_index, { x: p.x, y: p.y, z: p.z, node: p.node }));
     }
+    
+    nodePositionsRef.current = nodePositions;
+  }, [profile, layoutMode, graphSettings.linkDistance, graphSettings.repulsion, graphSettings.collision]);
+
+  // VISUAL EFFECT - Rebuilds visuals using cached positions
+  useEffect(() => {
+    if (!sceneRef.current || !profile || nodePositionsRef.current.size === 0) return;
+    const scene = sceneRef.current;
+    const nodePositions = nodePositionsRef.current;
+    const flatNodes = flatNodesRef.current;
+    const rootIndices = rootIndicesRef.current;
+    const { minNodeSize, maxNodeSize, fontSize, labelLength, edgeWidth, edgeColorScheme } = graphSettings;
+
+    // Clear existing objects
+    nodesRef.current.forEach(m => { scene.remove(m); m.geometry.dispose(); m.material.dispose(); });
+    nodesRef.current = [];
+    edgesRef.current.forEach(l => { scene.remove(l); l.geometry.dispose(); l.material.dispose(); });
+    edgesRef.current = [];
+    labelsRef.current.forEach(s => { scene.remove(s); s.material.map?.dispose(); s.material.dispose(); });
+    labelsRef.current = [];
+    edgeLabelsRef.current.forEach(s => { scene.remove(s); s.material.map?.dispose(); s.material.dispose(); });
+    edgeLabelsRef.current = [];
+
+    // Create text label helper
+    const createLabel = (text, position, scale = 1) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 1024;
+      canvas.height = 128;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, canvas.width, canvas.height, 16);
+      ctx.fill();
+      ctx.font = `bold ${Math.max(28, fontSize * 3)}px JetBrains Mono, monospace`;
+      ctx.fillStyle = '#e0e0e0';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const shortText = text.length > labelLength ? text.slice(0, labelLength - 3) + '...' : text;
+      ctx.fillText(shortText, canvas.width / 2, canvas.height / 2);
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+      const sprite = new THREE.Sprite(material);
+      sprite.position.copy(position);
+      const baseScale = fontSize * scale;
+      sprite.scale.set(baseScale, baseScale * 0.125, 1);
+      return sprite;
+    };
 
     nodePositions.forEach((pos) => {
       const node = pos.node;
+      const isRoot = rootIndices.has(node.call_index);
       const color = getHotspotColor(node.self_ms, profile.totalSelfMs);
       let size = sizeBy === 'duration' ? minNodeSize + Math.sqrt(node.duration_ms / profile.maxDuration) * (maxNodeSize - minNodeSize) : sizeBy === 'self' ? minNodeSize + Math.sqrt((node.self_ms / profile.totalSelfMs) * 100) * (maxNodeSize - minNodeSize) * 0.5 : (minNodeSize + maxNodeSize) / 2;
       size = Math.max(minNodeSize, Math.min(maxNodeSize, size));
@@ -341,13 +443,22 @@ const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selected
         mesh = new THREE.Mesh(new THREE.SphereGeometry(size, 16, 16), new THREE.MeshPhongMaterial({ color, transparent: true, opacity: 0.9 }));
         mesh.position.set(pos.x, pos.y, pos.z);
       }
-      mesh.userData = { node, originalColor: color };
+      mesh.userData = { node, originalColor: color, isRoot, size };
       scene.add(mesh);
       nodesRef.current.push(mesh);
+
+      // Add node label
+      if (showNodeLabels) {
+        const labelPos = mesh.position.clone();
+        labelPos.y += (layoutMode === 'city' ? 20 : size + 4);
+        const label = createLabel(node.name, labelPos, 2);
+        label.userData = { nodeCallIndex: node.call_index };
+        scene.add(label);
+        labelsRef.current.push(label);
+      }
     });
 
     if (showEdges) {
-      const mat = new THREE.LineBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.5 });
       flatNodes.forEach(node => {
         if (node.children?.length) {
           const pp = nodePositions.get(node.call_index);
@@ -355,21 +466,96 @@ const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selected
           node.children.forEach(child => {
             const cp = nodePositions.get(child.call_index);
             if (!cp) return;
-            const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(pp.x, pp.y, pp.z), new THREE.Vector3(cp.x, cp.y, cp.z)]), mat.clone());
-            line.userData = { parentCallIndex: node.call_index, childCallIndex: child.call_index };
+            
+            const edgeColor = getEdgeColor(node, child, edgeColorScheme, profile);
+            const mat = new THREE.LineBasicMaterial({ 
+              color: edgeColor, 
+              transparent: true, 
+              opacity: edgeColorScheme === 'default' ? 0.5 : 0.7,
+              linewidth: edgeWidth // Note: linewidth only works on some systems
+            });
+            
+            const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(pp.x, pp.y, pp.z), new THREE.Vector3(cp.x, cp.y, cp.z)]), mat);
+            line.userData = { parentCallIndex: node.call_index, childCallIndex: child.call_index, parentName: node.name, childName: child.name, originalColor: edgeColor };
             scene.add(line);
             edgesRef.current.push(line);
+
+            // Add edge label
+            if (showEdgeLabels) {
+              const midPoint = new THREE.Vector3(
+                (pp.x + cp.x) / 2,
+                (pp.y + cp.y) / 2 + 3,
+                (pp.z + cp.z) / 2
+              );
+              const edgeLabel = createLabel(`→ ${child.name}`, midPoint, 1.5);
+              edgeLabel.userData = { parentCallIndex: node.call_index, childCallIndex: child.call_index };
+              scene.add(edgeLabel);
+              edgeLabelsRef.current.push(edgeLabel);
+            }
           });
         }
       });
     }
-  }, [profile, layoutMode, sizeBy, showEdges, graphSettings]);
+  }, [profile, layoutMode, sizeBy, showEdges, graphSettings.minNodeSize, graphSettings.maxNodeSize, graphSettings.fontSize, graphSettings.labelLength, graphSettings.edgeWidth, graphSettings.edgeColorScheme, showNodeLabels, showEdgeLabels]);
+
+  // Degree colors for path to root (closer = brighter)
+  const getDegreeColor = (degree) => {
+    const colors = [
+      0xffffff, // 0 - selected (white)
+      0x4ecdc4, // 1 - parent (teal)
+      0x6bcb77, // 2 - grandparent (green)
+      0xffd93d, // 3 - great-grandparent (yellow)
+      0xffa502, // 4 - (orange)
+      0xff6b6b, // 5+ - (red/pink)
+    ];
+    return colors[Math.min(degree, colors.length - 1)];
+  };
 
   useEffect(() => {
-    nodesRef.current.forEach(m => { m.material.color.setHex(m.userData.originalColor); m.material.emissive = new THREE.Color(0); m.material.opacity = 0.9; });
-    edgesRef.current.forEach(l => { l.material.color.setHex(0x333333); l.material.opacity = 0.5; });
+    // Reset all nodes and edges
+    nodesRef.current.forEach(m => { 
+      m.material.color.setHex(m.userData.originalColor); 
+      m.material.emissive = new THREE.Color(0); 
+      m.material.emissiveIntensity = 0;
+      m.material.opacity = 0.9;
+      m.visible = true;
+    });
+    edgesRef.current.forEach(l => { 
+      l.material.color.setHex(0x333333); 
+      l.material.opacity = 0.5;
+      l.visible = true;
+    });
+    labelsRef.current.forEach(s => { s.visible = showNodeLabels; });
+    edgeLabelsRef.current.forEach(s => { s.visible = showEdgeLabels; });
+
+    // Highlight root nodes if showRoot is enabled
+    if (showRoot) {
+      nodesRef.current.forEach(m => {
+        if (m.userData.isRoot) {
+          m.material.emissive = new THREE.Color(0xffffff);
+          m.material.emissiveIntensity = 0.5;
+        }
+      });
+    }
+
     if (!selectedNode) return;
 
+    // Build path to root
+    const pathToRoot = new Map(); // callIndex -> degree of separation
+    if (highlightMode === 'pathToRoot') {
+      let currentIndex = selectedNode.call_index;
+      let degree = 0;
+      pathToRoot.set(currentIndex, degree);
+      
+      while (parentMapRef.current.has(currentIndex)) {
+        const parentIndex = parentMapRef.current.get(currentIndex);
+        degree++;
+        pathToRoot.set(parentIndex, degree);
+        currentIndex = parentIndex;
+      }
+    }
+
+    // Find connected nodes and same-name nodes for other modes
     const connected = new Set(), sameName = new Set();
     if (highlightMode === 'connections' || highlightMode === 'both') {
       edgesRef.current.forEach(l => {
@@ -381,22 +567,96 @@ const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selected
       nodesRef.current.forEach(m => { if (m.userData.node.name === selectedNode.name) sameName.add(m.userData.node.call_index); });
     }
 
+    // Apply highlighting to nodes
     nodesRef.current.forEach(m => {
-      const isSel = m.userData.node.call_index === selectedNode.call_index;
-      const isCon = connected.has(m.userData.node.call_index);
-      const isSame = sameName.has(m.userData.node.call_index);
-      if (isSel) { m.material.emissive = new THREE.Color(0xffffff); m.material.emissiveIntensity = 0.4; }
-      else if (isCon) { m.material.emissive = new THREE.Color(0x4ecdc4); m.material.emissiveIntensity = 0.3; }
-      else if (isSame) { m.material.emissive = new THREE.Color(0xff6b6b); m.material.emissiveIntensity = 0.3; }
-      else if (highlightMode !== 'none') m.material.opacity = 0.3;
+      const nodeIndex = m.userData.node.call_index;
+      const isSel = nodeIndex === selectedNode.call_index;
+      const isOnPath = pathToRoot.has(nodeIndex);
+      const isCon = connected.has(nodeIndex);
+      const isSame = sameName.has(nodeIndex);
+
+      if (highlightMode === 'pathToRoot') {
+        if (isOnPath) {
+          const degree = pathToRoot.get(nodeIndex);
+          m.material.emissive = new THREE.Color(getDegreeColor(degree));
+          m.material.emissiveIntensity = degree === 0 ? 0.5 : 0.4 - (degree * 0.05);
+        } else {
+          if (hideNonPath) {
+            m.visible = false;
+          } else {
+            m.material.opacity = 0.15;
+          }
+        }
+      } else {
+        if (isSel) { 
+          m.material.emissive = new THREE.Color(0xffffff); 
+          m.material.emissiveIntensity = 0.4; 
+        }
+        else if (isCon) { 
+          m.material.emissive = new THREE.Color(0x4ecdc4); 
+          m.material.emissiveIntensity = 0.3; 
+        }
+        else if (isSame) { 
+          m.material.emissive = new THREE.Color(0xff6b6b); 
+          m.material.emissiveIntensity = 0.3; 
+        }
+        else if (highlightMode !== 'none') {
+          m.material.opacity = 0.3;
+        }
+      }
     });
 
+    // Apply highlighting to edges
     edgesRef.current.forEach(l => {
-      const isCon = l.userData.parentCallIndex === selectedNode.call_index || l.userData.childCallIndex === selectedNode.call_index;
-      if (isCon && (highlightMode === 'connections' || highlightMode === 'both')) { l.material.color.setHex(0x4ecdc4); l.material.opacity = 1; }
-      else if (highlightMode !== 'none') l.material.opacity = 0.2;
+      const parentIndex = l.userData.parentCallIndex;
+      const childIndex = l.userData.childCallIndex;
+
+      if (highlightMode === 'pathToRoot') {
+        // Edge is on path if both endpoints are on path AND they're adjacent on the path
+        const parentOnPath = pathToRoot.has(parentIndex);
+        const childOnPath = pathToRoot.has(childIndex);
+        const isPathEdge = parentOnPath && childOnPath && 
+          Math.abs(pathToRoot.get(parentIndex) - pathToRoot.get(childIndex)) === 1;
+
+        if (isPathEdge) {
+          const degree = Math.min(pathToRoot.get(parentIndex), pathToRoot.get(childIndex));
+          l.material.color.setHex(getDegreeColor(degree + 1));
+          l.material.opacity = 1;
+        } else {
+          if (hideNonPath) {
+            l.visible = false;
+          } else {
+            l.material.opacity = 0.1;
+          }
+        }
+      } else {
+        const isCon = parentIndex === selectedNode.call_index || childIndex === selectedNode.call_index;
+        if (isCon && (highlightMode === 'connections' || highlightMode === 'both')) { 
+          l.material.color.setHex(0x4ecdc4); 
+          l.material.opacity = 1; 
+        }
+        else if (highlightMode !== 'none') {
+          l.material.opacity = 0.2;
+        }
+      }
     });
-  }, [selectedNode, highlightMode]);
+
+    // Update label visibility based on path
+    if (highlightMode === 'pathToRoot' && hideNonPath) {
+      labelsRef.current.forEach(s => {
+        if (showNodeLabels) {
+          s.visible = pathToRoot.has(s.userData.nodeCallIndex);
+        }
+      });
+      edgeLabelsRef.current.forEach(s => {
+        if (showEdgeLabels) {
+          const parentOnPath = pathToRoot.has(s.userData.parentCallIndex);
+          const childOnPath = pathToRoot.has(s.userData.childCallIndex);
+          s.visible = parentOnPath && childOnPath;
+        }
+      });
+    }
+  }, [selectedNode, highlightMode, showRoot, hideNonPath, showNodeLabels, showEdgeLabels]);
 
   useEffect(() => {
     if (!cameraRef.current || !controlsRef.current || !nodesRef.current.length) return;
@@ -409,6 +669,13 @@ const ThreeJSVisualization = React.memo(({ profile, layoutMode, sizeBy, selected
     controlsRef.current.target.copy(center);
     controlsRef.current.update();
   }, [fitTrigger, profile, layoutMode]);
+
+  // Toggle grid visibility
+  useEffect(() => {
+    if (gridRef.current) {
+      gridRef.current.visible = showGrid;
+    }
+  }, [showGrid]);
 
   return <div ref={containerRef} style={{ width: '100%', height: '100%', cursor: 'grab', background: '#0d0d0d', outline: 'none' }} />;
 });
@@ -428,10 +695,50 @@ function ThreeDVisualizer() {
   const [highlightMode, setHighlightMode] = useState('connections');
   const [navAction, setNavAction] = useState(null);
   const [hoverEnabled, setHoverEnabled] = useState(false);
-  const [graphSettings, setGraphSettings] = useState({ minNodeSize: 2, maxNodeSize: 15, fontSize: 8, labelLength: 16, linkDistance: 60, repulsion: 150, collision: 2 });
+  const [graphSettings, setGraphSettings] = useState({ minNodeSize: 2, maxNodeSize: 15, fontSize: 14, labelLength: 20, linkDistance: 60, repulsion: 150, collision: 2, edgeWidth: 1, edgeColorScheme: 'default' });
+  const [showRoot, setShowRoot] = useState(false);
+  const [hideNonPath, setHideNonPath] = useState(false);
+  const [showNodeLabels, setShowNodeLabels] = useState(false);
+  const [showEdgeLabels, setShowEdgeLabels] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
+
+  // =========================================================================
+  // TRACE DATA RECEIVER - Listen for data from parent Sample Loader
+  // =========================================================================
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'LOAD_TRACE_DATA') {
+        const { name, data } = event.data.payload;
+        console.log('[3DViewer] Received trace data:', name);
+
+        const fileName = `full_${name}.json`;
+        const newFile = { name: fileName, data };
+
+        setFiles(prev => {
+          const existing = new Set(prev.map(f => f.name));
+          if (existing.has(fileName)) {
+            return prev.map(f => f.name === fileName ? newFile : f);
+          }
+          return [...prev, newFile];
+        });
+
+        setTimeout(() => setSelectedKey(extractKey(fileName)), 50);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    // Notify parent we're ready
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'VISUALIZER_READY', visualizer: 'three_d' }, '*');
+    }
+
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+  // =========================================================================
 
   const updateSetting = (k, v) => setGraphSettings(p => ({ ...p, [k]: v }));
-  const resetSettings = () => setGraphSettings({ minNodeSize: 2, maxNodeSize: 15, fontSize: 8, labelLength: 16, linkDistance: 60, repulsion: 150, collision: 2 });
+  const resetSettings = () => setGraphSettings({ minNodeSize: 2, maxNodeSize: 15, fontSize: 14, labelLength: 20, linkDistance: 60, repulsion: 150, collision: 2, edgeWidth: 1, edgeColorScheme: 'default' });
 
   const profiles = useMemo(() => files.map(processCallTreeFile).filter(Boolean), [files]);
   const selectedProfile = useMemo(() => profiles.find(p => p.key === selectedKey) || profiles[0] || null, [profiles, selectedKey]);
@@ -470,16 +777,18 @@ function ThreeDVisualizer() {
         </div>
         {showSettings && (
           <div style={{ background: '#151515', borderBottom: '1px solid #1a1a1a', padding: '12px 24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 24 }}>
               <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Node Size</div><div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}><Slider label="Min" value={graphSettings.minNodeSize} min={1} max={10} onChange={(v) => updateSetting('minNodeSize', v)} unit="px" /><Slider label="Max" value={graphSettings.maxNodeSize} min={5} max={30} onChange={(v) => updateSetting('maxNodeSize', v)} unit="px" /></div></div>
+              <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Labels</div><div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}><Slider label="Font Size" value={graphSettings.fontSize} min={8} max={24} onChange={(v) => updateSetting('fontSize', v)} unit="px" /><Slider label="Max Chars" value={graphSettings.labelLength} min={10} max={40} onChange={(v) => updateSetting('labelLength', v)} unit="" /></div></div>
+              <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Edges</div><div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}><Slider label="Width" value={graphSettings.edgeWidth} min={1} max={5} onChange={(v) => updateSetting('edgeWidth', v)} unit="px" /><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>{[{ id: 'default', label: 'Default' }, { id: 'depth', label: 'Depth' }, { id: 'heat', label: 'Heat' }, { id: 'rainbow', label: 'Rainbow' }, { id: 'teal', label: 'Teal' }, { id: 'white', label: 'White' }].map(s => <button key={s.id} onClick={() => updateSetting('edgeColorScheme', s.id)} style={{ ...toggleButtonStyle(graphSettings.edgeColorScheme === s.id), padding: '3px 6px', fontSize: 9 }}>{s.label}</button>)}</div></div></div>
               <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Force Layout</div><div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}><Slider label="Link Dist" value={graphSettings.linkDistance} min={20} max={150} onChange={(v) => updateSetting('linkDistance', v)} unit="px" /><Slider label="Repulsion" value={graphSettings.repulsion} min={50} max={500} onChange={(v) => updateSetting('repulsion', v)} unit="" /></div></div>
-              <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Highlight</div><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{['none', 'connections', 'sameName', 'both'].map(m => <button key={m} onClick={() => setHighlightMode(m)} style={toggleButtonStyle(highlightMode === m)}>{m === 'sameName' ? 'Same Name' : m.charAt(0).toUpperCase() + m.slice(1)}</button>)}</div></div>
+              <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Highlight</div><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{['none', 'connections', 'pathToRoot', 'sameName', 'both'].map(m => <button key={m} onClick={() => setHighlightMode(m)} style={toggleButtonStyle(highlightMode === m)}>{m === 'sameName' ? 'Name' : m === 'pathToRoot' ? '→Root' : m.charAt(0).toUpperCase() + m.slice(1)}</button>)}</div></div>
             </div>
             <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}><button onClick={resetSettings} style={buttonStyle}>Reset</button></div>
           </div>
         )}
         <div style={{ flex: 1, position: 'relative' }}>
-          {selectedProfile && <ThreeJSVisualization profile={selectedProfile} layoutMode={layoutMode} sizeBy={sizeBy} selectedNode={selectedNode} onNodeClick={handleNodeClick} setHoveredNode={setHoveredNode} fitTrigger={fitTrigger} showEdges={showEdges} graphSettings={graphSettings} highlightMode={highlightMode} navAction={navAction} setNavAction={setNavAction} hoverEnabled={hoverEnabled} />}
+          {selectedProfile && <ThreeJSVisualization profile={selectedProfile} layoutMode={layoutMode} sizeBy={sizeBy} selectedNode={selectedNode} onNodeClick={handleNodeClick} setHoveredNode={setHoveredNode} fitTrigger={fitTrigger} showEdges={showEdges} graphSettings={graphSettings} highlightMode={highlightMode} navAction={navAction} setNavAction={setNavAction} hoverEnabled={hoverEnabled} showRoot={showRoot} hideNonPath={hideNonPath} showNodeLabels={showNodeLabels} showEdgeLabels={showEdgeLabels} showGrid={showGrid} />}
           <div style={{ position: 'absolute', bottom: 70, right: 20, display: 'flex', flexDirection: 'column', gap: 4, background: 'rgba(17, 17, 17, 0.9)', padding: 12, borderRadius: 8, border: '1px solid #333' }}>
             <div style={{ fontSize: 9, color: '#666', textTransform: 'uppercase', marginBottom: 4, textAlign: 'center' }}>Navigate</div>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}><NavButton onClick={() => setNavAction('up')} title="Move Up">↑</NavButton></div>
@@ -490,9 +799,18 @@ function ThreeDVisualizer() {
           </div>
           {displayNode && <div style={{ position: 'absolute', top: 20, left: 20, background: 'rgba(17, 17, 17, 0.95)', border: '1px solid #333', borderRadius: 8, padding: 16, minWidth: 220, fontFamily: "'JetBrains Mono', monospace" }}><div style={{ fontSize: 12, color: '#e0e0e0', fontWeight: 600, marginBottom: 8, wordBreak: 'break-all' }}>{displayNode.name}</div><div style={{ display: 'grid', gap: 4, fontSize: 11 }}><div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#666' }}>Duration:</span><span style={{ color: '#4ecdc4' }}>{formatDuration(displayNode.duration_ms)}</span></div><div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#666' }}>Self Time:</span><span style={{ color: getHotspotColorCSS(displayNode.self_ms, selectedProfile?.totalSelfMs) }}>{formatDuration(displayNode.self_ms)}</span></div><div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#666' }}>Depth:</span><span style={{ color: '#888' }}>{displayNode.depth}</span></div></div></div>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 16px', background: '#111', borderTop: '1px solid #1a1a1a', fontSize: 10, color: '#888' }}>
-          <span>Hotspot (self time %):</span>
-          {[{ color: '#4ecdc4', label: '<1%' }, { color: '#6bcb77', label: '1-3%' }, { color: '#ffd93d', label: '3-8%' }, { color: '#ffa502', label: '8-15%' }, { color: '#ff6b6b', label: '>15%' }].map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} /><span>{item.label}</span></div>)}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 16px', background: '#111', borderTop: '1px solid #1a1a1a', fontSize: 10, color: '#888', flexWrap: 'wrap' }}>
+          {highlightMode === 'pathToRoot' ? (
+            <>
+              <span>Path to Root (degree):</span>
+              {[{ color: '#ffffff', label: 'Selected' }, { color: '#4ecdc4', label: '1st' }, { color: '#6bcb77', label: '2nd' }, { color: '#ffd93d', label: '3rd' }, { color: '#ffa502', label: '4th' }, { color: '#ff6b6b', label: '5th+' }].map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} /><span>{item.label}</span></div>)}
+            </>
+          ) : (
+            <>
+              <span>Hotspot (self time %):</span>
+              {[{ color: '#4ecdc4', label: '<1%' }, { color: '#6bcb77', label: '1-3%' }, { color: '#ffd93d', label: '3-8%' }, { color: '#ffa502', label: '8-15%' }, { color: '#ff6b6b', label: '>15%' }].map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} /><span>{item.label}</span></div>)}
+            </>
+          )}
         </div>
       </div>
     );
@@ -535,8 +853,19 @@ function ThreeDVisualizer() {
             </div>
           </div>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid #1a1a1a' }}>
+            <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Highlight Mode</div>
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              {[{ id: 'none', label: 'None' }, { id: 'connections', label: 'Conn' }, { id: 'pathToRoot', label: '→Root' }, { id: 'sameName', label: 'Name' }, { id: 'both', label: 'Both' }].map(mode => <button key={mode.id} onClick={() => setHighlightMode(mode.id)} style={toggleButtonStyle(highlightMode === mode.id)}>{mode.label}</button>)}
+            </div>
+          </div>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid #1a1a1a' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={showEdges} onChange={(e) => setShowEdges(e.target.checked)} style={{ accentColor: '#4ecdc4' }} /><span style={{ fontSize: 12, color: '#ccc' }}>Show Edges</span></label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={showRoot} onChange={(e) => setShowRoot(e.target.checked)} style={{ accentColor: '#4ecdc4' }} /><span style={{ fontSize: 12, color: '#ccc' }}>Highlight Root</span></label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={hideNonPath} onChange={(e) => setHideNonPath(e.target.checked)} style={{ accentColor: '#4ecdc4' }} /><span style={{ fontSize: 12, color: '#ccc' }}>Hide Non-Path</span></label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={showNodeLabels} onChange={(e) => setShowNodeLabels(e.target.checked)} style={{ accentColor: '#4ecdc4' }} /><span style={{ fontSize: 12, color: '#ccc' }}>Node Labels</span></label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={showEdgeLabels} onChange={(e) => setShowEdgeLabels(e.target.checked)} style={{ accentColor: '#4ecdc4' }} /><span style={{ fontSize: 12, color: '#ccc' }}>Edge Labels</span></label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={showGrid} onChange={(e) => setShowGrid(e.target.checked)} style={{ accentColor: '#4ecdc4' }} /><span style={{ fontSize: 12, color: '#ccc' }}>Show Grid</span></label>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={hoverEnabled} onChange={(e) => setHoverEnabled(e.target.checked)} style={{ accentColor: '#4ecdc4' }} /><span style={{ fontSize: 12, color: '#ccc' }}>Hover Selection</span></label>
             </div>
           </div>
@@ -576,15 +905,17 @@ function ThreeDVisualizer() {
         {showSettings && (
           <div style={{ background: '#151515', borderBottom: '1px solid #1a1a1a', padding: '16px 24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><span style={{ fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5 }}>Graph Settings</span><button onClick={resetSettings} style={buttonStyle}>Reset</button></div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 24 }}>
               <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Node Size</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}><Slider label="Min" value={graphSettings.minNodeSize} min={1} max={10} onChange={(v) => updateSetting('minNodeSize', v)} unit="px" /><Slider label="Max" value={graphSettings.maxNodeSize} min={5} max={30} onChange={(v) => updateSetting('maxNodeSize', v)} unit="px" /></div></div>
+              <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Labels</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}><Slider label="Font Size" value={graphSettings.fontSize} min={8} max={24} onChange={(v) => updateSetting('fontSize', v)} unit="px" /><Slider label="Max Chars" value={graphSettings.labelLength} min={10} max={40} onChange={(v) => updateSetting('labelLength', v)} unit="" /></div></div>
+              <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Edges</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}><Slider label="Width" value={graphSettings.edgeWidth} min={1} max={5} onChange={(v) => updateSetting('edgeWidth', v)} unit="px" /><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>{[{ id: 'default', label: 'Default' }, { id: 'depth', label: 'Depth' }, { id: 'heat', label: 'Heat' }, { id: 'rainbow', label: 'Rainbow' }, { id: 'teal', label: 'Teal' }, { id: 'white', label: 'White' }].map(s => <button key={s.id} onClick={() => updateSetting('edgeColorScheme', s.id)} style={{ ...toggleButtonStyle(graphSettings.edgeColorScheme === s.id), padding: '3px 6px', fontSize: 9 }}>{s.label}</button>)}</div></div></div>
               <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Force Layout</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}><Slider label="Link Dist" value={graphSettings.linkDistance} min={20} max={150} onChange={(v) => updateSetting('linkDistance', v)} unit="px" /><Slider label="Repulsion" value={graphSettings.repulsion} min={50} max={500} onChange={(v) => updateSetting('repulsion', v)} unit="" /><Slider label="Collision" value={graphSettings.collision} min={0} max={10} onChange={(v) => updateSetting('collision', v)} unit="px" /></div></div>
-              <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Highlight</div><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{['none', 'connections', 'sameName', 'both'].map(m => <button key={m} onClick={() => setHighlightMode(m)} style={toggleButtonStyle(highlightMode === m)}>{m === 'sameName' ? 'Same Name' : m.charAt(0).toUpperCase() + m.slice(1)}</button>)}</div></div>
+              <div><div style={{ fontSize: 10, color: '#666', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Highlight</div><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{['none', 'connections', 'pathToRoot', 'sameName', 'both'].map(m => <button key={m} onClick={() => setHighlightMode(m)} style={toggleButtonStyle(highlightMode === m)}>{m === 'sameName' ? 'Name' : m === 'pathToRoot' ? '→Root' : m.charAt(0).toUpperCase() + m.slice(1)}</button>)}</div></div>
             </div>
           </div>
         )}
         <div style={{ flex: 1, position: 'relative' }}>
-          {!selectedProfile ? <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', color: '#444' }}><div style={{ fontSize: 48, marginBottom: 16 }}>🎲</div><div style={{ fontSize: 14, fontStyle: 'italic' }}>Drop a full_*.json file to visualize in 3D</div></div> : <ThreeJSVisualization profile={selectedProfile} layoutMode={layoutMode} sizeBy={sizeBy} selectedNode={selectedNode} onNodeClick={handleNodeClick} setHoveredNode={setHoveredNode} fitTrigger={fitTrigger} showEdges={showEdges} graphSettings={graphSettings} highlightMode={highlightMode} navAction={navAction} setNavAction={setNavAction} hoverEnabled={hoverEnabled} />}
+          {!selectedProfile ? <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', color: '#444' }}><div style={{ fontSize: 48, marginBottom: 16 }}>🎲</div><div style={{ fontSize: 14, fontStyle: 'italic' }}>Drop a full_*.json file to visualize in 3D</div></div> : <ThreeJSVisualization profile={selectedProfile} layoutMode={layoutMode} sizeBy={sizeBy} selectedNode={selectedNode} onNodeClick={handleNodeClick} setHoveredNode={setHoveredNode} fitTrigger={fitTrigger} showEdges={showEdges} graphSettings={graphSettings} highlightMode={highlightMode} navAction={navAction} setNavAction={setNavAction} hoverEnabled={hoverEnabled} showRoot={showRoot} hideNonPath={hideNonPath} showNodeLabels={showNodeLabels} showEdgeLabels={showEdgeLabels} showGrid={showGrid} />}
           {selectedProfile && (
             <div style={{ position: 'absolute', bottom: 20, right: 20, display: 'flex', flexDirection: 'column', gap: 4, background: 'rgba(17, 17, 17, 0.9)', padding: 12, borderRadius: 8, border: '1px solid #333' }}>
               <div style={{ fontSize: 9, color: '#666', textTransform: 'uppercase', marginBottom: 4, textAlign: 'center' }}>Navigate</div>
@@ -596,9 +927,18 @@ function ThreeDVisualizer() {
             </div>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 16px', background: '#111', borderTop: '1px solid #1a1a1a', fontSize: 10, color: '#888' }}>
-          <span>Hotspot (self time %):</span>
-          {[{ color: '#4ecdc4', label: '<1%' }, { color: '#6bcb77', label: '1-3%' }, { color: '#ffd93d', label: '3-8%' }, { color: '#ffa502', label: '8-15%' }, { color: '#ff6b6b', label: '>15%' }].map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} /><span>{item.label}</span></div>)}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 16px', background: '#111', borderTop: '1px solid #1a1a1a', fontSize: 10, color: '#888', flexWrap: 'wrap' }}>
+          {highlightMode === 'pathToRoot' ? (
+            <>
+              <span>Path to Root (degree):</span>
+              {[{ color: '#ffffff', label: 'Selected' }, { color: '#4ecdc4', label: '1st' }, { color: '#6bcb77', label: '2nd' }, { color: '#ffd93d', label: '3rd' }, { color: '#ffa502', label: '4th' }, { color: '#ff6b6b', label: '5th+' }].map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} /><span>{item.label}</span></div>)}
+            </>
+          ) : (
+            <>
+              <span>Hotspot (self time %):</span>
+              {[{ color: '#4ecdc4', label: '<1%' }, { color: '#6bcb77', label: '1-3%' }, { color: '#ffd93d', label: '3-8%' }, { color: '#ffa502', label: '8-15%' }, { color: '#ff6b6b', label: '>15%' }].map((item, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} /><span>{item.label}</span></div>)}
+            </>
+          )}
           <span style={{ marginLeft: 'auto', color: '#555' }}>Layout: {layoutMode === 'tree' ? '3D Tree' : layoutMode === 'city' ? 'Code City' : '3D Force Graph'}</span>
         </div>
       </main>
