@@ -2,10 +2,11 @@ import requests
 
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Timestamps                        import Routes__Timestamps
 from mgraph_ai_service_html_graph.schemas.timestamps.Schema__QA__Traces__Create__Stats      import Schema__QA__Traces__Create__Stats
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas    import Schema__Graph__From_Html__Request
 from mgraph_ai_service_html_graph.schemas.timestamps.Schema__Graph__With_Traces__Request    import Schema__Graph__With_Traces__Request
 from mgraph_ai_service_html_graph.schemas.timestamps.Schema__Trace_Config                   import Schema__Trace_Config
 from mgraph_ai_service_html_graph.schemas.timestamps.enums.Enum__Trace_Output               import Enum__Trace_Output
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas    import Schema__Graph__Export__From_Html__Request
+from mgraph_ai_service_html_graph.utils.testing.sample_html_files                           import SIMPLE_HTML, generate__test_html, HTML__WITH_SOME_TAGS, HTML__BOOTSTRAP_EXAMPLE
 from osbot_utils.helpers.duration.decorators.capture_duration                               import capture_duration
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                import Safe_Str__Text
@@ -14,7 +15,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id               
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                              import type_safe
 from osbot_utils.utils.Files                                                                import path_combine, file_create
 from osbot_utils.utils.Json                                                                 import json_to_str
-from tests.unit.sample_html_files                                                           import generate__test_html, SIMPLE_HTML, HTML__WITH_SOME_TAGS, HTML__BOOTSTRAP_EXAMPLE
+
 
 # FILE_NAME__FORMAT__SPEEDSCOPE        = '{type}__speedscope.json'
 # FILE_NAME__FORMAT__RESPONSE__SUMMARY = '{type}__summary.json'
@@ -35,8 +36,9 @@ class QA_Create_Html_Transformations(Type_Safe):
     save_data         : bool                    = True
 
     def create__graph__from_html__request(self, html):
-        graph__from_html_request = Schema__Graph__From_Html__Request(html           = html               ,
-                                                                     transformation = self.transformation)
+
+        graph__from_html_request = Schema__Graph__Export__From_Html__Request(html           = html               ,
+                                                                             transformation = self.transformation)
         return graph__from_html_request
 
     def create__trace_config(self):
@@ -55,7 +57,7 @@ class QA_Create_Html_Transformations(Type_Safe):
                                                                            transformation = self.transformation,
                                                                            request        = request            )
         if self.save_data:
-            self.save_speedscope_traces(traces    = response.traces,
+            self.save_speedscope_traces(traces    = response.get('traces'),
                                         html_type = html_type     )
         return response
 
@@ -86,12 +88,14 @@ class QA_Create_Html_Transformations(Type_Safe):
 
     def save_response__full(self, response, html_type=None):
         file_name = FILE_NAME__FORMAT__RESPONSE__FULL.format(type = html_type)
-        data      = json_to_str(response.json())
+        #data      = json_to_str(response.json())
+        data      = json_to_str(response)
         self.save_to_file(data, file_name)
 
     def save_response__summary(self, response, html_type=None):
         file_name = FILE_NAME__FORMAT__RESPONSE__SUMMARY.format(type = html_type)
-        data      = json_to_str(response.json())
+        #data      = json_to_str(response.json())
+        data = json_to_str(response)
         self.save_to_file(data, file_name)
 
     def save_speedscope_traces(self, traces, html_type=None):
@@ -117,6 +121,12 @@ class QA_Create_Html_Transformations(Type_Safe):
         html_type    = 'simple-html'
         create_stats = self.create__for__html(html=html, html_type=html_type)
         return create_stats
+
+    def create__for__simple_html__speedscope(self):
+        html         = SIMPLE_HTML
+        html_type    = 'simple-html'
+        response     = self.speedscope__for__html(html=html, html_type=html_type)
+        return response
 
     def create__for__html_with_some_tags(self):
         html         = HTML__WITH_SOME_TAGS

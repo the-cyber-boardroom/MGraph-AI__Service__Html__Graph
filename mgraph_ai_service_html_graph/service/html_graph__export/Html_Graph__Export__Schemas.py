@@ -3,7 +3,7 @@
 # Request and response schema classes for the export service.
 # Uses Type_Safe for type validation.
 
-from typing                              import Optional, Dict, Any, List, Literal
+from typing                              import Dict, Any, List
 from osbot_utils.type_safe.Type_Safe     import Type_Safe
 
 
