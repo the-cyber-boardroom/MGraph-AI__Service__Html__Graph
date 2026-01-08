@@ -44,11 +44,13 @@ class Html_MGraph__Base(Type_Safe):                                             
     @type_safe
     def new_value_node(self, value     : str                ,                   # Value to store
                              node_path : Node_Path   = None ,                   # Optional path
-                             key       : str         = ''                       # Optional unique key
+                             key       : str         = ''   ,                   # Optional unique key
+                             node_id   : Node_Id     = None                     # Optional Node_Id
                       ) -> Domain__MGraph__Node:                                # Create value node
         return self.mgraph.edit().new_value(value     = value     ,
                                             node_path = node_path ,
-                                            key       = key       )
+                                            key       = key       ,
+                                            node_id   = node_id   )
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Edge Creation Methods
