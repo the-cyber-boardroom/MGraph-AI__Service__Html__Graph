@@ -14,7 +14,7 @@ from mgraph_ai_service_html_graph.schemas.routes.Schema__Html__From_Url__Request
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import  Schema__Graph__Dot__Response, Schema__Graph__Response__Base
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service import Html_Graph__Export__Service
 from mgraph_ai_service_html_graph.service.html_url.Html__Url__Fetcher                    import Html__Url__Fetcher
-from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config import Type_Safe__Config
+from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config                       import Type_Safe__Config
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

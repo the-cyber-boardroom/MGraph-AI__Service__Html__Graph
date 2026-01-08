@@ -36,6 +36,7 @@ class Html_Use_Case__1(Graph_Transformation__Base):
     def transform_mgraph(self, mgraph: MGraph) -> MGraph:
         self.dot_code = self.create_dot_code(mgraph)
 
+
     def create_dot_code(self, mgraph: MGraph) -> str:
 
         # Access MGraph's export system and configure DOT rendering
@@ -75,7 +76,6 @@ class Html_Use_Case__1(Graph_Transformation__Base):
             # ─────────────────────────────────────────────────────────────────
             dot.set_edge__color(EDGE_CHILD_COLOR)
             dot.set_edge__arrow_head__vee()
-
             return dot.process_graph()
 
 
