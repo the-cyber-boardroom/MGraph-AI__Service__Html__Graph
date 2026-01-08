@@ -3,7 +3,7 @@ from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph              
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Body  import Html_MGraph__Body
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
-from mgraph_db.utils.testing.mgraph_test_ids                                    import mgraph_test_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                              import graph_deterministic_ids
 from osbot_utils.testing.__                                                     import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                import Obj_Id
@@ -438,7 +438,7 @@ class test_Html_MGraph__Body(TestCase):                                         
             assert _.get_text_content(div_id)      == 'Hello World'
 
     def test_complex_structure(self):                                           # Test complex nested structure
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Body().setup() as _:
                 # Build structure:
                 # body

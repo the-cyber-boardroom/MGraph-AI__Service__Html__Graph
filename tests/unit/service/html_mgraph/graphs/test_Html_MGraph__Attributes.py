@@ -3,7 +3,7 @@ from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph              
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Attributes    import Html_MGraph__Attributes
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base          import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                                     import Node_Path
-from mgraph_db.utils.testing.mgraph_test_ids                                            import mgraph_test_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                      import graph_deterministic_ids
 from osbot_utils.testing.__                                                             import __
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                       import Node_Id
@@ -450,7 +450,7 @@ class test_Html_MGraph__Attributes(TestCase):                                   
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_stats(self):                                                       # Test statistics with populated graph
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Attributes().setup() as _:
                 div_id = Node_Id(Obj_Id())
                 p_id   = Node_Id(Obj_Id())
@@ -498,7 +498,7 @@ class test_Html_MGraph__Attributes(TestCase):                                   
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_full_workflow(self):                                               # Test complete workflow
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Attributes().setup() as _:
                 # Register elements
                 html_id = Node_Id(Obj_Id())

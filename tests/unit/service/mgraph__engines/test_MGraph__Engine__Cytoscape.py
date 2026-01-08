@@ -7,7 +7,7 @@
 
 from unittest                                                                                       import TestCase
 from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__Cytoscape import MGraph__Engine__Config__Cytoscape
-from mgraph_db.utils.testing.mgraph_test_ids                                                        import mgraph_test_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                                  import graph_deterministic_ids
 from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
 from osbot_utils.utils.Objects                                                                      import base_classes
 from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                                   import Html_MGraph
@@ -31,7 +31,7 @@ class test_MGraph__Engine__Cytoscape(TestCase):
                 </body>
             </html>
         '''
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             cls.html_mgraph_simple  = Html_MGraph.from_html(cls.simple_html)
             cls.mgraph_simple       = cls.html_mgraph_simple.body_graph.mgraph
 
@@ -278,7 +278,7 @@ class test_MGraph__Engine__Cytoscape(TestCase):
 
     def test__export__minimal_html(self):                                        # Test minimal HTML
         html = '<html><body><div></div></body></html>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             html_mgraph = Html_MGraph.from_html(html)
             mgraph      = html_mgraph.body_graph.mgraph
 

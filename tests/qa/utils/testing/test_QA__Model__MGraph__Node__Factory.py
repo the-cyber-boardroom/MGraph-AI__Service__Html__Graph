@@ -1,15 +1,17 @@
-from unittest                                                                   import TestCase
-
+from unittest                                                                            import TestCase
 from mgraph_ai_service_html_graph.schemas.timestamps.enums.Schema__Trace__Response__Type import Schema__Trace__Response__Type
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import Schema__Graph__Response__Base
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                  import Timestamp_Collector
-from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Export  import Timestamp_Collector__Export
-from osbot_utils.utils.Files                                                    import path_combine, file_create
-from mgraph_db.mgraph.models.Model__MGraph__Graph                               import Model__MGraph__Graph
-from mgraph_db.mgraph.schemas.Schema__MGraph__Graph                             import Schema__MGraph__Graph
-from mgraph_db.mgraph.schemas.Schema__MGraph__Node                              import Schema__MGraph__Node
-from mgraph_db.mgraph.schemas.Schema__MGraph__Edge                              import Schema__MGraph__Edge
-from mgraph_db.mgraph.schemas.Schema__MGraph__Types                             import Schema__MGraph__Types
+from mgraph_db.mgraph.schemas.Schema__MGraph__Node__Data import Schema__MGraph__Node__Data
+from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                           import Timestamp_Collector
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Export           import Timestamp_Collector__Export
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp import timestamp
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id import Node_Id
+from osbot_utils.utils.Files                                                             import path_combine, file_create
+from mgraph_db.mgraph.models.Model__MGraph__Graph                                        import Model__MGraph__Graph
+from mgraph_db.mgraph.schemas.Schema__MGraph__Graph                                      import Schema__MGraph__Graph
+from mgraph_db.mgraph.schemas.Schema__MGraph__Node                                       import Schema__MGraph__Node
+from mgraph_db.mgraph.schemas.Schema__MGraph__Edge                                       import Schema__MGraph__Edge
+from mgraph_db.mgraph.schemas.Schema__MGraph__Types                                      import Schema__MGraph__Types
 from osbot_utils.utils.Json import json_save
 
 
@@ -48,11 +50,15 @@ class test_QA__Model__MGraph__Node__Factory(TestCase):              # Focused pe
         graph                  = self._create_fresh_graph()
         _timestamp_collector_  = Timestamp_Collector(name='create__one_node')
 
+
         with _timestamp_collector_:
             node = graph.new_node()
 
         export = Timestamp_Collector__Export(collector=_timestamp_collector_)
         self._save_speedscope(export, 'create__one_node')
+
+    def test_create_30(self):
+        self.test__trace__batch_30_nodes()
 
     def test__trace__create__one_node__warm(self):                                              # Trace a single node creation
         name                   = 'create__one_node__warm'
@@ -188,3 +194,62 @@ class test_QA__Model__MGraph__Node__Factory(TestCase):              # Focused pe
 
         export = Timestamp_Collector__Export(collector=_timestamp_collector_)
         self._save_speedscope(export, 'simulate_html_elements')
+
+    # --- misc timestamps collectors ----
+
+    def test__trace__debug_class_creation(self):
+        name                   = 'debug_class_creation'
+        _timestamp_collector_  = Timestamp_Collector(name=name)
+
+        # --- Test Classes ---
+
+        class An_Class__Python:
+            """Pure Python class - baseline"""
+            pass
+
+        class An_Class__Type_Safe(Type_Safe):
+            """Empty Type_Safe - measures Type_Safe overhead"""
+            pass
+
+        # Simple_Node is already defined (Schema__MGraph__Node subclass)
+        # - has node_id, node_data, node_type attributes
+
+        # --- Creation Functions ---
+
+        @timestamp(name='1_python_class')
+        def create_python_class():
+            An_Class__Python()
+
+        @timestamp(name='2_type_safe_empty')
+        def create_type_safe_empty():
+            An_Class__Type_Safe()
+
+        @timestamp(name='3_simple_node_normal')
+        def create_simple_node_normal():
+            Simple_Node(node_data=None)
+
+        @timestamp(name='4_simple_node_fast_factory')
+        def create_simple_node_fast_factory():
+            """Bypass Type_Safe __init__ entirely"""
+            node = object.__new__(Simple_Node)
+            node_dict = {
+                'node_id'  : Node_Id(),
+                'node_data': None,
+                'node_type': Simple_Node,
+            }
+            object.__setattr__(node, '__dict__', node_dict)
+            return node
+
+        # --- Run Tests ---
+
+        with _timestamp_collector_:
+            # Run each 4 times to see cold vs warm
+            for _ in range(4):
+                create_python_class()
+                create_type_safe_empty()
+                create_simple_node_normal()
+                create_simple_node_fast_factory()
+
+        export = Timestamp_Collector__Export(collector=_timestamp_collector_)
+        self._save_speedscope(export, name)
+        self._save_export_full(export, name)

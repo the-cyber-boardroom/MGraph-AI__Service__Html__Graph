@@ -14,7 +14,7 @@ These tests are designed to:
 
 #from unittest                                                                                    import TestCase
 
-# from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
+# from osbot_utils.testing.Graph__Deterministic__Ids import graph_deterministic_ids
 # from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                                   import Timestamp_Collector
 # from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Report import Timestamp_Collector__Report
 #
@@ -33,7 +33,7 @@ These tests are designed to:
     #     html = HTML_MEDIUM
     #     #size = 500
     #     #html = generate_scaled_html(size)
-    #     with mgraph_test_ids():
+    #     with graph_deterministic_ids():
     #         with _timestamp_collector_:
     #             with timestamp_block("phase.html-to-document"):
     #                 with Html__To__Html_MGraph__Document() as converter:

@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Graph Data Schema (format-agnostic)
-# ═══════════════════════════════════════════════════════════════════════════════
+
 from typing                                                                 import List
 from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Node__Style  import Schema__Graph__Node, Schema__Graph__Edge
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe

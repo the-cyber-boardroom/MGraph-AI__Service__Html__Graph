@@ -6,11 +6,10 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                    import TestCase
-
-from mgraph_db.mgraph.domain.Domain__MGraph__Edge import Domain__MGraph__Edge
-from mgraph_db.mgraph.domain.Domain__MGraph__Node import Domain__MGraph__Node
-from mgraph_db.utils.testing.mgraph_test_ids                                     import mgraph_test_ids
-from osbot_utils.testing.__ import __
+from mgraph_db.mgraph.domain.Domain__MGraph__Edge                                import Domain__MGraph__Edge
+from mgraph_db.mgraph.domain.Domain__MGraph__Node                                import Domain__MGraph__Node
+from osbot_utils.testing.Graph__Deterministic__Ids                               import graph_deterministic_ids
+from osbot_utils.testing.__                                                      import __
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                import Html_MGraph
 from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__Base   import MGraph__Engine__Base
@@ -22,7 +21,7 @@ class test_MGraph__Engine__Base(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.simple_html = '<html><body><div><p>Hello</p><span>World</span></div></body></html>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             cls.html_mgraph = Html_MGraph.from_html(cls.simple_html)
             cls.mgraph      = cls.html_mgraph.body_graph.mgraph                  # Extract MGraph from body_graph
 

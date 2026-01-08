@@ -5,16 +5,14 @@
 # Validates JSON structure, node/link formatting, and physics config.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from unittest                                                                        import TestCase
-
-from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__D3 import MGraph__Engine__Config__D3
-from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
-from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
-from osbot_utils.utils.Objects                                                       import base_classes
-
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                    import Html_MGraph
-from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__Base       import MGraph__Engine__Base
-from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__D3         import MGraph__Engine__D3
+from unittest                                                                                   import TestCase
+from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__D3    import MGraph__Engine__Config__D3
+from osbot_utils.testing.Graph__Deterministic__Ids                                              import graph_deterministic_ids
+from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
+from osbot_utils.utils.Objects                                                                  import base_classes
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                               import Html_MGraph
+from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__Base                  import MGraph__Engine__Base
+from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__D3                    import MGraph__Engine__D3
 
 
 
@@ -69,7 +67,7 @@ class test_MGraph__Engine__D3(TestCase):
                 </body>
             </html>
         '''
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             cls.html_mgraph_simple  = Html_MGraph.from_html(cls.simple_html)
             cls.mgraph_simple       = cls.html_mgraph_simple.body_graph.mgraph
 
@@ -292,7 +290,7 @@ class test_MGraph__Engine__D3(TestCase):
 
     def test__export__minimal_html(self):                                        # Test minimal HTML
         html = '<div></div>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             html_mgraph = Html_MGraph.from_html(html)
             mgraph      = html_mgraph.body_graph.mgraph
 
@@ -309,7 +307,7 @@ class test_MGraph__Engine__D3(TestCase):
     def test__export__truncates_long_labels(self):                               # Test label truncation
         long_text = 'A' * 100
         html = f'<html><body><div>{long_text}</div></body></html>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             html_mgraph = Html_MGraph.from_html(html)
             mgraph      = html_mgraph.body_graph.mgraph
 
@@ -323,9 +321,9 @@ class test_MGraph__Engine__D3(TestCase):
     # export Tests - Predictable IDs
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test__export__consistent_with_mgraph_test_ids(self):                     # Test predictable IDs
+    def test__export__consistent_with_graph_deterministic_ids(self):                     # Test predictable IDs
         html = '<html><body><div><p>Test</p></div></body></html>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             html_mgraph = Html_MGraph.from_html(html)
             mgraph      = html_mgraph.body_graph.mgraph
 

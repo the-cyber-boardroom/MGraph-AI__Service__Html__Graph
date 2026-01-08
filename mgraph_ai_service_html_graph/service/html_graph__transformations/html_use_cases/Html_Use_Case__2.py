@@ -2,7 +2,7 @@ from typing                                                                     
 from mgraph_db.mgraph.MGraph                                                                        import MGraph
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base    import Graph_Transformation__Base
 from mgraph_db.mgraph.schemas.Schema__MGraph__Node__Data                                            import Schema__MGraph__Node__Data
-from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                                  import deterministic_ids
 from osbot_utils.utils.Json                                                                         import json_to_str
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -27,7 +27,7 @@ class Html_Use_Case__2(Graph_Transformation__Base):
     # Phase 1: HTML → Html_MGraph
     # ═══════════════════════════════════════════════════════════════════════════════════
     def html__to__html_mgraph(self, html: str):                                          # Convert HTML to Html_MGraph
-        with mgraph_test_ids():
+        with deterministic_ids():
             mgraph = super().html__to__html_mgraph(html=html)
         return mgraph
 

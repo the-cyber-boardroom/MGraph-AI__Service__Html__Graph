@@ -7,7 +7,7 @@
 
 from unittest                                                                                   import TestCase
 from mgraph_ai_service_html_graph.service.mgraph__engines.schemas.MGraph__Engine__Config__Dot   import MGraph__Engine__Config__Dot
-from mgraph_db.utils.testing.mgraph_test_ids                                                    import mgraph_test_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                              import graph_deterministic_ids
 from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
 from osbot_utils.utils.Objects                                                                  import base_classes
 from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                               import Html_MGraph
@@ -32,7 +32,7 @@ class test_MGraph__Engine__Dot(TestCase):
                 </body>
             </html>
         '''
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             cls.html_mgraph_simple  = Html_MGraph.from_html(cls.simple_html)
             cls.mgraph_simple       = cls.html_mgraph_simple.body_graph.mgraph
 
@@ -216,7 +216,7 @@ class test_MGraph__Engine__Dot(TestCase):
 
     def test__export__empty_html(self):                                          # Test minimal HTML
         html = '<div></div>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             html_mgraph = Html_MGraph.from_html(html)
             mgraph      = html_mgraph.body_graph.mgraph
 
@@ -232,7 +232,7 @@ class test_MGraph__Engine__Dot(TestCase):
     def test__export__truncates_long_labels(self):                               # Test label truncation
         long_text = 'A' * 100
         html = f'<html><body><div>{long_text}</div></body></html>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             html_mgraph = Html_MGraph.from_html(html)
             mgraph      = html_mgraph.body_graph.mgraph
 
@@ -248,7 +248,7 @@ class test_MGraph__Engine__Dot(TestCase):
 
     def test__export__escapes_quotes_in_labels(self):                            # Test quote escaping
         html = '<html><body><div>Say "Hello"</div></body></html>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             html_mgraph = Html_MGraph.from_html(html)
             mgraph      = html_mgraph.body_graph.mgraph
 
@@ -272,13 +272,13 @@ digraph G {
     # export Tests - Predictable IDs
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test__export__uses_predictable_ids(self):                                # Test mgraph_test_ids works
+    def test__export__uses_predictable_ids(self):                                # Test graph_deterministic_ids works
         html = '<div><p>Test</p></div>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             html_mgraph = Html_MGraph.from_html(html)
             mgraph      = html_mgraph.body_graph.mgraph
 
         with MGraph__Engine__Dot(mgraph=mgraph) as _:
             result = _.export()
-            # With mgraph_test_ids, IDs should be predictable patterns
+            # With graph_deterministic_ids, IDs should be predictable patterns
             assert 'digraph G {' in result

@@ -4,7 +4,7 @@ from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph               
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html import Html_MGraph__Document__To__Html
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document import Html__To__Html_MGraph__Document
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document               import Html_MGraph__Document
-from mgraph_db.utils.testing.mgraph_test_ids                                                     import mgraph_test_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                               import graph_deterministic_ids
 from osbot_utils.testing.__                                                                      import __
 from osbot_utils.type_safe.Type_Safe                                                             import Type_Safe
 from osbot_utils.utils.Objects                                                                   import base_classes
@@ -272,7 +272,7 @@ class test_Html_MGraph(TestCase):                                               
 
     def test_stats(self):                                                       # Test statistics
         html   = '<html><head><title>Test</title></head><body><div>Content</div></body></html>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             mgraph = Html_MGraph.from_html(html)
 
             stats = mgraph.stats()
@@ -316,7 +316,7 @@ class test_Html_MGraph(TestCase):                                               
 
     def test_element_info(self):                                                # Test comprehensive element info
         html   = '<html><head></head><body><div class="main" id="app">Hello</div></body></html>'
-        with  mgraph_test_ids():
+        with  graph_deterministic_ids():
             mgraph = Html_MGraph.from_html(html)
 
         children = mgraph.get_body_children()

@@ -1,7 +1,8 @@
 from unittest                                                                    import TestCase
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Timestamps             import Routes__Timestamps
 from mgraph_ai_service_html_graph.utils.testing.QA_Create_Html_Transformations   import QA_Create_Html_Transformations
-from osbot_utils.testing.performance.Performance_Measure__Session                import Perf
+from osbot_utils.helpers.performance.Performance_Measure__Session                import Perf
+from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config               import Type_Safe__Config
 from osbot_utils.utils.Files                                                     import path_combine
 
 
@@ -13,42 +14,48 @@ class test_QA_Create_Html_Transformations(TestCase):
         cls.create_html_transformations = QA_Create_Html_Transformations(target_folder = cls.target_folder)
 
     def test_create__for__simple_html__speedscope(self):
-        with self.create_html_transformations as _:
-            _.create__for__simple_html__speedscope()
+        with Type_Safe__Config(skip_validation=True, fast_create=True):
+            with self.create_html_transformations as _:
+                #_.create__for__simple_html__speedscope()
+
+                _.create__for__html__with_size      (100)
+
+                #
+                #_.create__for__html__with_size      (100)
 
     def test__create_for__(self):
+        with Type_Safe__Config(skip_validation=True, fast_create=False):
+            with self.create_html_transformations as _:
+                #_.create__for__simple_html          ()
+                #_.create__for__html_with_some_tags  ()
+                #_.create__for__html_bootstrap_example ()
+                 _.create__for__html__with_size      (1)
+                # _.create__for__html__with_size      (5)
+                 _.create__for__html__with_size      (10)
+                # _.create__for__html__with_size      (20)
+                 _.create__for__html__with_size      (30)
+                # _.create__for__html__with_size      (40)
+                # _.create__for__html__with_size      (50)
+                #_.create__for__html__with_size      (100)
+                #_.create__for__url('https://www.example.com')
+                #_.create__for__url('https://www.bbc.co.uk/404')
+                #_.create__for__url('https://docs.diniscruz.ai')
+                #_.create__for__url('https://docs.diniscruz.ai/about.html')
+                #_.create__for__url('https://www.gov.uk/')
 
-        with self.create_html_transformations as _:
-            #_.create__for__simple_html          ()
-            #_.create__for__html_with_some_tags  ()
-            #_.create__for__html_bootstrap_example ()
-             _.create__for__html__with_size      (1)
-            # _.create__for__html__with_size      (5)
-             _.create__for__html__with_size      (10)
-            # _.create__for__html__with_size      (20)
-             _.create__for__html__with_size      (30)
-            # _.create__for__html__with_size      (40)
-            # _.create__for__html__with_size      (50)
-            # _.create__for__html__with_size      (100)
-            #_.create__for__url('https://www.example.com')
-            #_.create__for__url('https://www.bbc.co.uk/404')
-            #_.create__for__url('https://docs.diniscruz.ai')
-            #_.create__for__url('https://docs.diniscruz.ai/about.html')
-            #_.create__for__url('https://www.gov.uk/')
 
+                #_.speedscope__for__html_with_some_tags()
 
-            #_.speedscope__for__html_with_some_tags()
-
-            # #response = _.speedscope__for__sizew(size=2)
-            # speedscope_traces = response.traces
-            # target_file = path_combine(__file__,'../_traces/speedscope-html.json')
+                # #response = _.speedscope__for__sizew(size=2)
+                # speedscope_traces = response.traces
+                # target_file = path_combine(__file__,'../_traces/speedscope-html.json')
 
 
     #def test_create_benchmark(self):
 
     def test_perf__check_ctor__MGraph__Index(self):
         from mgraph_db.mgraph.index.MGraph__Index                         import MGraph__Index
-        from osbot_utils.testing.performance.Performance_Measure__Session import Perf
+        from osbot_utils.helpers.performance.Performance_Measure__Session import Perf
         def mgraph_index():
             MGraph__Index()
 
