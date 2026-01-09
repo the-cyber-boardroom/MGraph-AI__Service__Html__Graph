@@ -10,8 +10,8 @@
 from hashlib                                                            import md5
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe          import type_safe
 from osbot_utils.type_safe.primitives.core.Safe_Float                   import Safe_Float
-from Phase_E__Decision_Engine__Base                                     import Phase_E__Decision_Engine__Base
-from Phase_E__Decision_Engine__Base                                     import DecisionResult
+from phase_e.decision.Phase_E__Decision_Engine__Base                    import Phase_E__Decision_Engine__Base
+from phase_e.decision.Phase_E__Decision_Engine__Base                    import Schema__Phase_E__Decision_Result
 
 
 class Phase_E__Decision_Engine__Hash_Based(Phase_E__Decision_Engine__Base):     # Hash-based decision engine
@@ -32,13 +32,13 @@ class Phase_E__Decision_Engine__Hash_Based(Phase_E__Decision_Engine__Base):     
     @type_safe
     def classify(self                     ,                                     # Generate classification from text hash
                  merged_text : str        ,                                     # Text to evaluate
-                 parent_id   : str        ) -> DecisionResult:                  # Decision with keep, score, reason
+                 parent_id   : str        ) -> Schema__Phase_E__Decision_Result:                  # Decision with keep, score, reason
         score = self.hash_score(merged_text)
         keep  = score >= float(self.threshold)
 
-        return DecisionResult(keep   = keep                                                        ,
-                              score  = score                                                       ,
-                              reason = 'hash_above_threshold' if keep else 'hash_below_threshold' )
+        return Schema__Phase_E__Decision_Result(keep   = keep,
+                                                score  = score,
+                                                reason = 'hash_above_threshold' if keep else 'hash_below_threshold')
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Hash Score Calculation

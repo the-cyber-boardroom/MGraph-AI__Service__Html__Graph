@@ -1,0 +1,49 @@
+{
+  "points": [
+    {
+      "name": "small",
+      "target_nodes": 1,
+      "actual_html_bytes": 161,
+      "timing": {
+        "html_to_dict_ns": 30000,
+        "dict_to_mgraph_ns": 16600000,
+        "mgraph_to_html_ns": 800000,
+        "total_ns": 17430000,
+        "html_size_bytes": 161,
+        "node_count": 5
+      },
+      "ns_per_node": 17430000.0
+    },
+    {
+      "name": "medium",
+      "target_nodes": 2,
+      "actual_html_bytes": 161,
+      "timing": {
+        "html_to_dict_ns": 20000,
+        "dict_to_mgraph_ns": 16200000,
+        "mgraph_to_html_ns": 800000,
+        "total_ns": 17020000,
+        "html_size_bytes": 161,
+        "node_count": 5
+      },
+      "ns_per_node": 8510000.0
+    },
+    {
+      "name": "large",
+      "target_nodes": 3,
+      "actual_html_bytes": 161,
+      "timing": {
+        "html_to_dict_ns": 20000,
+        "dict_to_mgraph_ns": 16100000,
+        "mgraph_to_html_ns": 800000,
+        "total_ns": 16920000,
+        "html_size_bytes": 161,
+        "node_count": 5
+      },
+      "ns_per_node": 5640000.0
+    }
+  ],
+  "bottleneck_stage": "Dict_MGraph",
+  "scaling_behavior": "O_n__linear___good",
+  "timestamp": "2026_01_09T22_24_24_498453"
+}

@@ -6,12 +6,7 @@
 from typing                                                                     import Dict, List
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                             import Safe_Str__Text
-
-
-class MergedTextInfo(Type_Safe):                                                # Info about merged text
-    merged_text      : Safe_Str__Text                                                 # Combined text content
-    source_node_ids  : List[str]                                                # Original text node_ids
+from phase_e.schemas.Schema__Phase_E__Merged_Text_Info                          import Schema__Phase_E__Merged_Text_Info
 
 
 class Phase_E__Virtual_Merger(Type_Safe):                                       # Compute merged text per parent (read-only)
@@ -23,7 +18,7 @@ class Phase_E__Virtual_Merger(Type_Safe):                                       
     @type_safe
     def merge(self                            ,                                 # Group text nodes by parent and merge
               text_nodes : Dict[str, object]  ,                                 # Output from Phase_E__Text_Extractor
-              document                        ) -> Dict[str, MergedTextInfo]:   # Dict mapping parent_id → merged info
+              document                        ) -> Dict[str, Schema__Phase_E__Merged_Text_Info]:   # Dict mapping parent_id → merged info
         by_parent = self.group_by_parent(text_nodes, document)                  # Group by parent
         merged    = self.merge_groups(by_parent)                                # Merge each group
 
@@ -56,13 +51,13 @@ class Phase_E__Virtual_Merger(Type_Safe):                                       
     # ═══════════════════════════════════════════════════════════════════════════
 
     def merge_groups(self                                  ,                    # Merge text nodes for each parent
-                     by_parent: Dict[str, List[dict]]      ) -> Dict[str, MergedTextInfo]:
+                     by_parent: Dict[str, List[dict]]      ) -> Dict[str, Schema__Phase_E__Merged_Text_Info]:
         merged = {}
 
         for parent_id, children in by_parent.items():
             sorted_children = sorted(children, key=lambda x: x['position'])     # Sort by position
 
-            merged[parent_id] = MergedTextInfo(
+            merged[parent_id] = Schema__Phase_E__Merged_Text_Info(
                 merged_text     = ''.join(c['text'] for c in sorted_children),
                 source_node_ids = [c['node_id'] for c in sorted_children]    )
 

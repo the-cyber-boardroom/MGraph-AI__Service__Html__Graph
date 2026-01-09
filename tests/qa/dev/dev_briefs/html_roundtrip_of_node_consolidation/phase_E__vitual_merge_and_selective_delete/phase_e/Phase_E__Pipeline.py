@@ -3,30 +3,14 @@
 # Part of Phase E: Virtual Merge and Selective Delete
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from typing                                                                     import Dict, List
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html import Safe_Str__Html
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                             import Safe_Str__Text
-from osbot_utils.type_safe.primitives.core.Safe_Int                             import Safe_Int
-from Phase_E__Text_Extractor                                            import Phase_E__Text_Extractor
-from Phase_E__Text_Extractor                                            import TextNodeInfo
-from Phase_E__Virtual_Merger                                            import Phase_E__Virtual_Merger
-from Phase_E__Virtual_Merger                                            import MergedTextInfo
-from Phase_E__Decision_Engine__Base                                     import Phase_E__Decision_Engine__Base
-from Phase_E__Decision_Engine__Base                                     import DecisionResult
-from Phase_E__Decision_Engine__Hash_Based                               import Phase_E__Decision_Engine__Hash_Based
-from Phase_E__Node_Deleter                                              import Phase_E__Node_Deleter
-
-
-class Process_Result(Type_Safe):                                                # Full result with intermediate data
-    html             : Safe_Str__Html                                           # Original HTML
-    text_nodes       : Dict[str, TextNodeInfo]                                  # Extracted text nodes
-    merged_texts     : Dict[str, MergedTextInfo]                                # Virtual merge results
-    decisions        : Dict[str, DecisionResult]                                # Decision results
-    parents_deleted  : List[str]                                                # Deleted parent_ids
-    deleted_count    : Safe_Int                                                 # Number deleted
-    clean_html       : Safe_Str__Html                                                 # Output HTML
+from phase_e.core.Phase_E__Text_Extractor                                       import Phase_E__Text_Extractor
+from phase_e.core.Phase_E__Virtual_Merger                                       import Phase_E__Virtual_Merger
+from phase_e.decision.Phase_E__Decision_Engine__Base                            import Phase_E__Decision_Engine__Base
+from phase_e.decision.Phase_E__Decision_Engine__Hash_Based                      import Phase_E__Decision_Engine__Hash_Based
+from phase_e.core.Phase_E__Node_Deleter                                         import Phase_E__Node_Deleter
+from phase_e.schemas.Schema__Phase_E__Process_Result                            import Schema__Phase_E__Process_Result
 
 
 class Phase_E__Pipeline(Type_Safe):                                             # Orchestrates full Phase E workflow
@@ -66,7 +50,7 @@ class Phase_E__Pipeline(Type_Safe):                                             
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def process_with_details(self, html: str) -> Process_Result:                 # Full workflow with intermediate results
+    def process_with_details(self, html: str) -> Schema__Phase_E__Process_Result:                 # Full workflow with intermediate results
         document     = self.html_to_document(html)
 
         text_nodes   = Phase_E__Text_Extractor().extract(document)              # Step 1
@@ -79,13 +63,13 @@ class Phase_E__Pipeline(Type_Safe):                                             
 
         clean_html = self.document_to_html(document)                            # Step 6
 
-        return Process_Result(html            = html,
-                              text_nodes      = text_nodes,
-                              merged_texts    = merged_texts,
-                              decisions       = decisions,
-                              parents_deleted = parents_to_delete,
-                              deleted_count   = deleted_count,
-                              clean_html      = clean_html)
+        return Schema__Phase_E__Process_Result(html            = html,
+                                               text_nodes      = text_nodes,
+                                               merged_texts    = merged_texts,
+                                               decisions       = decisions,
+                                               parents_deleted = parents_to_delete,
+                                               deleted_count   = deleted_count,
+                                               clean_html      = clean_html)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Conversion Helpers

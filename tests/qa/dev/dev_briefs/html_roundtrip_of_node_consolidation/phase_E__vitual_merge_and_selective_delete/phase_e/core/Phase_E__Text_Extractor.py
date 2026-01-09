@@ -5,13 +5,8 @@
 
 from typing                                                                     import Dict
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    import Safe_Str__Text
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
-
-
-class TextNodeInfo(Type_Safe):                                                  # Info about a text node
-    text      : Safe_Str__Text                                                        # Text content
-    parent_id : Safe_Str__Text                                                        # Parent element's node_id
+from phase_e.schemas.Schema__Phase_E__Text_Node_Info                            import Schema__Phase_E__Text_Node_Info
 
 
 class Phase_E__Text_Extractor(Type_Safe):                                       # Extract text nodes from body_graph
@@ -21,7 +16,7 @@ class Phase_E__Text_Extractor(Type_Safe):                                       
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def extract(self, document) -> Dict[str, TextNodeInfo]:                     # Extract text nodes indexed by node_id
+    def extract(self, document) -> Dict[str, Schema__Phase_E__Text_Node_Info]:                     # Extract text nodes indexed by node_id
         text_nodes = {}
         body_graph = document.body_graph
         mgraph     = body_graph.mgraph
@@ -37,8 +32,8 @@ class Phase_E__Text_Extractor(Type_Safe):                                       
             parent_id = self.get_parent_id(mgraph, node_id)
 
             if text.strip():                                                    # Only non-empty text
-                text_nodes[node_id] = TextNodeInfo(text      = text     ,
-                                                   parent_id = parent_id)
+                text_nodes[node_id] = Schema__Phase_E__Text_Node_Info(text      = text,
+                                                                      parent_id = parent_id)
 
         return text_nodes
 

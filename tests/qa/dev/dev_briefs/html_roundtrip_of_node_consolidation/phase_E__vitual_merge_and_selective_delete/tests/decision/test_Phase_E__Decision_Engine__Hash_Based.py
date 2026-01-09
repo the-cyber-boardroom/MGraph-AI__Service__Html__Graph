@@ -2,9 +2,10 @@
 # Tests for Phase E - Decision Engine (Hash Based)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from unittest                                            import TestCase
-from Phase_E__Decision_Engine__Hash_Based                import Phase_E__Decision_Engine__Hash_Based
-from Phase_E__Virtual_Merger                             import MergedTextInfo
+from unittest                                                   import TestCase
+from phase_e.decision.Phase_E__Decision_Engine__Hash_Based      import (Phase_E__Decision_Engine__Hash_Based)
+from phase_e.core.Phase_E__Virtual_Merger                       import Schema__Phase_E__Merged_Text_Info
+from phase_e.schemas.Schema__Phase_E__Decision_Result import Schema__Phase_E__Decision_Result
 
 
 class test_Phase_E__Decision_Engine__Hash_Based(TestCase):
@@ -46,16 +47,16 @@ class test_Phase_E__Decision_Engine__Hash_Based(TestCase):
         with self.engine as _:
             result = _.classify("Test text", "p001")
 
-            assert type(result).__name__ == 'DecisionResult'
-            assert type(result.keep)      is bool
-            assert 0.0 <= float(result.score) <= 1.0
-            assert str(result.reason)    != ''
+            assert type(result)                 is Schema__Phase_E__Decision_Result
+            assert type(result.keep)            is bool
+            assert 0.0 <= float(result.score)   <= 1.0
+            assert str(result.reason)           != ''
 
     def test_classify_all(self):                                                # Batch classification
 
         with self.engine as _:
-            merged_texts = {'p001': MergedTextInfo(merged_text='Hello World', source_node_ids=['n1']),
-                           'p002': MergedTextInfo(merged_text='Goodbye'     , source_node_ids=['n2'])}
+            merged_texts = {'p001': Schema__Phase_E__Merged_Text_Info(merged_text='Hello World', source_node_ids=['n1']),
+                           'p002': Schema__Phase_E__Merged_Text_Info(merged_text='Goodbye', source_node_ids=['n2'])}
 
             decisions = _.classify_all(merged_texts)
 

@@ -1,11 +1,11 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Tests for Phase E - Pipeline (Integration)
 # ═══════════════════════════════════════════════════════════════════════════════
-from unittest                             import TestCase
-from Phase_E__Decision_Engine__Hash_Based import Phase_E__Decision_Engine__Hash_Based
-from Phase_E__Pipeline import Phase_E__Pipeline, Process_Result
-from osbot_utils.testing.Graph__Deterministic__Ids import graph_deterministic_ids
-from osbot_utils.testing.__ import __
+from unittest                                                import TestCase
+from phase_e.decision.Phase_E__Decision_Engine__Hash_Based   import Phase_E__Decision_Engine__Hash_Based
+from phase_e.Phase_E__Pipeline                               import Phase_E__Pipeline, Schema__Phase_E__Process_Result
+from osbot_utils.testing.Graph__Deterministic__Ids           import graph_deterministic_ids
+from osbot_utils.testing.__                                  import __
 
 
 class test_Phase_E__Pipeline(TestCase):
@@ -38,7 +38,7 @@ class test_Phase_E__Pipeline(TestCase):
             assert result.decisions       is not None
             assert result.parents_deleted is not None
             assert str(result.clean_html) != ''
-            assert type(result) is Process_Result
+            assert type(result)           is Schema__Phase_E__Process_Result
             assert result.obj()           == __(html='<div>Test content here</div>',
                                                 text_nodes=__(),
                                                 merged_texts=__(),

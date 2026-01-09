@@ -3,7 +3,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                                   import TestCase
-from Phase_E__Node_Deleter                                                                                      import Phase_E__Node_Deleter
+from phase_e.core.Phase_E__Node_Deleter                                                                              import Phase_E__Node_Deleter
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_Dict__With__Node_Ids            import Html__To__Html_Dict__With__Node_Ids
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document__Node_Id_Reuse import Html__To__Html_MGraph__Document__Node_Id_Reuse
 
