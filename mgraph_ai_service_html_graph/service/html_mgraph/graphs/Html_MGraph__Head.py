@@ -51,12 +51,14 @@ class Html_MGraph__Head(Html_MGraph__Base):                                     
     @type_safe
     def create_text(self, text       : str            ,                         # Text content (typically for <title>)
                           parent_id  : Node_Id        ,                         # Parent element node_id
-                          position   : int      = 0                             # Position among siblings
+                          position   : int      = 0   ,                          # Position among siblings
+                          node_id    : Node_Id  = None
                    ) -> Node_Id:                                                # Create a text value node and link to parent
         unique_key = f"{parent_id}:{position}"                                  # Unique key based on parent and position
-        text_node  = self.new_value_node(value     = text                  ,
+        text_node  = self.new_value_node(value     = text                      ,
                                          node_path = Node_Path(self.PATH_TEXT) ,
-                                         key       = unique_key            )
+                                         key       = unique_key                ,
+                                         node_id   = node_id)
         self.new_edge(from_node_id = parent_id                 ,
                       to_node_id   = text_node.node_id         ,
                       predicate    = self.PREDICATE_TEXT       ,

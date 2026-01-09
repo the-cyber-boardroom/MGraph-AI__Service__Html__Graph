@@ -57,10 +57,11 @@ class Html__To__Html_MGraph__Document__Node_Id_Reuse(
         self._process_head_children(document, head_node_id, head_dict, 'head')
 
     def _process_head_children(self,
-                               document    ,
-                               parent_id   : Node_Id ,
-                               parent_dict : Dict[str, Any],
-                               parent_path : str      ):                                          # Recurse head children
+                               document                     ,
+                               parent_id   : Node_Id        ,
+                               parent_dict : Dict[str, Any] ,
+                               parent_path : str            ,
+                               node_id     : Node_Id = None ):                                          # Recurse head children
         for position, node in enumerate(parent_dict.get('nodes', [])):
             if isinstance(node, dict) is False:
                 continue
@@ -74,7 +75,8 @@ class Html__To__Html_MGraph__Document__Node_Id_Reuse(
                                                     node_id   = self._generate_node_id(node))
             elif 'tag' in node:
                 tag       = node.get('tag', '').lower()
-                node_id   = self._generate_node_id(node)
+                if node_id is None:
+                    node_id   = self._generate_node_id(node)
                 node_path = f"{parent_path}.{tag}"
 
                 document.head_graph.create_element(node_path = Node_Path(node_path),
