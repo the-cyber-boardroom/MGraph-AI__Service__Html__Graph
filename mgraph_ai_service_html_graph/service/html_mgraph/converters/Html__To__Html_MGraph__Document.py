@@ -173,6 +173,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                                      parent_path : str                   ) -> None:
         nodes          = parent_dict.get('nodes', [])
         tag_counts     = self._count_tags(nodes)                                # For path indexing
+
         tag_occurrence = {}
 
         for position, node in enumerate(nodes):

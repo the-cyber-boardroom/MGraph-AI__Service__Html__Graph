@@ -103,34 +103,34 @@ class Html_Generator__For_Benchmarks(Type_Safe):                                
     # ═══════════════════════════════════════════════════════════════════════════
 
     def generate__1(self) -> str:                                             # ~10 nodes
-        return self.generate_with_target_nodes(1)
+        return self.generate_with_paragraphs(num_paragraphs=1, words_per_para=5)
 
     def generate__10(self) -> str:                                             # ~10 nodes
-        return self.generate_with_target_nodes(10)
+        return self.generate_with_paragraphs(num_paragraphs=10, words_per_para=5)
 
     def generate__50(self) -> str:                                            # ~100 nodes
-        return self.generate_with_target_nodes(50)
+        return self.generate_with_paragraphs(num_paragraphs=50, words_per_para=5)
 
     def generate__100(self) -> str:                                            # ~100 nodes
-        return self.generate_with_target_nodes(100)
+        return self.generate_with_paragraphs(num_paragraphs=100, words_per_para=5)
 
     def generate__200(self) -> str:                                            # ~100 nodes
-        return self.generate_with_target_nodes(200)
+        return self.generate_with_paragraphs(num_paragraphs=200, words_per_para=5)
 
-    def generate__300(self) -> str:                                            # ~100 nodes
-        return self.generate_with_target_nodes(300)
+    def generate__300(self) -> str:                                             # 100 nodes
+        return self.generate_with_paragraphs(num_paragraphs=300, words_per_para=5)
 
-    def generate__500(self) -> str:                                           # ~500 nodes
-        return self.generate_with_target_nodes(500)
+    def generate__500(self) -> str:                                             # 500 nodes
+        return self.generate_with_paragraphs(num_paragraphs=500, words_per_para=5)
 
-    def generate_large(self) -> str:                                            # ~1,000 nodes
-        return self.generate_with_target_nodes(1000)
+    def generate__1_000(self) -> str:                                            # 1,000 nodes
+        return self.generate_with_paragraphs(num_paragraphs=1_000, words_per_para=5)
 
-    def generate_xlarge(self) -> str:                                           # ~5,000 nodes
-        return self.generate_with_target_nodes(5000)
+    def generate__10_000(self) -> str:                                           # 10,000 nodes
+        return self.generate_with_paragraphs(num_paragraphs=10_000, words_per_para=5)
 
-    def generate_massive(self) -> str:                                          # ~10,000 nodes
-        return self.generate_with_target_nodes(10000)
+    def generate__100_000(self) -> str:                                          # 100,000 nodes
+        return self.generate_with_paragraphs(num_paragraphs=100_000, words_per_para=5)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Helper Methods
