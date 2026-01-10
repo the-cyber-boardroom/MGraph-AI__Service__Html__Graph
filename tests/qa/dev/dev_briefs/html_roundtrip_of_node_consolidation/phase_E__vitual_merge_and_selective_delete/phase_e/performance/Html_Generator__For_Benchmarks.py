@@ -108,6 +108,9 @@ class Html_Generator__For_Benchmarks(Type_Safe):                                
     def generate__10(self) -> str:                                             # ~10 nodes
         return self.generate_with_target_nodes(10)
 
+    def generate__50(self) -> str:                                            # ~100 nodes
+        return self.generate_with_target_nodes(50)
+
     def generate__100(self) -> str:                                            # ~100 nodes
         return self.generate_with_target_nodes(100)
 
