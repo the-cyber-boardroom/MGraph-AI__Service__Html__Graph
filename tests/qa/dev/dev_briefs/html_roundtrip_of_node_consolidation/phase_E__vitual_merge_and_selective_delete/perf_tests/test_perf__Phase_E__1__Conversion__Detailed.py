@@ -31,7 +31,7 @@ HTML_SIMPLE = "<html><body><div><p>Hello World</p></div></body></html>"
 # Performance Test
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class test_perf__Phase_E__Conversion__Detailed(TestCase):
+class test_perf__Phase_E__1__Conversion__Detailed(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -103,7 +103,7 @@ class test_perf__Phase_E__Conversion__Detailed(TestCase):
 
         report = builder.run(self.benchmarks)
 
-        self.storage.save(report, key='perf__conversion__detailed', formats=['txt', 'md', 'json'])
+        self.storage.save(report, key='perf_1__conversion__detailed', formats=['txt', 'md', 'json'])
 
         assert report.metadata.benchmark_count == 9
         assert len(report.benchmarks)          == 9

@@ -58,7 +58,7 @@ class Html_MGraph__Document(Html_MGraph__Base):                                 
     scripts_graph: Html_MGraph__Scripts    = None                               # JavaScript content
     styles_graph : Html_MGraph__Styles     = None                               # CSS content
 
-    @timestamp(name="html_mgraph.document.setup")
+    #@timestamp(name="html_mgraph.document.setup")
     def setup(self) -> 'Html_MGraph__Document':                                 # Initialize all component graphs
         self.mgraph = MGraph()
         root_node    = self.new_element_node(node_path=Node_Path(self.PATH_HTML))  # Create <html> root node

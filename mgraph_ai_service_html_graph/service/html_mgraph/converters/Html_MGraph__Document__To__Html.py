@@ -16,7 +16,7 @@ class Html_MGraph__Document__To__Html(Type_Safe):                               
     This class composes existing converters for simplicity.
     """
 
-    @timestamp(name="html_mgraph.convert.to-html")
+    #@timestamp(name="html_mgraph.convert.to-html")
     def convert(self, document: Html_MGraph__Document) -> str:                  # Convert Document to HTML string
         html_dict = Html_MGraph__Document__To__Html_Dict().convert(document)    # Document → Html_Dict
         html_str  = Html_Dict__To__Html(root=html_dict).convert()          # Html_Dict → HTML

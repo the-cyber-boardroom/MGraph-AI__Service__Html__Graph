@@ -23,7 +23,6 @@ Converts raw HTML to Html_MGraph__Document with 5 component graphs.
 from typing                                                                         import Dict, Any, List, Optional, Tuple, Set
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document  import Html_MGraph__Document
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                                 import Node_Path
-from osbot_utils.helpers.timestamp_capture.decorators.timestamp                     import timestamp
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
 from osbot_utils.helpers.html.transformers.Html__To__Html_Dict                      import Html__To__Html_Dict
@@ -41,12 +40,12 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
     # Main Conversion
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @timestamp(name="html_mgraph.convert.to-document")
+    #@timestamp(name="html_mgraph.convert.to-document")
     def convert(self, html: str) -> Html_MGraph__Document:                      # Convert HTML string to Document
         html_dict = Html__To__Html_Dict(html=html).convert()                    # Parse HTML to dict
         return self.convert_from_dict(html_dict)
 
-    @timestamp(name="html_mgraph.convert.from-dict")
+    #@timestamp(name="html_mgraph.convert.from-dict")
     def convert_from_dict(self, html_dict: Dict[str, Any]                       # Convert Html_Dict to Document
                          ) -> Html_MGraph__Document:
         document = Html_MGraph__Document().setup()                              # Create document with initialized graphs
@@ -93,7 +92,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
     # ═══════════════════════════════════════════════════════════════════════════
     # Head Processing
     # ═══════════════════════════════════════════════════════════════════════════
-    @timestamp(name="html_mgraph.head.process")
+    #@timestamp(name="html_mgraph.head.process")
     def _process_head(self, document: Html_MGraph__Document, head_dict: Dict[str, Any]) -> None:
         head_node_id = self._generate_node_id()                                 # Create <head> element
         document.head_graph.create_element(node_path = Node_Path('head'),
@@ -152,7 +151,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
     # Body Processing
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @timestamp(name="html_mgraph.body.process")
+    #@timestamp(name="html_mgraph.body.process")
     def _process_body(self, document: Html_MGraph__Document, body_dict: Dict[str, Any]) -> None:
         body_node_id = self._generate_node_id()                                 # Create <body> element
         document.body_graph.create_element(node_path = Node_Path('body'),
@@ -167,7 +166,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
 
         self._process_body_children(document, body_node_id, body_dict, 'body')  # Process children
 
-    @timestamp(name="process_body_children")
+    #@timestamp(name="process_body_children")
     def _process_body_children(self, document    : Html_MGraph__Document ,
                                      parent_id   : Node_Id               ,
                                      parent_dict : Dict[str, Any]        ,
@@ -195,7 +194,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                 self._process_body__element(document   , parent_id, node     ,
                                             position   , tag      , node_path)
 
-    @timestamp(name="_process_body__text_node")
+    #@timestamp(name="_process_body__text_node")
     def _process_body__text_node(self, document  : Html_MGraph__Document ,
                                        parent_id : Node_Id               ,
                                        node      : Dict[str, Any]        ,
@@ -206,7 +205,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                                             parent_id = parent_id ,
                                             position  = position  )
 
-    @timestamp(name="_process_body__element")
+    #@timestamp(name="_process_body__element")
     def _process_body__element(self, document  : Html_MGraph__Document ,
                                      parent_id : Node_Id               ,
                                      node      : Dict[str, Any]        ,
@@ -232,7 +231,7 @@ class Html__To__Html_MGraph__Document(Type_Safe):                               
                                            node_id   = node_id              )
         document.body_graph.add_child(parent_id, node_id, position)
 
-    @timestamp(name="_process_body__register_attrs")
+    #@timestamp(name="_process_body__register_attrs")
     def _process_body__register_attrs(self, document : Html_MGraph__Document ,
                                             node_id  : Node_Id               ,
                                             tag      : str                   ,

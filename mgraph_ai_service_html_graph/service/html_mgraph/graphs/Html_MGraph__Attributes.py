@@ -66,7 +66,7 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
     # ═══════════════════════════════════════════════════════════════════════════
 
     #@type_safe
-    @timestamp(name='register_element')
+    #@timestamp(name='register_element')
     def register_element(self, node_id : Node_Id ,                              # Element node_id (same as in Body/Head)
                                tag     : str                                    # HTML tag name
                         ) -> None:                                              # Register an element with its tag
@@ -79,7 +79,7 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
                       predicate    = self.PREDICATE_ELEMENT)
 
     #@type_safe
-    @timestamp(name='add_attribute')
+    #@timestamp(name='add_attribute')
     def add_attribute(self,                                               # Add an attribute to an element using three-node model.
                       node_id    : Node_Id       ,                        # Element node_id
                       attr_name  : str           ,                        # Attribute name (e.g., "class")

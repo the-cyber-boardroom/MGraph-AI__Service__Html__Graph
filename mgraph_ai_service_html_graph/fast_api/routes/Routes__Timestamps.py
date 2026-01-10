@@ -140,7 +140,7 @@ class Routes__Timestamps(Fast_API__Routes):                                     
         export = Timestamp_Collector__Export(collector=_timestamp_collector_)
         return graph_response, export
 
-    @timestamp(name='routes.timestamsps.execute_pipeline')
+    #@timestamp(name='routes.timestamsps.execute_pipeline')
     def _execute_pipeline(self, engine        : str                          ,
                                 transformation: str                          ,
                                 request       : Schema__Graph__Export__From_Html__Request

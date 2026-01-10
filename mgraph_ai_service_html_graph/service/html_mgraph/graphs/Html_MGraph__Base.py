@@ -19,7 +19,7 @@ class Html_MGraph__Base(Type_Safe):                                             
     mgraph  : MGraph  = None                                                    # The underlying MGraph
     root_id : Node_Id = None                                                    # Root node ID for this graph
 
-    @timestamp_args(name="html_mgraph.{self.__class__.__name__}.setup")
+    #@timestamp_args(name="html_mgraph.{self.__class__.__name__}.setup")
     def setup(self) -> 'Html_MGraph__Base':                                     # Initialize the graph with a fresh MGraph instance
         self.mgraph = MGraph()
         root_node   = self.new_element_node(node_path='')                       # Create root node for this graph
