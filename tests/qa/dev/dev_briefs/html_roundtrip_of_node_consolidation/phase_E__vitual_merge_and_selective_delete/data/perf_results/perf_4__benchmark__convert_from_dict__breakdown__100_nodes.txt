@@ -7,8 +7,8 @@ CONVERT_FROM_DICT: INTERNAL BREAKDOWN
 ├────────────────────────────────────────────┤
 │ Property         │ Value                   │
 ├────────────────────────────────────────────┤
-│ Date             │ 2026-01-10 19:09:53     │
-│ Version          │ v1.4.33                 │
+│ Date             │ 2026-01-10 19:24:20     │
+│ Version          │ v1.4.34                 │
 │ Test Input       │ HTML with 10 nodes      │
 │ Measurement Mode │ Enum__Measure_Mode.FAST │
 │ Total Benchmarks │ 6                       │
@@ -27,12 +27,12 @@ LEGEND
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │ Benchmark                    │ Time     │ Category                 │ % of Total │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│ A_01__document_setup         │ 4.20ms   │ convert_from_dict stages │ 3.3%       │
+│ A_01__document_setup         │ 2.60ms   │ convert_from_dict stages │ 5.5%       │
 │ A_02__extract_head_body      │ 1.00µs   │ convert_from_dict stages │ 0.0%       │
-│ A_03__process_attrs_html_tag │ 900ns    │ convert_from_dict stages │ 0.0%       │
-│ A_04__process_head           │ 700.00µs │ convert_from_dict stages │ 0.6%       │
-│ A_05__process_body           │ 47.10ms  │ convert_from_dict stages │ 36.8%      │
-│ A_06__full_convert_from_dict │ 76.10ms  │ convert_from_dict stages │ 59.4%      │
+│ A_03__process_attrs_html_tag │ 1.00µs   │ convert_from_dict stages │ 0.0%       │
+│ A_04__process_head           │ 300.00µs │ convert_from_dict stages │ 0.6%       │
+│ A_05__process_body           │ 14.50ms  │ convert_from_dict stages │ 30.5%      │
+│ A_06__full_convert_from_dict │ 30.10ms  │ convert_from_dict stages │ 63.4%      │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │ Total: 6 benchmarks                                                             │
 └─────────────────────────────────────────────────────────────────────────────────┘
@@ -40,9 +40,9 @@ LEGEND
 ============================================================
 CATEGORY SUMMARY
 ============================================================
-  convert_from_dict stages:     128.10ms  (A_xx benchmarks)
+  convert_from_dict stages:      47.50ms  (A_xx benchmarks)
   ─────────────────────────────────────────────
-  Overhead:                128.10ms  (full - create - convert)
+  Overhead:                 47.50ms  (full - create - convert)
 
 ============================================================
 PERCENTAGE ANALYSIS (relative to Full Operations)
@@ -54,19 +54,19 @@ PERCENTAGE ANALYSIS (relative to Full Operations)
 ============================================================
 STAGE BREAKDOWN (Full Operations)
 ============================================================
-  document_setup           4.20ms (  3.3%) █
+  document_setup           2.60ms (  5.5%) ██
   extract_head_body        1.00µs (  0.0%) 
-  process_attrs_html_tag      900ns (  0.0%) 
-  A_04__process_head     700.00µs (  0.5%) 
-  A_05__process_body      47.10ms ( 36.8%) ██████████████████
-  A_06_convert_from_dict    76.10ms ( 59.4%) █████████████████████████████
+  process_attrs_html_tag     1.00µs (  0.0%) 
+  A_04__process_head     300.00µs (  0.6%) 
+  A_05__process_body      14.50ms ( 30.5%) ███████████████
+  A_06_convert_from_dict    30.10ms ( 63.4%) ███████████████████████████████
 
 ============================================================
 BOTTLENECK ANALYSIS
 ============================================================
   Primary Bottleneck: A_06__full_convert_from_dict
-  Time:               76.10ms
-  Percentage:         59.4% of total
+  Time:               30.10ms
+  Percentage:         63.4% of total
 
 ============================================================
 KEY INSIGHT
@@ -74,6 +74,6 @@ KEY INSIGHT
   Converter creation is 0.00% of total time _ NEGLIGIBLE The bottleneck is INSIDE the conversion logic, not object creation.
 
 ════════════════════════════════════════════════════════════════════════════════
-Report generated: 2026-01-10 19:09:53
-Version: v1.4.33
+Report generated: 2026-01-10 19:24:20
+Version: v1.4.34
 ════════════════════════════════════════════════════════════════════════════════

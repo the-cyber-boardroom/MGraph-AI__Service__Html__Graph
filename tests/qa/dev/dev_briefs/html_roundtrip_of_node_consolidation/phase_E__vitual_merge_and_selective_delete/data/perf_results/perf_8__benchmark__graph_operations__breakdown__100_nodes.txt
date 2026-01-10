@@ -7,8 +7,8 @@ GRAPH OPERATIONS: BREAKDOWN
 ├───────────────────────────────────────────────────────────────────────┤
 │ Property         │ Value                                              │
 ├───────────────────────────────────────────────────────────────────────┤
-│ Date             │ 2026-01-10 17:51:33                                │
-│ Version          │ v1.4.32                                            │
+│ Date             │ 2026-01-10 19:46:02                                │
+│ Version          │ v1.4.34                                            │
 │ Test Input       │ Graph operations measured individually and in loop │
 │ Measurement Mode │ Enum__Measure_Mode.FAST                            │
 │ Total Benchmarks │ 13                                                 │
@@ -30,18 +30,18 @@ LEGEND
 ├─────────────────────────────────────────────────────────────────────────────────────────────┤
 │ A_01__node_path_creation         │ 700ns      │ Single operation measurements  │ 0.0%       │
 │ A_02__create_element             │ 30.00µs    │ Single operation measurements  │ 0.1%       │
-│ A_03__add_child                  │ 50.00µs    │ Single operation measurements  │ 0.1%       │
+│ A_03__add_child                  │ 60.00µs    │ Single operation measurements  │ 0.2%       │
 │ A_04__register_element           │ 70.00µs    │ Single operation measurements  │ 0.2%       │
-│ A_05__add_attribute              │ 300.00µs   │ Single operation measurements  │ 0.9%       │
+│ A_05__add_attribute              │ 300.00µs   │ Single operation measurements  │ 0.8%       │
 │ A_06__full_create_in_graph       │ 80.00µs    │ Single operation measurements  │ 0.2%       │
-│ A_07__full_register_attrs        │ 20.00µs    │ Single operation measurements  │ 0.1%       │
+│ A_07__full_register_attrs        │ 120.00µs   │ Single operation measurements  │ 0.3%       │
 │ ──────────────────────────────── │ ────────── │ ──────────────────             │ ────────── │
 │ B_01__node_path_all              │ 70.00µs    │ Full loop processing (all elem │ 0.2%       │
-│ B_02__create_element_all         │ 3.70ms     │ Full loop processing (all elem │ 11.4%      │
-│ B_03__add_child_all              │ 6.20ms     │ Full loop processing (all elem │ 19.1%      │
-│ B_04__register_element_all       │ 6.70ms     │ Full loop processing (all elem │ 20.7%      │
-│ B_05__full_create_in_graph_all   │ 10.00ms    │ Full loop processing (all elem │ 30.8%      │
-│ B_06__full_register_attrs_all    │ 5.20ms     │ Full loop processing (all elem │ 16.0%      │
+│ B_02__create_element_all         │ 3.30ms     │ Full loop processing (all elem │ 8.9%       │
+│ B_03__add_child_all              │ 6.80ms     │ Full loop processing (all elem │ 18.4%      │
+│ B_04__register_element_all       │ 10.20ms    │ Full loop processing (all elem │ 27.5%      │
+│ B_05__full_create_in_graph_all   │ 8.40ms     │ Full loop processing (all elem │ 22.7%      │
+│ B_06__full_register_attrs_all    │ 7.60ms     │ Full loop processing (all elem │ 20.5%      │
 ├─────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Total: 13 benchmarks                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────┘
@@ -49,42 +49,42 @@ LEGEND
 ============================================================
 CATEGORY SUMMARY
 ============================================================
-  Single operation measurements:     550.70µs  (A_xx benchmarks)
-  Full loop processing (all elem:      31.87ms  (B_xx benchmarks)
+  Single operation measurements:     660.70µs  (A_xx benchmarks)
+  Full loop processing (all elem:      36.37ms  (B_xx benchmarks)
   ─────────────────────────────────────────────
-  Overhead:             -31319300ns  (full - create - convert)
+  Overhead:             -35709300ns  (full - create - convert)
 
 ============================================================
 PERCENTAGE ANALYSIS (relative to Full Operations)
 ============================================================
-  Converter Creation: 5787.18% of full operation time
+  Converter Creation: 5504.77% of full operation time
   Convert Only:          0.0% of full operation time
-  Overhead:           -5687.18% of full operation time
+  Overhead:           -5404.77% of full operation time
 
 ============================================================
 STAGE BREAKDOWN (Full Operations)
 ============================================================
   node_path_creation        700ns (  0.1%) 
-  create_element          30.00µs (  5.4%) ██
-  add_child               50.00µs (  9.1%) ████
-  A_04__register_element    70.00µs ( 12.7%) ██████
-  A_05__add_attribute    300.00µs ( 54.5%) ███████████████████████████
-  A_06_create_in_graph    80.00µs ( 14.5%) ███████
-  A_07_register_attrs     20.00µs (  3.6%) █
+  create_element          30.00µs (  4.5%) ██
+  add_child               60.00µs (  9.1%) ████
+  A_04__register_element    70.00µs ( 10.6%) █████
+  A_05__add_attribute    300.00µs ( 45.4%) ██████████████████████
+  A_06_create_in_graph    80.00µs ( 12.1%) ██████
+  A_07_register_attrs    120.00µs ( 18.2%) █████████
 
 ============================================================
 BOTTLENECK ANALYSIS
 ============================================================
-  Primary Bottleneck: B_05__full_create_in_graph_all
-  Time:               10.00ms
-  Percentage:         1815.9% of total
+  Primary Bottleneck: B_04__register_element_all
+  Time:               10.20ms
+  Percentage:         1543.8% of total
 
 ============================================================
 KEY INSIGHT
 ============================================================
-  Converter creation is 98.3% of total time.
+  Converter creation is 98.2% of total time.
 
 ════════════════════════════════════════════════════════════════════════════════
-Report generated: 2026-01-10 17:51:33
-Version: v1.4.32
+Report generated: 2026-01-10 19:46:02
+Version: v1.4.34
 ════════════════════════════════════════════════════════════════════════════════
