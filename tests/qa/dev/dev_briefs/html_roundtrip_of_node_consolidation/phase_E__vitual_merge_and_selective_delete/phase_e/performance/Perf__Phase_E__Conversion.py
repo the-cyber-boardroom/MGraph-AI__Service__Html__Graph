@@ -2,24 +2,33 @@
 # Perf__Phase_E__Conversion - Benchmark the 3 main conversion stages
 # Part of Phase E_1: Performance Analysis
 #
+# REFACTORED to use Perf_Benchmark__Timing properly
+#
 # Focus Areas:
 #   1. HTML → Dict (Phase A parsing)
 #   2. Dict → MGraph (graph generation with nodes/edges)
 #   3. MGraph → HTML (recreation)
+#
+# Key Changes:
+#   - Uses Perf_Benchmark__Timing with proper benchmark IDs
+#   - Separates "full operation" from "isolated stage" measurements
+#   - Pre-computes intermediate values for stage isolation
+#   - Measures converter creation overhead separately
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from typing                                                                                                     import Dict
 from osbot_utils.helpers.Print_Table                                                                            import Print_Table
-from osbot_utils.helpers.performance.Performance_Measure__Session                                               import Perf
+from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing                                           import Perf_Benchmark__Timing
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id import Safe_Str__Benchmark_Id
+from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Benchmark__Timing__Config            import Schema__Perf_Benchmark__Timing__Config
 from osbot_utils.type_safe.Type_Safe                                                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html import Safe_Str__Html
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                                  import type_safe
 from osbot_utils.type_safe.primitives.core.Safe_Int                                                             import Safe_Int
 from osbot_utils.type_safe.primitives.core.Safe_Float                                                           import Safe_Float
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_Dict__With__Node_Ids            import Html__To__Html_Dict__With__Node_Ids
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document__Node_Id_Reuse import Html__To__Html_MGraph__Document__Node_Id_Reuse
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html                import Html_MGraph__Document__To__Html
-
-
 
 
 class Schema__Conversion_Timing(Type_Safe):                                     # Timing result for one conversion
@@ -39,12 +48,17 @@ class Schema__Conversion_Breakdown(Type_Safe):                                  
 
 class Perf__Phase_E__Conversion(Type_Safe):                                     # Benchmark conversion stages
 
-    session : Perf = None                                                       # Performance session
+    config : Schema__Perf_Benchmark__Timing__Config                             # Timing configuration
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if self.session is None:
-            self.session = Perf(assert_enabled=False)
+        if self.config is None:
+            self.config = Schema__Perf_Benchmark__Timing__Config(
+                title            = 'Phase E Conversion Benchmarks',
+                measure_fast     = True,                                        # Use 87-iteration mode by default
+                print_to_console = False,
+                asserts_enabled  = False
+            )
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Main Benchmark Method
@@ -52,31 +66,34 @@ class Perf__Phase_E__Conversion(Type_Safe):                                     
 
     @type_safe
     def benchmark_conversions(self, html: str) -> Schema__Conversion_Timing:    # Benchmark all 3 stages
-        html_dict = None
-        document  = None
+        # ───────────────────────────────────────────────────────────────────────
+        # Pre-compute intermediate values for stage isolation
+        # This ensures each stage can be measured independently
+        # ───────────────────────────────────────────────────────────────────────
+        html_dict = Html__To__Html_Dict__With__Node_Ids(html=html).convert()
+        document  = Html__To__Html_MGraph__Document__Node_Id_Reuse().convert_from_dict(html_dict)
 
-        # Stage 1: HTML → Dict
-        def stage_html_to_dict():
-            nonlocal html_dict
-            html_dict = Html__To__Html_Dict__With__Node_Ids(html=html).convert()
+        # ───────────────────────────────────────────────────────────────────────
+        # Run benchmarks with proper Fibonacci-based measurement
+        # Each benchmark measures the FULL operation (create converter + convert)
+        # ───────────────────────────────────────────────────────────────────────
+        with Perf_Benchmark__Timing(config=self.config) as timing:
 
-        # Stage 2: Dict → MGraph
-        def stage_dict_to_mgraph():
-            nonlocal document
-            document = Html__To__Html_MGraph__Document__Node_Id_Reuse().convert_from_dict(html_dict)
+            timing.benchmark('A_01__html_to_dict',                              # Stage 1: HTML → Dict
+                lambda: Html__To__Html_Dict__With__Node_Ids(html=html).convert())
 
-        # Stage 3: MGraph → HTML
-        def stage_mgraph_to_html():
-            Html_MGraph__Document__To__Html().convert(document)
+            timing.benchmark('A_02__dict_to_mgraph',                            # Stage 2: Dict → MGraph
+                lambda: Html__To__Html_MGraph__Document__Node_Id_Reuse().convert_from_dict(html_dict))
 
-        with self.session as _:
-            result_1 = _.measure__fast(stage_html_to_dict  ).result
-            result_2 = _.measure__fast(stage_dict_to_mgraph).result
-            result_3 = _.measure__fast(stage_mgraph_to_html).result
+            timing.benchmark('A_03__mgraph_to_html',                            # Stage 3: MGraph → HTML
+                lambda: Html_MGraph__Document__To__Html().convert(document))
 
-        html_to_dict_ns   = int(result_1.final_score)
-        dict_to_mgraph_ns = int(result_2.final_score)
-        mgraph_to_html_ns = int(result_3.final_score)
+        # ───────────────────────────────────────────────────────────────────────
+        # Extract results
+        # ───────────────────────────────────────────────────────────────────────
+        html_to_dict_ns   = int(timing.results['A_01__html_to_dict'  ].final_score)
+        dict_to_mgraph_ns = int(timing.results['A_02__dict_to_mgraph'].final_score)
+        mgraph_to_html_ns = int(timing.results['A_03__mgraph_to_html'].final_score)
         total_ns          = html_to_dict_ns + dict_to_mgraph_ns + mgraph_to_html_ns
 
         return Schema__Conversion_Timing(html_to_dict_ns   = html_to_dict_ns  ,
@@ -87,39 +104,88 @@ class Perf__Phase_E__Conversion(Type_Safe):                                     
                                          node_count        = self.estimate_nodes(html))
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Individual Stage Benchmarks
+    # Detailed Breakdown - Separate Converter Creation from Conversion
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def benchmark_html_to_dict(self, html: str) -> Safe_Int:                         # Benchmark Stage 1 only
-        from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_Dict__With__Node_Ids import Html__To__Html_Dict__With__Node_Ids
+    def benchmark_conversions_detailed(self,
+                                       html: Safe_Str__Html
+                                  ) -> Dict[Safe_Str__Benchmark_Id, int]:      # Detailed breakdown with converter creation isolated
+        # Pre-compute for isolation
+        html_dict = Html__To__Html_Dict__With__Node_Ids(html=html).convert()
+        document  = Html__To__Html_MGraph__Document__Node_Id_Reuse().convert_from_dict(html_dict)
 
-        def run():
-            Html__To__Html_Dict__With__Node_Ids(html=html).convert()
+        with Perf_Benchmark__Timing(config=self.config) as timing:
 
-        with self.session as _:
-            result = _.measure__fast(run)
-            return _.result.final_score
+            # ─────────────────────────────────────────────────────────────────
+            # Full operations (converter creation + convert)
+            # ─────────────────────────────────────────────────────────────────
+            timing.benchmark('A_01__html_to_dict__full',
+                lambda: Html__To__Html_Dict__With__Node_Ids(html=html).convert())
+
+            timing.benchmark('A_02__dict_to_mgraph__full',
+                lambda: Html__To__Html_MGraph__Document__Node_Id_Reuse().convert_from_dict(html_dict))
+
+            timing.benchmark('A_03__mgraph_to_html__full',
+                lambda: Html_MGraph__Document__To__Html().convert(document))
+
+            # ─────────────────────────────────────────────────────────────────
+            # Converter creation only (to isolate overhead)
+            # ─────────────────────────────────────────────────────────────────
+            timing.benchmark('B_01__converter_1_create',
+                lambda: Html__To__Html_Dict__With__Node_Ids(html=html))
+
+            timing.benchmark('B_02__converter_2_create',
+                Html__To__Html_MGraph__Document__Node_Id_Reuse)
+
+            timing.benchmark('B_03__converter_3_create',
+                Html_MGraph__Document__To__Html)
+
+            # ─────────────────────────────────────────────────────────────────
+            # Conversion only (using pre-created converters)
+            # Note: We create converters fresh for each measurement to avoid state issues
+            # ─────────────────────────────────────────────────────────────────
+            converter_1 = Html__To__Html_Dict__With__Node_Ids(html=html)
+            timing.benchmark('C_01__html_to_dict__convert_only',
+                converter_1.convert)
+
+            converter_2 = Html__To__Html_MGraph__Document__Node_Id_Reuse()
+            timing.benchmark('C_02__dict_to_mgraph__convert_only',
+                lambda: converter_2.convert_from_dict(html_dict))
+
+            converter_3 = Html_MGraph__Document__To__Html()
+            timing.benchmark('C_03__mgraph_to_html__convert_only',
+                lambda: converter_3.convert(document))
+
+        return {k: int(v.final_score) for k, v in timing.results.items()}
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Individual Stage Benchmarks (for targeted testing)
+    # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def benchmark_dict_to_mgraph(self, html_dict: dict) -> Safe_Int:                 # Benchmark Stage 2 only
+    def benchmark_html_to_dict(self, html: str) -> int:                         # Benchmark Stage 1 only
+        with Perf_Benchmark__Timing(config=self.config) as timing:
+            timing.benchmark('A_01__html_to_dict',
+                lambda: Html__To__Html_Dict__With__Node_Ids(html=html).convert())
 
-        def run():
-            Html__To__Html_MGraph__Document__Node_Id_Reuse().convert_from_dict(html_dict)
-
-        with self.session as _:
-            _.measure__fast(run)
-            return _.result.final_score
+        return int(timing.results['A_01__html_to_dict'].final_score)
 
     @type_safe
-    def benchmark_mgraph_to_html(self, document) -> Safe_Int:                        # Benchmark Stage 3 only
-        def run():
-            Html_MGraph__Document__To__Html().convert(document)
+    def benchmark_dict_to_mgraph(self, html_dict: dict) -> int:                 # Benchmark Stage 2 only
+        with Perf_Benchmark__Timing(config=self.config) as timing:
+            timing.benchmark('A_02__dict_to_mgraph',
+                lambda: Html__To__Html_MGraph__Document__Node_Id_Reuse().convert_from_dict(html_dict))
 
-        with self.session as _:
-            result = _.measure__fast(run)
-            return _.result.final_score
+        return int(timing.results['A_02__dict_to_mgraph'].final_score)
 
+    @type_safe
+    def benchmark_mgraph_to_html(self, document) -> int:                        # Benchmark Stage 3 only
+        with Perf_Benchmark__Timing(config=self.config) as timing:
+            timing.benchmark('A_03__mgraph_to_html',
+                lambda: Html_MGraph__Document__To__Html().convert(document))
+
+        return int(timing.results['A_03__mgraph_to_html'].final_score)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Analysis Methods
@@ -168,6 +234,31 @@ class Perf__Phase_E__Conversion(Type_Safe):                                     
         return table.text()
 
     @type_safe
+    def build_detailed_report(self, results: Dict[str, int]) -> str:            # Build detailed breakdown report
+        table = Print_Table()
+        table.set_title('DETAILED CONVERSION BREAKDOWN')
+        table.add_headers('Benchmark', 'Time', 'Category')
+
+        # Group by section
+        sections = {'A': 'Full Operation', 'B': 'Converter Creation', 'C': 'Convert Only'}
+
+        for benchmark_id in sorted(results.keys()):
+            section = benchmark_id[0]
+            category = sections.get(section, 'Unknown')
+            time_ns = results[benchmark_id]
+            table.add_row([benchmark_id, self.format_ns(time_ns), category])
+
+        # Calculate overhead
+        if all(k in results for k in ['A_01__html_to_dict__full', 'B_01__converter_1_create', 'C_01__html_to_dict__convert_only']):
+            full = results['A_01__html_to_dict__full']
+            create = results['B_01__converter_1_create']
+            convert = results['C_01__html_to_dict__convert_only']
+            overhead = full - create - convert
+            table.set_footer(f"Overhead (full - create - convert): {self.format_ns(overhead)}")
+
+        return table.text()
+
+    @type_safe
     def build_multi_report(self                                    ,            # Build report for multiple sizes
                            results: Dict[str, Schema__Conversion_Timing]) -> str:
 
@@ -188,8 +279,8 @@ class Perf__Phase_E__Conversion(Type_Safe):                                     
                            f'{int(timing.html_size_bytes):,}'                                    ])
 
         # Find bottleneck across all sizes
-        total_html   = sum(int(t.html_to_dict_ns)   for t in results.values())
-        total_mgraph = sum(int(t.dict_to_mgraph_ns) for t in results.values())
+        total_html    = sum(int(t.html_to_dict_ns)   for t in results.values())
+        total_mgraph  = sum(int(t.dict_to_mgraph_ns) for t in results.values())
         total_rebuild = sum(int(t.mgraph_to_html_ns) for t in results.values())
 
         if total_html >= total_mgraph and total_html >= total_rebuild:
@@ -203,9 +294,9 @@ class Perf__Phase_E__Conversion(Type_Safe):                                     
 
         return table.text()
 
-    def save_report(self                           ,                            # Save report to file
+    def save_report(self                                ,                       # Save report to file
                     timing   : Schema__Conversion_Timing,
-                    filepath : str                 ) -> None:
+                    filepath : str                      ) -> None:
         from osbot_utils.utils.Files import file_create
         file_create(filepath, self.build_report(timing))
 

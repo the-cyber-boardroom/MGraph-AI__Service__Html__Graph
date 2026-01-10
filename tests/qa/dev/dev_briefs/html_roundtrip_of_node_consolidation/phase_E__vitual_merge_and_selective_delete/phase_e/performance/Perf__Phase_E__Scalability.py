@@ -3,11 +3,15 @@
 # Part of Phase E_1: Performance Analysis
 #
 # Tests from tiny (~10 nodes) to massive (~10,000 nodes) to detect bottlenecks
+#
+# REFACTORED: Fixed quick_analysis sizes, added fast_create comparison
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from typing                                                                     import List, Dict, Optional
 from osbot_utils.helpers.Print_Table                                            import Print_Table
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text import Safe_Str__Text
+from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config              import Type_Safe__Config
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
 from osbot_utils.type_safe.primitives.core.Safe_Int                             import Safe_Int
 from osbot_utils.type_safe.primitives.core.Safe_Float                           import Safe_Float
@@ -17,6 +21,10 @@ from phase_e.performance.Perf__Phase_E__Conversion                              
 from phase_e.performance.Perf__Phase_E__Conversion                              import Schema__Conversion_Timing
 from phase_e.performance.Perf__Storage__Base                                    import Perf__Storage__Base
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Schemas
+# ═══════════════════════════════════════════════════════════════════════════════
 
 class Schema__Scale_Point(Type_Safe):                                           # Single data point in scaling analysis
     name              : Safe_Str                                                # Size name (tiny, small, etc.)
@@ -28,17 +36,55 @@ class Schema__Scale_Point(Type_Safe):                                           
 
 class Schema__Scaling_Analysis(Type_Safe):                                      # Full scaling analysis
     points            : List[Schema__Scale_Point]                               # All data points
-    bottleneck_stage  : Safe_Str                                                # Which stage takes most time
-    scaling_behavior  : Safe_Str                                                # Linear, quadratic, etc.
+    bottleneck_stage  : str # Safe_Str__Text      # todo: needs schema with → as in ''HTML→Dict''                                         # Which stage takes most time
+    scaling_behavior  : Safe_Str__Text                                                # Linear, quadratic, etc.
+    mode              : Safe_Str                                                # 'default' or 'fast_create'
     timestamp         : Safe_Str                                                # When analysis was run
 
+
+class Schema__Scaling_Comparison(Type_Safe):                                    # Before/after comparison
+    before            : Schema__Scaling_Analysis                                # Baseline analysis
+    after             : Schema__Scaling_Analysis                                # Optimized analysis
+    improvement_pct   : Safe_Float                                              # Overall improvement percentage
+    timestamp         : Safe_Str                                                # When comparison was run
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Size Presets
+# ═══════════════════════════════════════════════════════════════════════════════
+
+SIZES_QUICK = [                                                                 # Quick analysis (~10 seconds)
+    ('small' ,   10),
+    ('medium',   50),
+    ('large' ,  100),
+]
+
+SIZES_STANDARD = [                                                              # Standard analysis (~1 minute)
+    ('tiny'  ,   10),
+    ('small' ,   50),
+    ('medium',  100),
+    ('large' ,  500),
+]
+
+SIZES_FULL = [                                                                  # Full analysis (~5 minutes)
+    ('tiny'   ,    10),
+    ('small'  ,   100),
+    ('medium' ,   500),
+    ('large'  ,  1000),
+    ('xlarge' ,  5000),
+    ('massive', 10000),
+]
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Main Class
+# ═══════════════════════════════════════════════════════════════════════════════
 
 class Perf__Phase_E__Scalability(Type_Safe):                                    # Analyze scaling behavior
 
     generator : Html_Generator__For_Benchmarks
     converter : Perf__Phase_E__Conversion
-    storage   : Perf__Storage__Base                                              # Optional storage backend
-
+    storage   : Perf__Storage__Base                                             # Optional storage backend
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Main Analysis Methods
@@ -47,53 +93,36 @@ class Perf__Phase_E__Scalability(Type_Safe):                                    
     @type_safe
     def run_full_analysis(self                    ,                             # Run analysis across all sizes
                           auto_save : bool = False) -> Schema__Scaling_Analysis:
-        from datetime import datetime
+        return self.run_analysis(sizes=SIZES_FULL, mode='default', auto_save=auto_save)
 
-        sizes = [('tiny'   ,    10),
-                 ('small'  ,   100),
-                 ('medium' ,   500),
-                 ('large'  ,  1000),
-                 ('xlarge' ,  5000),
-                 ('massive', 10000)]
-
-        points = []
-
-        for name, target in sizes:
-            point = self.benchmark_size(name, target)
-            points.append(point)
-
-        bottleneck = self.identify_bottleneck(points)
-        scaling    = self.analyze_scaling_behavior(points)
-        timestamp  = datetime.now().isoformat()
-
-        analysis = Schema__Scaling_Analysis(points           = points    ,
-                                            bottleneck_stage = bottleneck,
-                                            scaling_behavior = scaling   ,
-                                            timestamp        = timestamp )
-
-        if auto_save and self.storage is not None:
-            self.save_analysis(analysis)
-
-        return analysis
+    @type_safe
+    def run_standard_analysis(self                    ,                         # Run standard analysis
+                              auto_save : bool = False) -> Schema__Scaling_Analysis:
+        return self.run_analysis(sizes=SIZES_STANDARD, mode='default', auto_save=auto_save)
 
     @type_safe
     def run_quick_analysis(self                    ,                            # Quick analysis with fewer sizes
                            auto_save : bool = False) -> Schema__Scaling_Analysis:
+        return self.run_analysis(sizes=SIZES_QUICK, mode='default', auto_save=auto_save)
+
+    @type_safe
+    def run_analysis(self                                ,                      # Core analysis method
+                     sizes     : List[tuple]             ,
+                     mode      : str          = 'default',
+                     auto_save : bool         = False    ) -> Schema__Scaling_Analysis:
         from datetime import datetime
-
-        # sizes = [('small' ,  100),
-        #          ('medium',  500),
-        #          ('large' , 1000)]
-
-        sizes = [('small' ,  1),
-                 ('medium',  2),
-                 ('large' , 3)]
 
         points = []
 
-        for name, target in sizes:
-            point = self.benchmark_size(name, target)
-            points.append(point)
+        if mode == 'fast_create':
+            with Type_Safe__Config(fast_create=True, skip_validation=True):
+                for name, target in sizes:
+                    point = self.benchmark_size(name, target)
+                    points.append(point)
+        else:
+            for name, target in sizes:
+                point = self.benchmark_size(name, target)
+                points.append(point)
 
         bottleneck = self.identify_bottleneck(points)
         scaling    = self.analyze_scaling_behavior(points)
@@ -102,13 +131,76 @@ class Perf__Phase_E__Scalability(Type_Safe):                                    
         analysis = Schema__Scaling_Analysis(points           = points    ,
                                             bottleneck_stage = bottleneck,
                                             scaling_behavior = scaling   ,
+                                            mode             = mode      ,
                                             timestamp        = timestamp )
 
         if auto_save and self.storage is not None:
-            self.save_analysis(analysis, key='scaling_analysis__quick')
-            self.save_report  (analysis, key='scaling_analysis__quick')
+            key = f'scaling__{mode}'
+            self.save_analysis(analysis, key=key)
+            self.save_report(analysis, key=key)
 
         return analysis
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Fast Create Analysis
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    @type_safe
+    def run_quick_analysis__fast_create(self                    ,               # Quick analysis with fast_create
+                                        auto_save : bool = False) -> Schema__Scaling_Analysis:
+        return self.run_analysis(sizes=SIZES_QUICK, mode='fast_create', auto_save=auto_save)
+
+    @type_safe
+    def run_standard_analysis__fast_create(self                    ,            # Standard analysis with fast_create
+                                           auto_save : bool = False) -> Schema__Scaling_Analysis:
+        return self.run_analysis(sizes=SIZES_STANDARD, mode='fast_create', auto_save=auto_save)
+
+    @type_safe
+    def run_full_analysis__fast_create(self                    ,                # Full analysis with fast_create
+                                       auto_save : bool = False) -> Schema__Scaling_Analysis:
+        return self.run_analysis(sizes=SIZES_FULL, mode='fast_create', auto_save=auto_save)
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Comparison Methods
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    @type_safe
+    def run_comparison__quick(self                    ,                         # Compare default vs fast_create (quick)
+                              auto_save : bool = False) -> Schema__Scaling_Comparison:
+        return self.run_comparison(sizes=SIZES_QUICK, auto_save=auto_save)
+
+    @type_safe
+    def run_comparison__standard(self                    ,                      # Compare default vs fast_create (standard)
+                                 auto_save : bool = False) -> Schema__Scaling_Comparison:
+        return self.run_comparison(sizes=SIZES_STANDARD, auto_save=auto_save)
+
+    @type_safe
+    def run_comparison(self                        ,                            # Compare default vs fast_create
+                       sizes     : List[tuple]     ,
+                       auto_save : bool = False    ) -> Schema__Scaling_Comparison:
+        from datetime import datetime
+
+        before = self.run_analysis(sizes=sizes, mode='default')
+        after  = self.run_analysis(sizes=sizes, mode='fast_create')
+
+        # Calculate overall improvement
+        total_before = sum(int(p.timing.total_ns) for p in before.points)
+        total_after  = sum(int(p.timing.total_ns) for p in after.points)
+
+        if total_before > 0:
+            improvement_pct = ((total_before - total_after) / total_before) * 100
+        else:
+            improvement_pct = 0.0
+
+        comparison = Schema__Scaling_Comparison(before          = before        ,
+                                                after           = after         ,
+                                                improvement_pct = improvement_pct,
+                                                timestamp       = datetime.now().isoformat())
+
+        if auto_save and self.storage is not None:
+            self.save_comparison_report(comparison, key='scaling__comparison')
+
+        return comparison
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Individual Size Benchmark
@@ -137,7 +229,6 @@ class Perf__Phase_E__Scalability(Type_Safe):                                    
         if not points:
             return 'unknown'
 
-        # Sum up times across all sizes
         total_html_to_dict   = sum(int(p.timing.html_to_dict_ns)   for p in points)
         total_dict_to_mgraph = sum(int(p.timing.dict_to_mgraph_ns) for p in points)
         total_mgraph_to_html = sum(int(p.timing.mgraph_to_html_ns) for p in points)
@@ -173,38 +264,37 @@ class Perf__Phase_E__Scalability(Type_Safe):                                    
         elif ratio < 10.0:
             return 'O(n²) quadratic - potential bottleneck'
         else:
-            return 'worse than O(n²) - significant bottleneck'
+            return 'O(n³) or worse - critical bottleneck'
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Reporting (Print_Table based)
+    # Reporting
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def build_report(self, analysis: Schema__Scaling_Analysis) -> str:          # Build full report as string
+    def build_report(self, analysis: Schema__Scaling_Analysis) -> str:          # Build scaling report
 
         table = Print_Table()
 
-        table.set_title('PHASE E SCALING ANALYSIS')
+        mode_str = f" ({str(analysis.mode).upper()})" if str(analysis.mode) != 'default' else ''
+        table.set_title(f'SCALING ANALYSIS{mode_str}')
         table.add_headers('Size', 'Nodes', 'Total', 'ns/node', 'HTML→Dict', 'Dict→MGraph', 'MGraph→HTML')
 
         for point in analysis.points:
             timing = point.timing
 
-            # Calculate percentages for each stage
             total = float(timing.total_ns) or 1.0
-            html_pct   = float(timing.html_to_dict_ns)   / total * 100
-            mgraph_pct = float(timing.dict_to_mgraph_ns) / total * 100
+            html_pct    = float(timing.html_to_dict_ns)   / total * 100
+            mgraph_pct  = float(timing.dict_to_mgraph_ns) / total * 100
             rebuild_pct = float(timing.mgraph_to_html_ns) / total * 100
 
             table.add_row([str(point.name)                                              ,
                            f'{int(point.target_nodes):,}'                               ,
                            self.format_ns(int(timing.total_ns))                         ,
-                           f'{float(point.ns_per_node):,.1f}'                           ,
+                           f'{float(point.ns_per_node):,.0f}'                           ,
                            f'{self.format_ns(int(timing.html_to_dict_ns))} ({html_pct:.0f}%)'    ,
                            f'{self.format_ns(int(timing.dict_to_mgraph_ns))} ({mgraph_pct:.0f}%)',
                            f'{self.format_ns(int(timing.mgraph_to_html_ns))} ({rebuild_pct:.0f}%)'])
 
-        # Build footer with bottleneck and scaling info
         bottleneck = str(analysis.bottleneck_stage)
         scaling    = str(analysis.scaling_behavior)
 
@@ -227,8 +317,11 @@ class Perf__Phase_E__Scalability(Type_Safe):                                    
 
         table = Print_Table()
 
-        table.set_title('SCALING COMPARISON REPORT')
-        table.add_headers('Size', 'Before', 'After', 'Change', 'Before ns/n', 'After ns/n')
+        table.set_title('SCALING COMPARISON: Default vs Fast Create')
+        table.add_headers('Size', 'Nodes', 'Default', 'Fast Create', 'Δ Time', 'Speedup', 'ns/n (D)', 'ns/n (F)')
+
+        total_before = 0
+        total_after  = 0
 
         for i, before_point in enumerate(before.points):
             if i >= len(after.points):
@@ -237,73 +330,93 @@ class Perf__Phase_E__Scalability(Type_Safe):                                    
             after_point  = after.points[i]
             before_total = int(before_point.timing.total_ns)
             after_total  = int(after_point.timing.total_ns)
-            diff         = after_total - before_total
 
-            # Calculate change percentage
+            total_before += before_total
+            total_after  += after_total
+
             if before_total > 0:
-                change_pct = ((after_total - before_total) / before_total) * 100
-                if change_pct > 0:
-                    change_str = f"+{change_pct:.1f}% ▲"
-                elif change_pct < 0:
-                    change_str = f"{change_pct:.1f}% ▼"
-                else:
-                    change_str = "0%"
+                change_pct = ((before_total - after_total) / before_total) * 100
+                speedup    = before_total / after_total if after_total > 0 else 0
+                change_str = f"-{change_pct:.0f}%"
+                speedup_str = f"{speedup:.1f}x"
             else:
-                change_str = "N/A"
+                change_str  = "N/A"
+                speedup_str = "N/A"
 
-            table.add_row([str(before_point.name)                       ,
-                           self.format_ns(before_total)                 ,
-                           self.format_ns(after_total)                  ,
-                           change_str                                   ,
-                           f'{float(before_point.ns_per_node):,.1f}'    ,
-                           f'{float(after_point.ns_per_node):,.1f}'     ])
+            table.add_row([str(before_point.name)                    ,
+                           f'{int(before_point.target_nodes):,}'     ,
+                           self.format_ns(before_total)              ,
+                           self.format_ns(after_total)               ,
+                           change_str                                ,
+                           speedup_str                               ,
+                           f'{float(before_point.ns_per_node):,.0f}' ,
+                           f'{float(after_point.ns_per_node):,.0f}'  ])
 
-        # Footer with overall assessment
-        before_scaling = str(before.scaling_behavior)
-        after_scaling  = str(after.scaling_behavior)
-
-        if before_scaling == after_scaling:
-            footer = f"Scaling unchanged: {after_scaling}"
+        # Overall improvement
+        if total_before > 0:
+            overall_pct = ((total_before - total_after) / total_before) * 100
+            overall_speedup = total_before / total_after if total_after > 0 else 0
+            footer = f"Overall: -{overall_pct:.1f}% ({overall_speedup:.2f}x speedup)"
         else:
-            footer = f"Scaling changed: {before_scaling} → {after_scaling}"
+            footer = "Overall: N/A"
 
         table.set_footer(footer)
 
         return table.text()
 
+    @type_safe
+    def build_full_comparison_report(self, comparison: Schema__Scaling_Comparison) -> str:  # Full comparison with both tables
+        lines = ['=' * 80                                                       ,
+                 'SCALING ANALYSIS: Default vs Fast Create Comparison'          ,
+                 '=' * 80                                                       ,
+                 ''                                                             ,
+                 'DEFAULT MODE:'                                                ,
+                 '-' * 40                                                       ,
+                 self.build_report(comparison.before)                           ,
+                 ''                                                             ,
+                 'FAST CREATE MODE:'                                            ,
+                 '-' * 40                                                       ,
+                 self.build_report(comparison.after)                            ,
+                 ''                                                             ,
+                 'COMPARISON:'                                                  ,
+                 '-' * 40                                                       ,
+                 self.build_comparison_report(comparison.before, comparison.after),
+                 ''                                                             ,
+                 f'Overall Improvement: {float(comparison.improvement_pct):.1f}%',
+                 '=' * 80                                                       ]
+
+        return '\n'.join(lines)
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Storage Methods
+    # ═══════════════════════════════════════════════════════════════════════════
+
     def save_report(self                               ,                        # Save report to file
                     analysis : Schema__Scaling_Analysis,
-                    key = '') -> None:
+                    key      : str = ''                ) -> None:
+        if self.storage is None:
+            return
 
-        report =  self.build_report(analysis)
+        report = self.build_report(analysis)
         if not key:
             key = self.storage.generate_timestamped_key('scaling_analysis')
 
         self.storage.save_report(key, report)
 
+    def save_comparison_report(self                                  ,          # Save comparison report
+                               comparison : Schema__Scaling_Comparison,
+                               key        : str = ''                 ) -> None:
+        if self.storage is None:
+            return
+
+        report = self.build_full_comparison_report(comparison)
+        if not key:
+            key = self.storage.generate_timestamped_key('scaling_comparison')
+
+        self.storage.save_report(key, report)
+
     def print_report(self, analysis: Schema__Scaling_Analysis) -> None:         # Print report to console
         print(self.build_report(analysis))
-
-    @type_safe
-    def format_analysis(self, analysis: Schema__Scaling_Analysis) -> str:       # Format analysis for display (legacy)
-        return self.build_report(analysis)
-
-    def print_analysis(self, analysis: Schema__Scaling_Analysis) -> None:       # Print formatted analysis (legacy)
-        print(self.build_report(analysis))
-
-    def format_ns(self, ns: int) -> str:                                        # Format nanoseconds for readability
-        if ns >= 1_000_000_000:
-            return f"{ns / 1_000_000_000:.2f}s"
-        elif ns >= 1_000_000:
-            return f"{ns / 1_000_000:.2f}ms"
-        elif ns >= 1_000:
-            return f"{ns / 1_000:.2f}µs"
-        else:
-            return f"{ns}ns"
-
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Storage Methods
-    # ═══════════════════════════════════════════════════════════════════════════
 
     def save_analysis(self                               ,                      # Save analysis to storage
                       analysis : Schema__Scaling_Analysis,
@@ -361,4 +474,19 @@ class Perf__Phase_E__Scalability(Type_Safe):                                    
             points           = points                               ,
             bottleneck_stage = data.get('bottleneck_stage', '')     ,
             scaling_behavior = data.get('scaling_behavior', '')     ,
+            mode             = data.get('mode', 'default')          ,
             timestamp        = data.get('timestamp', '')            )
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Helpers
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def format_ns(self, ns: int) -> str:                                        # Format nanoseconds for readability
+        if ns >= 1_000_000_000:
+            return f"{ns / 1_000_000_000:.2f}s"
+        elif ns >= 1_000_000:
+            return f"{ns / 1_000_000:.2f}ms"
+        elif ns >= 1_000:
+            return f"{ns / 1_000:.2f}µs"
+        else:
+            return f"{ns}ns"
