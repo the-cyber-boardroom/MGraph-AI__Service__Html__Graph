@@ -1,14 +1,14 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Performance Test: Phase E Conversion Detailed Breakdown
-# Analyzes: HTML → Dict → MGraph → HTML conversion pipeline
+# Test: Phase E_2 Conversion Detailed Breakdown
+# Uses the Perf_Report framework for structured reporting
 # ═══════════════════════════════════════════════════════════════════════════════
 
 import phase_e
 from unittest                                                                                               import TestCase
-from mgraph_ai_service_html_graph.utils.Version                                                             import version__mgraph_ai_service_html_graph
+from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html            import Html_MGraph__Document__To__Html
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_Dict__With__Node_Ids        import Html__To__Html_Dict__With__Node_Ids
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document__Node_Id_Reuse import Html__To__Html_MGraph__Document__Node_Id_Reuse
-from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html            import Html_MGraph__Document__To__Html
+from mgraph_ai_service_html_graph.utils.Version import version__mgraph_ai_service_html_graph
 from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing                                       import Perf_Benchmark__Timing
 from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Measure_Mode                             import Enum__Measure_Mode
 from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Benchmark__Timing__Config        import Schema__Perf_Benchmark__Timing__Config
@@ -28,10 +28,10 @@ HTML_SIMPLE = "<html><body><div><p>Hello World</p></div></body></html>"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Performance Test
+# Test Class
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class test_perf__Phase_E__Conversion__Detailed(TestCase):
+class test_perf__Phase_E_2__Conversion__Detailed(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -39,10 +39,10 @@ class test_perf__Phase_E__Conversion__Detailed(TestCase):
         cls.storage_path = path_combine(phase_e.path, '../perf_results')
         cls.storage      = Perf_Report__Storage__File_System(storage_path=cls.storage_path)
         cls.config       = Schema__Perf_Benchmark__Timing__Config(
-                               title            = 'Phase E Conversion Detailed',
-                               measure_fast     = True                         ,
-                               print_to_console = False                        ,
-                               asserts_enabled  = False                        )
+                               title            = 'Phase E_2 Conversion Detailed',
+                               measure_fast     = True                           ,
+                               print_to_console = False                          ,
+                               asserts_enabled  = False                          )
 
         # Pre-compute intermediate values for stage isolation
         cls.html_dict = Html__To__Html_Dict__With__Node_Ids(html=cls.html).convert()
@@ -52,7 +52,7 @@ class test_perf__Phase_E__Conversion__Detailed(TestCase):
     # Benchmark Definition
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def benchmarks(self, timing: Perf_Benchmark__Timing):
+    def benchmarks(self, timing: Perf_Benchmark__Timing):         # User's benchmark function
 
         # Section A: Full Operations (create converter + convert)
         timing.benchmark('A_01__html_to_dict__full',
@@ -89,24 +89,24 @@ class test_perf__Phase_E__Conversion__Detailed(TestCase):
     def test__conversion_detailed_breakdown(self):
         builder = Perf_Report__Builder(
             metadata = Schema__Perf_Report__Metadata(
-                           title        = 'Phase E: Conversion Pipeline - Detailed Breakdown'                       ,
-                           version      = version__mgraph_ai_service_html_graph                                     ,
-                           description  = 'Isolates converter creation from conversion logic. '
-                                          'Pipeline: HTML String → Dict → MGraph → HTML String'                     ,
-                           test_input   = HTML_SIMPLE                                                               ,
-                           measure_mode = Enum__Measure_Mode.FAST                                                   ),
+                           title        = 'Phase E: Conversion Pipeline - Detailed Breakdown'     ,
+                           version      = version__mgraph_ai_service_html_graph                   ,
+                           description  = 'Isolates converter creation from conversion logic.'    ,
+                           test_input   = HTML_SIMPLE                                             ,
+                           measure_mode = Enum__Measure_Mode.FAST                                 ),
             legend   = Dict__Perf_Report__Legend({
-                           'A': 'Full Operation      = Create converter instance + call convert()'                  ,
-                           'B': 'Converter Creation  = Only create converter instance (no conversion)'              ,
-                           'C': 'Convert Only        = Call convert() on pre-created instance'                      }),
-            config   = self.config                                                                                   )
+                           'A': 'Full Operation      = Create converter instance + call convert()',
+                           'B': 'Converter Creation  = Only create converter instance'            ,
+                           'C': 'Convert Only        = Call convert() on pre-created instance'    }),
+            config   = self.config                                                                 )
 
         report = builder.run(self.benchmarks)
 
-        self.storage.save(report, key='perf__conversion__detailed', formats=['txt', 'md', 'json'])
+        self.storage.save(report, key='conversion__detailed', formats=['txt', 'md', 'json'])
 
         assert report.metadata.benchmark_count == 9
         assert len(report.benchmarks)          == 9
         assert len(report.categories)          == 3
 
-        print(Perf_Report__Renderer__Text().render(report))
+        renderer = Perf_Report__Renderer__Text()
+        print(renderer.render(report))
