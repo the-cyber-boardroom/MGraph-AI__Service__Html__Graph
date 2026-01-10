@@ -38,7 +38,7 @@ class Graph_Transformation__Base(Type_Safe):                                    
     # Phase 2: Html_MGraph → MGraph
     # ═══════════════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def html_mgraph__to__mgraph(self,                                               # Select which graph to render
                                 html_mgraph: Html_MGraph
                                 ) -> MGraph:

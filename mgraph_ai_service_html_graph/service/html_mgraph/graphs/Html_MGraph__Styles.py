@@ -58,7 +58,7 @@ class Html_MGraph__Styles(Html_MGraph__Base):                                   
     # Build Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def register_style(self, node_id : Node_Id ,                                # Style element node_id (same as Head graph)
                              content : str     = None                           # CSS content (None for external)
                       ) -> Optional[Node_Id]:                                   # Register a style element, returns content node_id
@@ -75,7 +75,7 @@ class Html_MGraph__Styles(Html_MGraph__Base):                                   
 
         return None                                                             # External stylesheet (no content)
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def register_link(self, node_id: Node_Id) -> None:                          # Register an external stylesheet (<link>)
         self.register_style(node_id=node_id, content=None)                      # Same as style without content
 

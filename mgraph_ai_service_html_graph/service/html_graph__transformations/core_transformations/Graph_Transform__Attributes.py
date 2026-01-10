@@ -10,7 +10,7 @@ class Graph_Transform__Attributes(Graph_Transformation__Base):                  
     label       : str = 'Attributes View'
     description : str = 'Focus on element attributes'
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def html_mgraph__to__mgraph(self,                                                    # Select attributes graph
                                 html_mgraph: Html_MGraph
                             )-> MGraph:

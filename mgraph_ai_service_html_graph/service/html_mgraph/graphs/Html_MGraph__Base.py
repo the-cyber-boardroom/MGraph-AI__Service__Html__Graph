@@ -30,7 +30,7 @@ class Html_MGraph__Base(Type_Safe):                                             
     # Node Creation Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def new_element_node(self, node_path : Node_Path         ,                  # DOM path for element
                                node_id   : Node_Id    = None                    # Optional specific node_id
                         ) -> Domain__MGraph__Node:                              # Create element node with path
@@ -41,7 +41,7 @@ class Html_MGraph__Base(Type_Safe):                                             
         return self.mgraph.edit().new_node(node_type = Schema__MGraph__Node ,
                                            node_path = node_path            )
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def new_value_node(self, value     : str                ,                   # Value to store
                              node_path : Node_Path   = None ,                   # Optional path
                              key       : str         = ''   ,                   # Optional unique key
@@ -56,7 +56,7 @@ class Html_MGraph__Base(Type_Safe):                                             
     # Edge Creation Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def new_edge(self, from_node_id : Node_Id             ,                     # Source node
                        to_node_id   : Node_Id             ,                     # Target node
                        predicate    : Safe_Id      = None ,                     # Semantic relationship type

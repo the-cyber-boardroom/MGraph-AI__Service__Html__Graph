@@ -9,7 +9,7 @@ class Graph_Transform__Head_Only(Graph_Transformation__Base):                   
     label       : str = 'Head Only'
     description : str = 'Only the head graph (meta, title, links, etc.)'
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def html_mgraph__to__mgraph(self, html_mgraph : Html_MGraph                         # Select head graph
                                 ) -> MGraph:
         if html_mgraph:

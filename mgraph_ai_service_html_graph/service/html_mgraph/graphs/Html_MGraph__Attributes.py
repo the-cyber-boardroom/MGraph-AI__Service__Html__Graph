@@ -65,7 +65,7 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
     # Build Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    #@type_safe
+    ##@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     #@timestamp(name='register_element')
     def register_element(self, node_id : Node_Id ,                              # Element node_id (same as in Body/Head)
                                tag     : str                                    # HTML tag name
@@ -78,8 +78,6 @@ class Html_MGraph__Attributes(Html_MGraph__Base):                               
                       to_node_id   = node_id               ,
                       predicate    = self.PREDICATE_ELEMENT)
 
-    #@type_safe
-    #@timestamp(name='add_attribute')
     def add_attribute(self,                                               # Add an attribute to an element using three-node model.
                       node_id    : Node_Id       ,                        # Element node_id
                       attr_name  : str           ,                        # Attribute name (e.g., "class")
