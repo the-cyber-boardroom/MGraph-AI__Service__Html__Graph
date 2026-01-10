@@ -155,7 +155,14 @@ class Perf_Report__Builder(Type_Safe):                            # Builds Schem
                 bottleneck_ns = int(benchmark.time_ns)
 
         bottleneck_id  = str(bottleneck.benchmark_id) if bottleneck else ''
-        bottleneck_pct = float(bottleneck.pct_of_total) if bottleneck else 0.0
+        # Find the A category total
+        full_ops_total = 0
+        for category in categories:
+            if str(category.category_id) == 'A':
+                full_ops_total = int(category.total_ns)
+                break
+
+        bottleneck_pct = (bottleneck_ns / full_ops_total * 100) if full_ops_total > 0 else 0.0
 
         # Calculate overhead
         overhead_ns = self.calculate_overhead(categories)

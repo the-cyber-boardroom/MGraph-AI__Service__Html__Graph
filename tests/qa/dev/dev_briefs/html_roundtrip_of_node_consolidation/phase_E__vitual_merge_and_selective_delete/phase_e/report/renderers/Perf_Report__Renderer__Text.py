@@ -28,7 +28,7 @@ class Perf_Report__Renderer__Text(Perf_Report__Renderer__Base):   # Renders to .
         lines.append(self.render_benchmarks_table(report.benchmarks, report.categories))
         lines.append(self.render_category_summary(report.categories))
         lines.append(self.render_percentage_analysis(report.categories))
-        lines.append(self.render_stage_breakdown(report.categories))
+        lines.append(self.render_stage_breakdown(report.benchmarks, report.categories))
         lines.append(self.render_bottleneck_analysis(report.analysis))
         lines.append(self.render_key_insight(report.analysis))
         lines.append(self.render_footer(report.metadata))
@@ -147,38 +147,69 @@ class Perf_Report__Renderer__Text(Perf_Report__Renderer__Base):   # Renders to .
         return '\n'.join(lines)
 
     @type_safe
-    def render_percentage_analysis(self                           ,  # Percentage breakdown
+    def render_percentage_analysis(self                           ,
                                    categories: List__Perf_Report__Categories
                               ) -> str:
         lines = []
         lines.append('')
         lines.append('=' * 60)
-        lines.append('PERCENTAGE ANALYSIS')
+        lines.append('PERCENTAGE ANALYSIS (relative to Full Operations)')
         lines.append('=' * 60)
 
+        # Find totals by category
+        full_total    = 0
+        create_total  = 0
+        convert_total = 0
+
         for category in categories:
-            name    = f'{str(category.name)}:'
-            pct_str = self.format_pct_padded(float(category.pct_of_total), 6)
-            lines.append(f'  {name:<20} {pct_str} of total time')
+            cat_id = str(category.category_id)
+            if cat_id == 'A':
+                full_total = int(category.total_ns)
+            elif cat_id == 'B':
+                create_total = int(category.total_ns)
+            elif cat_id == 'C':
+                convert_total = int(category.total_ns)
+
+        if full_total > 0:
+            create_pct   = create_total / full_total * 100
+            convert_pct  = convert_total / full_total * 100
+            overhead_pct = (full_total - create_total - convert_total) / full_total * 100
+
+            lines.append(f'  Converter Creation: {create_pct:>6.2f}% of full operation time')
+            lines.append(f'  Convert Only:       {convert_pct:>6.1f}% of full operation time')
+            lines.append(f'  Overhead:           {overhead_pct:>6.2f}% of full operation time')
 
         return '\n'.join(lines)
 
     @type_safe
-    def render_stage_breakdown(self                               ,  # Visual bar chart
+    def render_stage_breakdown(self                               ,
+                               benchmarks: List__Perf_Report__Benchmarks,
                                categories: List__Perf_Report__Categories
                           ) -> str:
         lines = []
         lines.append('')
         lines.append('=' * 60)
-        lines.append('STAGE BREAKDOWN')
+        lines.append('STAGE BREAKDOWN (Full Operations)')
         lines.append('=' * 60)
 
+        # Find A category total
+        full_ops_total = 0
         for category in categories:
-            name     = str(category.name)
-            time_str = self.format_ns_padded(int(category.total_ns), 10)
-            pct      = float(category.pct_of_total)
+            if str(category.category_id) == 'A':
+                full_ops_total = int(category.total_ns)
+                break
+
+        # Show only A_xx benchmarks with percentage relative to A total
+        for benchmark in benchmarks:
+            if str(benchmark.category_id) != 'A':
+                continue
+
+            name     = str(benchmark.benchmark_id).replace('A_01__', '').replace('A_02__', '').replace('A_03__', '').replace('__full', '')
+            time_ns  = int(benchmark.time_ns)
+            time_str = self.format_ns_padded(time_ns, 10)
+            pct      = (time_ns / full_ops_total * 100) if full_ops_total > 0 else 0.0
             pct_str  = f'({pct:>5.1f}%)'
-            bar_len  = int(pct / 2)                               # Scale to ~50 chars max
+            bar_len  = int(pct / 2)
             bar      = '█' * bar_len
 
             lines.append(f'  {name:<20} {time_str} {pct_str} {bar}')
