@@ -129,12 +129,14 @@ class test_perf__Phase_E__4__Benchmark__Convert_From_Dict__Breakdown(TestCase):
                                                                    print_to_console = False       ,
                                                                    asserts_enabled  = False       )
         # Pre-generate test data
-        cls.html_1       = cls.generator.generate__1()
-        cls.html_10       = cls.generator.generate__10()
-        cls.html_50       = cls.generator.generate__50()
-        cls.html_100      = cls.generator.generate__100()
-        cls.html_500      = cls.generator.generate__500()
-        cls.html          = cls.html_500
+        cls.html_1        = cls.generator.generate__1()
+        cls.html_10        = cls.generator.generate__10()
+        cls.html_50        = cls.generator.generate__50()
+        cls.html_100       = cls.generator.generate__100()
+        cls.html_500       = cls.generator.generate__500()
+        cls.html_1_000     = cls.generator.generate__1_000()
+        cls.html_10_000    = cls.generator.generate__10_000()
+        cls.html           = cls.html_10_000
 
         cls.html_dict       = Html__To__Html_Dict__With__Node_Ids(html=cls.html).convert()
 
