@@ -15,9 +15,10 @@ packages    = [
 ]
 
 [tool.poetry.dependencies]
-python                     = "^3.12"
-osbot-fast-api-serverless  = "*"
-mgraph_db                  = "*"
+python                         = "^3.12"
+osbot-fast-api-serverless      = "*"
+mgraph-ai-service-cache-client = "*"
+mgraph_db                      = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

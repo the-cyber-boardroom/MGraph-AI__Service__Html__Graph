@@ -324,6 +324,21 @@ files = [
 typing-extensions = "*"
 
 [[package]]
+name = "mgraph-ai-service-cache-client"
+version = "0.23.0"
+description = "MGraph-AI__Service__Cache__Client"
+optional = false
+python-versions = "<4.0,>=3.12"
+groups = ["main"]
+files = [
+    {file = "mgraph_ai_service_cache_client-0.23.0-py3-none-any.whl", hash = "sha256:7c4cd967452d8a10d08b3a3b1a395043eb4aab8964b9a513b6b75c35b8e5e2a4"},
+    {file = "mgraph_ai_service_cache_client-0.23.0.tar.gz", hash = "sha256:1208c5ec19696a2f4e92b86c4195dc787c40e3123d018c3d5f0b2ebb33ca54b7"},
+]
+
+[package.dependencies]
+osbot-fast-api-serverless = "*"
+
+[[package]]
 name = "mgraph-db"
 version = "1.18.0"
 description = "MGraph-DB"
@@ -710,4 +725,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "b9982e3bd113d263f1468353beaa53406d7054067cbd9c49e5f63ab0ead6259c"
+content-hash = "cec9f9498194901c02fc95b6133c69d6514cf359152e1beea3dcb3f08dc55882"

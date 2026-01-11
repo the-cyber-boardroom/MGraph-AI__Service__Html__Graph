@@ -6,8 +6,6 @@
 from typing                                                                     import List
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
-from osbot_utils.type_safe.primitives.core.Safe_Int                             import Safe_Int
-from osbot_utils.type_safe.primitives.core.Safe_Str                             import Safe_Str
 
 
 class Html_Generator__For_Benchmarks(Type_Safe):                                # Generate controlled test HTML

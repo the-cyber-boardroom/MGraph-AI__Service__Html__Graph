@@ -76,11 +76,11 @@ phase_X__descriptive_name/
 
 ```
 Phase A                          Phase B
-┌─────────────┐                 ┌─────────────┐
-│ Process     │                 │ Load JSON   │
-│ Transform   │ ──JSON file──►  │ Process     │
-│ Serialize   │                 │ Transform   │
-└─────────────┘                 └─────────────┘
+┌─────────────────┐             ┌─────────────────┐
+│ Process         │             │ Load JSON       │
+│ Transform       │ ──JSON──►   │ Process         │
+│ Serialize       │             │ Transform       │
+└─────────────────┘             └─────────────────┘
 
 # Phase A generates
 fixture__example.json
@@ -158,6 +158,7 @@ with graph_deterministic_ids():
 - Easy to write assertions on specific IDs
 - Debugging is straightforward
 - Can track ID relationships across phases
+- Enables hardcoded expected values in tests
 
 ### 4. Fixture Generator Pattern
 
@@ -244,6 +245,225 @@ class test_Phase_C(TestCase):
         fixture = get_fixture('simple')
         # ... test code
 ```
+
+---
+
+## Performance Benchmarking Methodology
+
+### The "Follow the Rabbit Hole" Pattern
+
+When investigating performance bottlenecks, use a systematic drilling approach: start at the highest level of the pipeline, identify the dominant cost, then drill into that function. Repeat this process at each level until you reach the root cause.
+
+The pattern produces a "rabbit hole path" that documents exactly where time is spent. For example: `Pipeline → convert_from_dict (95%) → _process_body (99%) → _process_body_children (100%) → _process_body__element (100%) → @type_safe decorator (77%)`. Each level narrows the focus until the root cause is identified. A separate detailed methodology document covers this technique in depth.
+
+### Benchmark Infrastructure
+
+#### Standard Benchmark Structure
+
+```python
+class test_perf__Phase_X__Benchmark__Name(TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        # Pre-generate ALL test data once
+        with graph_deterministic_ids():
+            cls.html_100  = cls.generator.generate__100()
+            cls.html_dict = Html__To__Html_Dict(html=cls.html_100).convert()
+        
+        # Pre-extract data needed by benchmarks
+        cls.nodes = cls.body_dict.get('nodes', [])
+    
+    def benchmarks(self, timing: Perf_Benchmark__Timing):
+        # Register all benchmark stages here
+        timing.benchmark('A_01__stage_name', stage_function)
+        timing.benchmark('A_02__next_stage', next_function)
+    
+    @type_safe_fast_create
+    def test__benchmark_name(self):
+        builder = Perf_Report__Builder(...)
+        report = builder.run(self.benchmarks)
+        self.storage.save(report, key=REPORT_KEY, formats=['txt'])
+```
+
+#### Naming Convention for Benchmarks
+
+```
+Section Letter + Number + Descriptive Name
+
+A_01__setup_phase           # Section A, first benchmark
+A_02__extract_data          # Section A, second benchmark
+B_01__process_single        # Section B, first benchmark
+B_02__process_all           # Section B, second benchmark
+```
+
+### Object Reuse Strategy
+
+**Problem**: Creating fresh objects inside benchmark lambdas measures setup overhead, not target code.
+
+**Solution**: Create objects ONCE before benchmark registration, outside the lambda.
+
+```python
+# WRONG - measures document creation on every iteration
+def stage_A_05():
+    document  = create_fresh_document()  # Inside lambda = measured!
+    converter = Converter()
+    result    = converter.process(document)
+
+# CORRECT - measures only processing
+document_A_05  = create_fresh_document()   # Outside lambda
+converter_A_05 = Converter()
+
+def stage_A_05():
+    result = converter_A_05.process(document_A_05)  # Only this is measured
+```
+
+**Exception**: When you specifically need to measure object creation, or when the benchmark requires a fresh object each iteration (e.g., mutating operations).
+
+### Post-Benchmark Score Adjustment
+
+**Problem**: Some operations have dependencies - you can't call B without first calling A. But measuring them together gives cumulative cost, not individual cost.
+
+**Solution**: Measure cumulatively, then adjust scores programmatically.
+
+```python
+# B_02 measures create_in_graph only
+timing.benchmark('B_02__create_in_graph_all', stage_B_02)
+benchmark_b_02__result = timing.results.get('B_02__create_in_graph_all')
+
+# B_03 must call create_in_graph THEN register_attrs (dependency!)
+def stage_B_03__register_attrs_all():
+    for node in nodes:
+        converter.create_in_graph(...)      # Must call this first
+        converter.register_attrs(...)       # Then this
+
+timing.benchmark('B_03__register_attrs_all', stage_B_03)
+
+# Adjust B_03 to get isolated register_attrs cost
+benchmark_b_03__result = timing.results.get('B_03__register_attrs_all')
+benchmark_b_03__result.final_score -= benchmark_b_02__result.final_score
+benchmark_b_03__result.raw_score   -= benchmark_b_02__result.raw_score
+```
+
+**Why this works**:
+- `timing.results` dictionary gives access to benchmark result objects
+- Score properties (`final_score`, `raw_score`) are mutable
+- Verification: Sum of adjusted parts should equal full measurement
+
+**Key principle**: Benchmark code should mirror production code as closely as possible. Run the real flow, adjust mathematically afterward.
+
+### Scaling Validation
+
+**Purpose**: Confirm that per-element cost is consistent and operations scale linearly.
+
+```python
+# Generate test data at multiple sizes
+cls.html_100   = generator.generate__100()
+cls.html_200   = generator.generate__200()
+cls.html_500   = generator.generate__500()
+cls.html_1000  = generator.generate__1_000()
+```
+
+**Expected results table**:
+
+| Size | Total Time | Per-element | Scaling |
+|------|------------|-------------|---------|
+| 100 | 3.20ms | 32µs | baseline |
+| 200 | 6.40ms | 32µs | 2x ✓ |
+| 500 | 16.00ms | 32µs | 5x ✓ |
+| 1000 | 32.00ms | 32µs | 10x ✓ |
+
+**Non-linear scaling indicates**: Algorithm issues, cache effects, or measurement problems.
+
+### Layer Bypassing
+
+**Purpose**: Isolate which abstraction layer is causing overhead.
+
+```python
+# High level (full stack) - 137µs
+document.body_graph.create_element(...)
+
+# Mid level (edit layer) - 30µs  
+mgraph.edit().new_node(...)
+
+# Low level (model only) - 10µs
+model.new_node(...)
+
+# Overhead calculation:
+# High - Mid = 107µs (Html_MGraph layer)
+# Mid - Low = 20µs (edit/index layer)
+```
+
+### Elimination Testing
+
+**Purpose**: Prove causality by removing suspected bottleneck.
+
+```python
+def stage_A_05__process_all_elements():
+    for node in nodes:
+        # Comment out suspected bottleneck
+        # converter._process_body__element(...)
+        pass
+
+# Results:
+# WITH _process_body__element:     45.40ms
+# WITHOUT _process_body__element:  0.03ms (1,500x faster!)
+# Conclusion: 100% of cost is in _process_body__element
+```
+
+### Cumulative vs Independent Measurement
+
+**Cumulative**: Each stage includes all previous work.
+
+```
+A_01: step1                    → 10µs
+A_02: step1 + step2            → 50µs  (step2 = 40µs)
+A_03: step1 + step2 + step3    → 80µs  (step3 = 30µs)
+```
+
+**Independent**: Each stage measured in isolation.
+
+```
+A_01: step1 only               → 10µs
+A_02: step2 only               → 40µs
+A_03: step3 only               → 30µs
+```
+
+**When to use each**:
+- **Cumulative**: When operations must run in sequence, shows realistic pipeline cost
+- **Independent**: When you need to isolate individual costs, requires score adjustment for dependencies
+
+### Performance Context Managers
+
+**`type_safe_fast_create`**: Decorator that enables fast object creation mode.
+
+```python
+@type_safe_fast_create
+def test__benchmark(self):
+    # All Type_Safe object creation in this method uses fast path
+    ...
+```
+
+**`graph_deterministic_ids()`**: Context manager for reproducible IDs.
+
+```python
+with graph_deterministic_ids():
+    # All node/edge IDs are deterministic: f0000001, f0000002, ...
+    fixture = generate_test_data()
+```
+
+### Benchmark Result Storage
+
+Store results to files for historical comparison and regression detection:
+
+```python
+self.storage = Perf_Report__Storage__File_System(storage_path=cls.storage_path)
+self.storage.save(report, key=REPORT_KEY, formats=['txt'])
+```
+
+Benefits:
+- Git can track performance changes via diffs
+- Easy to detect regressions
+- Historical record of optimizations
 
 ---
 
@@ -460,6 +680,27 @@ class test_Phase_C__Full_Pipeline_Integration(TestCase):
         ...
 ```
 
+### Performance Benchmark Tests
+
+```python
+# test_perf__Phase_X__Benchmark__Name.py
+class test_perf__Phase_X__Benchmark__Name(TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        # Heavy setup done once for all benchmarks
+        ...
+    
+    def benchmarks(self, timing):
+        # Register benchmark stages
+        ...
+    
+    @type_safe_fast_create
+    def test__benchmark_name(self):
+        # Run and store benchmark
+        ...
+```
+
 ---
 
 ## Common Pitfalls
@@ -541,6 +782,61 @@ assert '<b>' not in html  # Specific tag
 # Or use regex for more control
 ```
 
+### 6. Measuring Setup Inside Benchmark Lambda
+
+**Wrong**:
+```python
+def benchmark_stage():
+    document = create_document()  # This is measured too!
+    result = process(document)
+```
+
+**Right**:
+```python
+document = create_document()  # Outside - not measured
+
+def benchmark_stage():
+    result = process(document)  # Only this is measured
+```
+
+### 7. Forgetting to Verify Benchmark Math
+
+**Wrong**:
+```python
+# Adjusted B_03 without verification
+benchmark_b_03.final_score -= benchmark_b_02.final_score
+# Hope it's correct...
+```
+
+**Right**:
+```python
+# Adjusted B_03 with verification
+benchmark_b_03.final_score -= benchmark_b_02.final_score
+
+# Verify: B_01 + B_02 + B_03(adjusted) + recursive ≈ B_04
+total = b_01 + b_02 + b_03_adjusted + recursive
+assert abs(total - b_04) < b_04 * 0.05  # Within 5%
+```
+
+### 8. Not Using Scaling Validation
+
+**Wrong**:
+```python
+# Only tested at one size
+cls.html = generator.generate__100()
+# Assumed it scales linearly...
+```
+
+**Right**:
+```python
+# Test at multiple sizes to confirm scaling
+cls.html_100  = generator.generate__100()
+cls.html_500  = generator.generate__500()
+cls.html_1000 = generator.generate__1_000()
+
+# Verify: 500 nodes should take ~5x longer than 100 nodes
+```
+
 ---
 
 ## Workflow Summary
@@ -565,6 +861,7 @@ assert '<b>' not in html  # Specific tag
 4. TEST
    ├── Write unit tests for each file
    ├── Write integration tests for phase
+   ├── Write performance benchmarks (if applicable)
    └── Ensure all tests pass
 
 5. CREATE GENERATOR (for next phase)
@@ -591,6 +888,8 @@ assert '<b>' not in html  # Specific tag
 | **Rollback** | Easy to remove a phase without affecting others |
 | **Parallelization** | Multiple phases can be worked on simultaneously |
 | **Documentation** | Briefs and debriefs capture decisions and learnings |
+| **Performance Visibility** | Benchmarks provide ongoing regression detection |
+| **Root Cause Analysis** | Systematic drilling identifies true bottlenecks |
 
 ---
 
@@ -600,7 +899,22 @@ assert '<b>' not in html  # Specific tag
 - [ ] All implementation files created
 - [ ] Unit tests pass
 - [ ] Integration tests pass
+- [ ] Performance benchmarks pass (if applicable)
 - [ ] Fixtures generated for next phase
 - [ ] Fixtures validated (can be loaded and used)
 - [ ] Debrief document captures learnings
 - [ ] No imports from previous phase classes (only fixtures)
+- [ ] Performance results stored for regression tracking
+
+---
+
+## Checklist: Performance Investigation Complete
+
+- [ ] High-level benchmark identifies bottleneck area
+- [ ] Systematic drilling reaches root cause
+- [ ] Scaling validation confirms linear behavior
+- [ ] Elimination testing proves causality
+- [ ] Results stored and git-trackable
+- [ ] Debrief documents findings and techniques used
+- [ ] Optimization achieves target improvement
+- [ ] Regression tests prevent future slowdowns
