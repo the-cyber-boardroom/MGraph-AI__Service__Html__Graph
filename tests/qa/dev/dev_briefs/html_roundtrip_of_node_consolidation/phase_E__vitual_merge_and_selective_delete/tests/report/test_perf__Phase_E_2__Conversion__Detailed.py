@@ -108,5 +108,5 @@ class test_perf__Phase_E_2__Conversion__Detailed(TestCase):
         assert len(report.benchmarks)          == 9
         assert len(report.categories)          == 3
 
-        renderer = Perf_Report__Renderer__Text()
-        print(renderer.render(report))
+        #renderer = Perf_Report__Renderer__Text()
+        #print(renderer.render(report))

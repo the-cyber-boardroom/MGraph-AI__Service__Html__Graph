@@ -5,6 +5,7 @@
 
 from typing                                                                     import Dict
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
 from phase_e.schemas.Schema__Phase_E__Text_Node_Info                            import Schema__Phase_E__Text_Node_Info
 
@@ -16,7 +17,7 @@ class Phase_E__Text_Extractor(Type_Safe):                                       
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def extract(self, document) -> Dict[str, Schema__Phase_E__Text_Node_Info]:                     # Extract text nodes indexed by node_id
+    def extract(self, document) -> Dict[Node_Id, Schema__Phase_E__Text_Node_Info]:                     # Extract text nodes indexed by node_id
         text_nodes = {}
         body_graph = document.body_graph
         mgraph     = body_graph.mgraph
@@ -49,7 +50,7 @@ class Phase_E__Text_Extractor(Type_Safe):                                       
 
         return ''
 
-    def get_parent_id(self, mgraph, node_id: str) -> str:                       # Find parent node_id via incoming edge
+    def get_parent_id(self, mgraph, node_id: Node_Id) -> Node_Id:                       # Find parent node_id via incoming edge
         index          = mgraph.index()
         incoming_edges = index.get_node_id_incoming_edges(node_id)
 

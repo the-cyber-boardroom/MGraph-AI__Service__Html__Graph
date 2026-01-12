@@ -5,6 +5,8 @@
 
 from typing                                                                     import List, Dict
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Int import Safe_Int
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id import Node_Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
 from phase_e.decision.Phase_E__Decision_Engine__Base                            import Schema__Phase_E__Decision_Result
 
@@ -18,7 +20,7 @@ class Phase_E__Node_Deleter(Type_Safe):                                         
     @type_safe
     def delete(self                       ,                                     # Delete parent nodes and their subtrees
                document                   ,                                     # Html_MGraph__Document to modify
-               parent_ids : List[str]     ) -> int:                             # Number of nodes deleted
+               parent_ids : List[Node_Id]     ) -> Safe_Int:                             # Number of nodes deleted
         deleted_count = 0
         body_graph    = document.body_graph.mgraph
 
@@ -33,11 +35,8 @@ class Phase_E__Node_Deleter(Type_Safe):                                         
     # ═══════════════════════════════════════════════════════════════════════════
 
     def delete_node(self, mgraph, node_id: str) -> bool:                        # Delete a single node from the graph
-        try:
-            mgraph.edit().delete_node(node_id)
-            return True
-        except Exception:
-            return False                                                        # Node might already be deleted
+        return mgraph.edit().delete_node(node_id)
+
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Bulk Operations

@@ -3,6 +3,10 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                   import TestCase
+
+from osbot_utils.testing.__ import __
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id import Obj_Id
 from phase_e.decision.Phase_E__Decision_Engine__Hash_Based      import (Phase_E__Decision_Engine__Hash_Based)
 from phase_e.core.Phase_E__Virtual_Merger                       import Schema__Phase_E__Merged_Text_Info
 from phase_e.schemas.Schema__Phase_E__Decision_Result import Schema__Phase_E__Decision_Result
@@ -55,14 +59,23 @@ class test_Phase_E__Decision_Engine__Hash_Based(TestCase):
     def test_classify_all(self):                                                # Batch classification
 
         with self.engine as _:
-            merged_texts = {'p001': Schema__Phase_E__Merged_Text_Info(merged_text='Hello World', source_node_ids=['n1']),
-                           'p002': Schema__Phase_E__Merged_Text_Info(merged_text='Goodbye', source_node_ids=['n2'])}
+            node_id_1         = Node_Id(Obj_Id())
+            node_id_2         = Node_Id(Obj_Id())
+            source_node_ids_1 = Node_Id(Obj_Id())
+            source_node_ids_2 = Node_Id(Obj_Id())
+            merged_texts = { node_id_1: Schema__Phase_E__Merged_Text_Info(merged_text='Hello World', source_node_ids=[source_node_ids_1]),
+                             node_id_2: Schema__Phase_E__Merged_Text_Info(merged_text='Goodbye'    , source_node_ids=[source_node_ids_2])}
 
             decisions = _.classify_all(merged_texts)
 
             assert len(decisions) == 2
-            assert 'p001' in decisions
-            assert 'p002' in decisions
+            assert node_id_1 in decisions
+            assert node_id_2 in decisions
+
+            assert type(decisions[node_id_1]) is Schema__Phase_E__Decision_Result
+            assert type(decisions[node_id_2]) is Schema__Phase_E__Decision_Result
+            assert decisions[node_id_1].obj() == __(keep=False, score=0.0721, reason='hash_below_threshold')
+            assert decisions[node_id_2].obj() == __(keep=False, score=0.489, reason='hash_below_threshold')
 
     def test_empty_text_score_zero(self):                                       # Empty text gets score 0
         with self.engine as _:

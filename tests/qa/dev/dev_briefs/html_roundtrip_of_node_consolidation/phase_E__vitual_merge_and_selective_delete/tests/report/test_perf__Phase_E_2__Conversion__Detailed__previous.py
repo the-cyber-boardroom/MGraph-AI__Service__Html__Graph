@@ -145,5 +145,5 @@ class test_perf__Phase_E_2__Conversion__Detailed(TestCase):
 
         # Print report to console for verification
 
-        renderer = Perf_Report__Renderer__Text()
-        print(renderer.render(report))
+        # renderer = Perf_Report__Renderer__Text()
+        # print(renderer.render(report))

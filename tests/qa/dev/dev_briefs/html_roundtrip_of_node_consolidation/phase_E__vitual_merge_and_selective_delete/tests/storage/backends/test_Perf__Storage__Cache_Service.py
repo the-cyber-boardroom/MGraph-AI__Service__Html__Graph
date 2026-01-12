@@ -4,6 +4,9 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                               import TestCase
+
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type import Enum__Cache__Data_Type
+
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.utils.Misc                                                                 import is_guid
 from osbot_utils.utils.Objects                                                              import base_types
@@ -31,6 +34,7 @@ class test_Perf__Storage__Cache_Service(TestCase):
                                                                            client       = cls.cache_client_wrapper,
                                                                            session_name = cls.session_name        ,
                                                                            target_name  = cls.target_name         )
+        cls.cache_id                        = cls.perf_cache_service.create_file__perf_entry()  # Create entry once
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Initialization Tests
@@ -63,25 +67,31 @@ class test_Perf__Storage__Cache_Service(TestCase):
             assert cache_hash is not None
             assert len(cache_hash) == 16                                                    # SHA-256 truncated to 16
 
+    def test_cache_id(self):                                                                # Test cache_id retrieval
+        with self.perf_cache_service as _:
+            cache_id = _.cache_id()
+            assert cache_id is not None
+            assert is_guid(cache_id) is True
+
     # ═══════════════════════════════════════════════════════════════════════════
-    # Ensure Entry Tests
+    # Create Entry Tests
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def test_ensure_entry__creates_new(self):                                               # Test ensure_entry creates entry
+    def test_create_file__perf_entry__creates_new(self):                                    # Test creates entry
         cache_key = f'sessions/{self.session_name}/targets/{self.target_name}'
 
         with self.perf_cache_service as _:
             assert _.cache_key() == cache_key
 
-            cache_id = _.ensure_entry()
+            cache_id = _.create_file__perf_entry()
 
             assert is_guid(cache_id) is True
             assert _.client.find_entry_by_key(cache_key=cache_key) == cache_id              # Entry now findable
 
-    def test_ensure_entry__finds_existing(self):                                            # Test ensure_entry finds existing
+    def test_create_file__perf_entry__finds_existing(self):                                 # Test finds existing
         with self.perf_cache_service as _:
-            cache_id_1 = _.ensure_entry()
-            cache_id_2 = _.ensure_entry()
+            cache_id_1 = _.create_file__perf_entry()
+            cache_id_2 = _.create_file__perf_entry()
 
             assert cache_id_1 == cache_id_2                                                 # Same cache ID returned
 
@@ -116,22 +126,28 @@ class test_Perf__Storage__Cache_Service(TestCase):
 
     def test_save(self):                                                                    # Test save JSON data
         with self.perf_cache_service as _:
-            result = _.save('results/data.json', {'key': 'value', 'count': 42})
+            result = _.save(cache_id = self.cache_id,
+                            key      = 'results/data.json',
+                            data     = {'key': 'value', 'count': 42})
 
             assert result is True
 
-    def test_load(self):                                                                    # Test load JSON data
+    def test_load__json(self):                                                              # Test load JSON data
         with self.perf_cache_service as _:
             test_data = {'loaded': 'data', 'numbers': [1, 2, 3]}
-            _.save('results/load_test.json', test_data)
+            _.save(cache_id = self.cache_id,
+                   key      = 'results/load_test.json',
+                   data     = test_data)
 
-            loaded = _.load('results/load_test.json')
+            loaded = _.load__json(cache_id = self.cache_id,
+                                  key      = 'results/load_test.json')
 
             assert loaded == test_data
 
-    def test_load__not_found(self):                                                         # Test load returns None
+    def test_load__json__not_found(self):                                                   # Test load returns None
         with self.perf_cache_service as _:
-            result = _.load('nonexistent/missing.json')
+            result = _.load__json(cache_id = self.cache_id,
+                                  key      = 'nonexistent/missing.json')
 
             assert result is None
 
@@ -141,22 +157,28 @@ class test_Perf__Storage__Cache_Service(TestCase):
 
     def test_save_string(self):                                                             # Test save string content
         with self.perf_cache_service as _:
-            result = _.save_string('results/output.txt', 'Hello from cache service!')
+            result = _.save_string(cache_id = self.cache_id,
+                                   key      = 'results/output.txt',
+                                   content  = 'Hello from cache service!')
 
             assert result is True
 
     def test_load_string(self):                                                             # Test load string content
         with self.perf_cache_service as _:
             content = '# Report\n\nThis is the report content.'
-            _.save_string('reports/report.md', content)
+            _.save_string(cache_id = self.cache_id,
+                          key      = 'reports/report.md',
+                          content  = content)
 
-            loaded = _.load_string('reports/report.md')
+            loaded = _.load_string(cache_id = self.cache_id,
+                                   key      = 'reports/report.md')
 
             assert loaded == content
 
     def test_load_string__not_found(self):                                                  # Test load_string returns None
         with self.perf_cache_service as _:
-            result = _.load_string('nonexistent/missing.txt')
+            result = _.load_string(cache_id = self.cache_id                ,
+                                   key      = 'nonexistent/missing.txt'     )
 
             assert result == ''
 
@@ -166,23 +188,37 @@ class test_Perf__Storage__Cache_Service(TestCase):
 
     def test_exists__true(self):                                                            # Test exists returns True
         with self.perf_cache_service as _:
-            _.save('results/exists_test.json', {'test': True})
+            _.save(cache_id = self.cache_id,
+                   key      = 'results/exists_test',
+                   data     = {'test': True})
 
-            assert _.exists('results/exists_test.json') is True
+            assert _.exists(cache_id = self.cache_id,
+                            data_type = Enum__Cache__Data_Type.JSON ,
+                            key      = 'results/exists_test') is True
 
     def test_exists__false(self):                                                           # Test exists returns False
         with self.perf_cache_service as _:
-            assert _.exists('nonexistent/file.json') is False
+            assert _.exists(cache_id = self.cache_id,
+                            data_type = Enum__Cache__Data_Type.STRING ,
+                            key      = 'nonexistent/file.json') is False
 
     def test_delete(self):                                                                  # Test delete removes data
         with self.perf_cache_service as _:
-            _.save_string('results/to_delete.txt', 'Delete me')
+            assert _.save_string(cache_id = self.cache_id      ,
+                                 key      = 'results/to_delete',
+                                 content  = 'Delete me'        )       is True
 
-            assert _.exists('results/to_delete.txt'        ) is True
+            #assert self.perf_cache_service.admin_storage__files_all__path(path=self.cache_namespace).obj() == []
+            assert _.exists(cache_id  = self.cache_id                 ,
+                            data_type = Enum__Cache__Data_Type.STRING ,
+                            key       = 'results/to_delete'           ) is True
 
-            assert _.delete__string('results/to_delete.txt') is True
+            assert _.delete__string(cache_id = self.cache_id,
+                                    key      = 'results/to_delete') is True
 
-            assert _.exists('results/to_delete.txt'         ) is False
+            assert _.exists(cache_id = self.cache_id,
+                            data_type = Enum__Cache__Data_Type.STRING ,
+                            key      = 'results/to_delete') is False
 
     # ═══════════════════════════════════════════════════════════════════════════
     # List Keys Tests
@@ -199,26 +235,35 @@ class test_Perf__Storage__Cache_Service(TestCase):
 
     def test_integration__full_workflow(self):                                              # Test complete workflow
         with self.perf_cache_service as _:
+            cache_id = self.cache_id
+
             # Save JSON
-            _.save('results/metrics.json', {'latency_ms': 42, 'throughput': 1000})
+            _.save(cache_id = cache_id,
+                   key      = 'results/metrics.json',
+                   data     = {'latency_ms': 42, 'throughput': 1000})
 
             # Save string
-            _.save_string('results/summary.txt', 'Performance test completed successfully')
+            _.save_string(cache_id = cache_id,
+                          key      = 'results/summary.txt',
+                          content  = 'Performance test completed successfully')
 
             # Save report
-            _.save_string('reports/analysis.md', '# Analysis\n\nAll tests passed.')
+            _.save_string(cache_id = cache_id,
+                          key      = 'reports/analysis.md',
+                          content  = '# Analysis\n\nAll tests passed.')
 
             # Verify all exist
-            assert _.exists('results/metrics.json')   is True
-            assert _.exists('results/summary.txt')    is True
-            assert _.exists('reports/analysis.md')    is True
+
+            assert _.exists(cache_id=cache_id, data_type = Enum__Cache__Data_Type.JSON ,key='results/metrics_json')   is True
+            assert _.exists(cache_id=cache_id, data_type = Enum__Cache__Data_Type.STRING ,key='results/summary_txt')    is True
+            assert _.exists(cache_id=cache_id, data_type = Enum__Cache__Data_Type.STRING ,key='reports/analysis_md')    is True
 
             # Load and verify
-            metrics = _.load('results/metrics.json')
+            metrics = _.load__json(cache_id=cache_id, key='results/metrics.json')
             assert metrics['latency_ms'] == 42
 
-            summary = _.load_string('results/summary.txt')
+            summary = _.load_string(cache_id=cache_id, key='results/summary.txt')
             assert 'completed successfully' in summary
 
-            report = _.load_string('reports/analysis.md')
+            report = _.load_string(cache_id=cache_id, key='reports/analysis.md')
             assert '# Analysis' in report

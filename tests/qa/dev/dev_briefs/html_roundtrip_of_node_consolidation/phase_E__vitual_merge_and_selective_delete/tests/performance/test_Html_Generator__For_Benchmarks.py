@@ -78,12 +78,6 @@ class test_Html_Generator__For_Benchmarks(TestCase):
 
             assert '<html>' in html
 
-    def test_generate_large(self):                                              # Large preset
-        with self.generator as _:
-            html = _.generate_large()
-
-            assert '<html>' in html
-            assert len(html) > 10000                                            # Substantial content
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Special Structures

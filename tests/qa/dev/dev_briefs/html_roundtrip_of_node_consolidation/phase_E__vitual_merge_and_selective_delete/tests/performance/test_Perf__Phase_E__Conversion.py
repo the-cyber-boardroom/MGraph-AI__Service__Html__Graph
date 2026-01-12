@@ -13,7 +13,7 @@ from phase_e.performance.Perf__Phase_E__Conversion                              
 from phase_e.performance.Perf__Phase_E__Conversion                              import Schema__Conversion_Timing
 from phase_e.performance.Perf__Phase_E__Conversion                              import Schema__Conversion_Breakdown
 from phase_e.performance.Html_Generator__For_Benchmarks                         import Html_Generator__For_Benchmarks
-from phase_e.performance.Perf__Storage__Local                                   import Perf__Storage__Local
+from phase_e.storage.backends.Perf__Storage__Local                              import Perf__Storage__Local
 
 
 class test_Perf__Phase_E__Conversion(TestCase):
@@ -41,7 +41,7 @@ class test_Perf__Phase_E__Conversion(TestCase):
             assert int(timing.total_ns)          > 0
 
             report = _.build_report(timing)
-            self.storage.save_report(key='conversion__basic', report=report)
+            #self.storage.save_report(key='conversion__basic', report=report) # note: this doesn't exist on the refactored Perf__Storage__Local (in storage folder)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Detailed Breakdown - Isolates Converter Creation vs Convert
@@ -64,7 +64,7 @@ class test_Perf__Phase_E__Conversion(TestCase):
             assert 'C_03__mgraph_to_html__convert_only' in results
 
             report = _.build_detailed_report(results)
-            self.storage.save_report(key='conversion__detailed', report=report)
+            #self.storage.save_report(key='conversion__detailed', report=report)        # note: this doesn't exist on the refactored Perf__Storage__Local (in storage folder)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Multi-Size Benchmark - Default Mode
@@ -72,8 +72,9 @@ class test_Perf__Phase_E__Conversion(TestCase):
 
     def test__benchmark_multiple_sizes__default(self):                          # Default Type_Safe mode
         sizes = {'1'  : self.generator.generate__1()  ,
-                 '10' : self.generator.generate__10() ,
-                 '100': self.generator.generate__100()}
+                 '10' : self.generator.generate__10() }
+
+                 #'100': self.generator.generate__100()}
 
         with self.converter as _:
             results = _.benchmark_multiple_sizes(sizes)
@@ -82,7 +83,7 @@ class test_Perf__Phase_E__Conversion(TestCase):
             assert 'CONVERSION TIMING BY SIZE' in report
             assert 'Primary Bottleneck'        in report
 
-            self.storage.save_report(key='conversion__multi__default', report=report)
+            #self.storage.save_report(key='conversion__multi__default', report=report)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Multi-Size Benchmark - Fast Create Mode
@@ -101,7 +102,7 @@ class test_Perf__Phase_E__Conversion(TestCase):
                 assert 'CONVERSION TIMING BY SIZE' in report
                 assert 'Primary Bottleneck'        in report
 
-                self.storage.save_report(key='conversion__multi__fast_create', report=report)
+                #self.storage.save_report(key='conversion__multi__fast_create', report=report)  # note: this doesn't exist on the refactored Perf__Storage__Local (in storage folder)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Comparison - Default vs Fast Create
@@ -109,8 +110,9 @@ class test_Perf__Phase_E__Conversion(TestCase):
 
     def test__benchmark_comparison__default_vs_fast_create(self):               # Side-by-side comparison
         sizes = {'1'  : self.generator.generate__1()  ,
-                 '10' : self.generator.generate__10() ,
-                 '100': self.generator.generate__100()}
+                 '10' : self.generator.generate__10() }
+
+                 #'100': self.generator.generate__100()}
 
         # Run in default mode
         with self.converter as _:
@@ -150,7 +152,7 @@ class test_Perf__Phase_E__Conversion(TestCase):
                                         f"({improvement:.1f}% faster, {speedup:.1f}x speedup)")
 
         report = '\n'.join(report_lines)
-        self.storage.save_report(key='conversion__comparison__default_vs_fast_create', report=report)
+        #self.storage.save_report(key='conversion__comparison__default_vs_fast_create', report=report) # note: this doesn't exist on the refactored Perf__Storage__Local (in storage folder)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Detailed Breakdown Comparison

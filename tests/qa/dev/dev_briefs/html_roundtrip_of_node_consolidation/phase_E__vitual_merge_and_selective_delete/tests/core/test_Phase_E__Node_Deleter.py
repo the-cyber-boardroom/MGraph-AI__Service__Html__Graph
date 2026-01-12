@@ -3,6 +3,9 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                                   import TestCase
+
+from osbot_utils.testing.Graph__Deterministic__Ids import graph_deterministic_ids
+from osbot_utils.testing.__ import __
 from phase_e.core.Phase_E__Node_Deleter                                                                              import Phase_E__Node_Deleter
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_Dict__With__Node_Ids            import Html__To__Html_Dict__With__Node_Ids
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document__Node_Id_Reuse import Html__To__Html_MGraph__Document__Node_Id_Reuse
@@ -35,18 +38,21 @@ class test_Phase_E__Node_Deleter(TestCase):
 
     def test_delete__returns_count(self):                                       # Delete returns correct count
         with self.deleter as _:
-            document   = self.create_document("<html><body><div><p>A</p><p>B</p><p>C</p></div></body></html>")
-            body_graph = document.body_graph.mgraph
-            p_nodes    = self.find_nodes_by_tag(body_graph, 'p')
+            with graph_deterministic_ids():
+                document   = self.create_document("<html><body><div><p>A</p><p>B</p><p>C</p></div></body></html>")
+                body_graph = document.body_graph.mgraph
+                p_nodes    = self.find_nodes_by_tag(body_graph, 'p')
 
-            deleted = _.delete(document, p_nodes[:2])
+                assert p_nodes == ['f0000004', 'f0000006', 'f0000008']
 
-            assert deleted == 2
+                deleted = _.delete(document, p_nodes[:2])
+
+                assert deleted == 2
 
     def test_delete__nonexistent_node_safe(self):                               # Non-existent node doesn't error
         with self.deleter as _:
             document = self.create_document("<div>Hello</div>")
-            deleted  = _.delete(document, ['nonexistent_id'])
+            deleted  = _.delete(document, ['c0000111'])
 
             assert deleted == 0
 
