@@ -1,4 +1,4 @@
-# Phase E_6: HTML Processing Pipeline with Full Caching
+# Phase E_7: HTML Processing Pipeline with Full Caching
 
 **Status**: 📋 Planning  
 **Depends On**: Phase E_4 ✅ (Caching), Phase E_5 ✅ (URL Fetching), Phase E_0 ✅ (Processing)
@@ -40,7 +40,7 @@ With full caching (after first run):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│              PHASE E_6: HTML PROCESSING PIPELINE WITH CACHING               │
+│              PHASE E_7: HTML PROCESSING PIPELINE WITH CACHING               │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 URL
@@ -361,20 +361,20 @@ class Html_Processing__Pipeline(Type_Safe):
 ### Schema Definitions
 
 ```python
-class Schema__Phase_E_6__Analysis_Result(Type_Safe):
+class Schema__Phase_E_7__Analysis_Result(Type_Safe):
     text_nodes   : dict = None   # { node_id: { text, parent_id } }
     merged_texts : dict = None   # { parent_id: { merged_text, source_node_ids } }
     cached_at    : float = 0.0
     input_hash   : str = ''      # Hash of L3 document
 
-class Schema__Phase_E_6__Decision_Cache(Type_Safe):
+class Schema__Phase_E_7__Decision_Cache(Type_Safe):
     decisions      : dict = None   # { parent_id: { keep, score, reason } }
     engine_type    : str = ''      # 'hash_based', 'llm_based', etc.
     engine_config  : dict = None   # Threshold, model, etc.
     cached_at      : float = 0.0
     input_hash     : str = ''      # Hash of L4 analysis + engine_config
 
-class Schema__Phase_E_6__Processing_Result(Type_Safe):
+class Schema__Phase_E_7__Processing_Result(Type_Safe):
     url            : str = ''
     target         : str = ''
     clean_html     : str = ''
@@ -382,7 +382,7 @@ class Schema__Phase_E_6__Processing_Result(Type_Safe):
     cache_hits     : dict = None   # Which layers were cache hits
     elapsed_ms     : float = 0.0
 
-class Schema__Phase_E_6__Batch_Result(Type_Safe):
+class Schema__Phase_E_7__Batch_Result(Type_Safe):
     total          : int = 0
     success        : int = 0
     failed         : int = 0
@@ -422,11 +422,11 @@ L7/metadata.json           # { input_hash, cached_at }
 | File | Purpose |
 |------|---------|
 | **Documentation** | |
-| `PHASE_E_6__brief.md` | This document |
+| `PHASE_E_7__brief.md` | This document |
 | **Schemas** | |
-| `Schema__Phase_E_6__Analysis.py` | Analysis result schema |
-| `Schema__Phase_E_6__Decisions.py` | Decision cache schema |
-| `Schema__Phase_E_6__Processing.py` | Processing result schemas |
+| `Schema__Phase_E_7__Analysis.py` | Analysis result schema |
+| `Schema__Phase_E_7__Decisions.py` | Decision cache schema |
+| `Schema__Phase_E_7__Processing.py` | Processing result schemas |
 | **Layers** | |
 | `Html_Cache__Layer__Analysis.py` | L4: Analysis caching |
 | `Html_Cache__Layer__Decisions.py` | L5: Decision caching |
@@ -544,7 +544,7 @@ urls = [
 result = pipeline.process_urls(urls)
 
 print(result)
-# Schema__Phase_E_6__Batch_Result(
+# Schema__Phase_E_7__Batch_Result(
 #     total       = 1000,
 #     success     = 998,
 #     failed      = 2,
@@ -557,7 +557,7 @@ print(result)
 result = pipeline.process_urls(urls)
 
 print(result)
-# Schema__Phase_E_6__Batch_Result(
+# Schema__Phase_E_7__Batch_Result(
 #     total       = 1000,
 #     success     = 998,
 #     failed      = 2,
@@ -647,4 +647,4 @@ print(result)
 5. Implement L7 (Clean) layer with tests
 6. Implement extended cache manager with tests
 7. Implement main pipeline with tests
-8. Write `PHASE_E_6__debrief.md`
+8. Write `PHASE_E_7__debrief.md`
