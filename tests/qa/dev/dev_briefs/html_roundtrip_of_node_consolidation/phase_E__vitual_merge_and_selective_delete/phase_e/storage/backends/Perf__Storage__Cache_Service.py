@@ -128,8 +128,8 @@ class Perf__Storage__Cache_Service(Perf__Storage__Base):                        
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def parse_key(self            ,                                                         # Parse key into parts
-                  key : str       ) -> Tuple[Safe_Str__Data_Key, Safe_Str__Data_File_Id]:
+    def parse_key(self                      ,                                                         # Parse key into parts
+                  key : Safe_Str__File__Path) -> Tuple[Safe_Str__Data_Key, Safe_Str__Data_File_Id]:
         parts = key.rsplit('/', 1)
         if len(parts) == 2:
             return Safe_Str__Data_Key(parts[0]), Safe_Str__Data_File_Id(parts[1])
@@ -240,9 +240,10 @@ class Perf__Storage__Cache_Service(Perf__Storage__Base):                        
     @type_safe
     def delete(self                              ,                                  # Delete data by key
                cache_id  : Cache_Id              ,                                  # Cache_Id of base file
-               key       : str                   ,
-               data_type : Enum__Cache__Data_Type = Enum__Cache__Data_Type.JSON
+               key       : Safe_Str__File__Path  ,
+               data_type : Enum__Cache__Data_Type
           ) -> bool:
+
         data_key, data_file_id = self.parse_key(key)
         return self.client.delete_child(cache_id     = cache_id    ,
                                         data_key     = data_key    ,

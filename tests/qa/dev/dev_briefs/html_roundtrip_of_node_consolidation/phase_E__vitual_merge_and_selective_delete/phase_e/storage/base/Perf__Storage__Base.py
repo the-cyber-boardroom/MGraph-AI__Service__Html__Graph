@@ -126,7 +126,9 @@ class Perf__Storage__Base(Type_Safe):                                           
           ) -> bool:
         raise NotImplementedError
 
-    def delete(self, key: str) -> bool:                                         # Delete data by key
+    def delete(self, cache_id  : Cache_Id             ,                         # Cache_Id of base file
+                     key       : Safe_Str__File__Path ,
+                     data_type: Enum__Cache__Data_Type) -> bool:                                         # Delete data by key
         raise NotImplementedError
 
     def list_keys(self, prefix: str = '') -> List[str]:                         # List stored keys
