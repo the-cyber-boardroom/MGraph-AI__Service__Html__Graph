@@ -103,6 +103,9 @@ class Html_Generator__For_Benchmarks(Type_Safe):                                
     def generate__1(self) -> str:                                             # ~10 nodes
         return self.generate_with_paragraphs(num_paragraphs=1, words_per_para=5)
 
+    def generate__5(self) -> str:                                             # ~10 nodes
+        return self.generate_with_paragraphs(num_paragraphs=5, words_per_para=5)
+
     def generate__10(self) -> str:                                             # ~10 nodes
         return self.generate_with_paragraphs(num_paragraphs=10, words_per_para=5)
 

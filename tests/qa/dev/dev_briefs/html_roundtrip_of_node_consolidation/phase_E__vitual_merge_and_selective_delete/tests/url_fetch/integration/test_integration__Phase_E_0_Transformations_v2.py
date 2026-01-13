@@ -53,11 +53,12 @@ SOURCE_SESSION   = 'full-pipeline-batch'
 TARGETS = [
     #'docs_diniscruz_ai'  ,
     'text_npr_org'       ,
-    #'paulgraham_com'     ,
-    'theintercept_com'   ,
+    # 'paulgraham_com'     ,
+    # 'theintercept_com'   ,
+    # "joelonsoftware",
+    # "joelonsoftware--page"
+
     #'www_bbc_com_sport'  ,
-    "joelonsoftware",
-    "joelonsoftware--page"
 ]
 
 

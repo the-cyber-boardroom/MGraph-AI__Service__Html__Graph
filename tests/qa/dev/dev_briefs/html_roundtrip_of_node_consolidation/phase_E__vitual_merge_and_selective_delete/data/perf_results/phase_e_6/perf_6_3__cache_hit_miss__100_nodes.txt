@@ -1,0 +1,89 @@
+════════════════════════════════════════════════════════════════════════════════
+PHASE E_6: CACHE HIT VS MISS
+════════════════════════════════════════════════════════════════════════════════
+
+┌────────────────────────────────────────────────────────────────────┐
+│ BENCHMARK METADATA                                                 │
+├────────────────────────────────────────────────────────────────────┤
+│ Property         │ Value                                           │
+├────────────────────────────────────────────────────────────────────┤
+│ Date             │ 2026-01-13 11:42:28                             │
+│ Version          │ v1.4.40                                         │
+│ Test Input       │ Synthetic HTML with 100 paragraphs (~300 nodes) │
+│ Measurement Mode │ Enum__Measure_Mode.FAST                         │
+│ Total Benchmarks │ 11                                              │
+└────────────────────────────────────────────────────────────────────┘
+
+DESCRIPTION
+────────────────────────────────────────────────────────────
+Compares cache save (miss) vs cache load (hit) performance. Measures create entry, save L1/L2/L3, and load L1/L2/L3 operations. Uses actual layer classes with in-memory cache service.
+
+LEGEND
+────────────────────────────────────────────────────────────
+  A_xx  Cache save (miss)  = First request - create and store data
+  B_xx  Cache load (hit)   = Subsequent request - retrieve from cache
+  C_xx  Full pipeline      = Complete save/load cycles
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│ DETAILED CONVERSION BREAKDOWN                                                   │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark                        │ Time       │ Category           │ % of Total │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ A_01__create_entry               │ 9.30ms     │ Cache save (miss)  │ 3.7%       │
+│ A_02__save_L1__raw_html          │ 4.90ms     │ Cache save (miss)  │ 1.9%       │
+│ A_03__save_L2__html_dict         │ 3.20ms     │ Cache save (miss)  │ 1.3%       │
+│ A_04__save_L3__mgraph            │ 22.10ms    │ Cache save (miss)  │ 8.8%       │
+│ A_05__full_save_pipeline         │ 39.10ms    │ Cache save (miss)  │ 15.6%      │
+│ ──────────────────────────────── │ ────────── │ ────────────────── │ ────────── │
+│ B_01__load_L1__raw_html          │ 2.10ms     │ Cache load (hit)   │ 0.8%       │
+│ B_02__load_L2__html_dict         │ 3.90ms     │ Cache load (hit)   │ 1.6%       │
+│ B_03__load_L3__mgraph            │ 38.50ms    │ Cache load (hit)   │ 15.3%      │
+│ B_04__full_load_pipeline         │ 44.30ms    │ Cache load (hit)   │ 17.6%      │
+│ ──────────────────────────────── │ ────────── │ ────────────────── │ ────────── │
+│ C_01__manager__full_cache_miss   │ 82.00ms    │ Full pipeline      │ 32.7%      │
+│ C_02__manager__cache_hit         │ 1.70ms     │ Full pipeline      │ 0.7%       │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ Total: 11 benchmarks                                                            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+============================================================
+CATEGORY SUMMARY
+============================================================
+  Cache save (miss):        78.60ms  (A_xx benchmarks)
+  Cache load (hit):         88.80ms  (B_xx benchmarks)
+  Full pipeline:            83.70ms  (C_xx benchmarks)
+  ─────────────────────────────────────────────
+  Overhead:             -93900000ns  (full - create - convert)
+
+============================================================
+PERCENTAGE ANALYSIS (relative to Full Operations)
+============================================================
+  Converter Creation: 112.98% of full operation time
+  Convert Only:        106.5% of full operation time
+  Overhead:           -119.47% of full operation time
+
+============================================================
+STAGE BREAKDOWN (Full Operations)
+============================================================
+  create_entry             9.30ms ( 11.8%) █████
+  save_L1__raw_html        4.90ms (  6.2%) ███
+  save_L2__html_dict       3.20ms (  4.1%) ██
+  A_04__save_L3__mgraph    22.10ms ( 28.1%) ██████████████
+  A_05_save_pipeline      39.10ms ( 49.7%) ████████████████████████
+
+============================================================
+BOTTLENECK ANALYSIS
+============================================================
+  Primary Bottleneck: C_01__manager__full_cache_miss
+  Time:               82.00ms
+  Percentage:         104.3% of total
+
+============================================================
+KEY INSIGHT
+============================================================
+  Converter creation is 35.4% of total time.
+
+════════════════════════════════════════════════════════════════════════════════
+Report generated: 2026-01-13 11:42:28
+Version: v1.4.40
+════════════════════════════════════════════════════════════════════════════════

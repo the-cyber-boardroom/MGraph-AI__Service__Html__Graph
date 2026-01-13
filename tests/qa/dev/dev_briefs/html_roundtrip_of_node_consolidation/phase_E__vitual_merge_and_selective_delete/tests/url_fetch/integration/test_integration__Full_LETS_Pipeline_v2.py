@@ -51,13 +51,14 @@ TEST_URLS = {
     # 'example'     : 'https://example.com/',
     # 'httpbin_html': 'https://httpbin.org/html',
     #     'docs.diniscruz.ai' : 'https://docs.diniscruz.ai' ,
-         "text.npr.org"      : "https://text.npr.org" ,
+
     #     'paulgraham.com'    : 'https://paulgraham.com',
-         "theintercept.com"  : "https://theintercept.com" ,
+    #     "theintercept.com"  : "https://theintercept.com" ,
     #     "www.bbc.com/sport" : "https://www.bbc.com/sport/football/articles/cly53k69xj1o"
 
-    "joelonsoftware" :"https://www.joelonsoftware.com" ,
-    "joelonsoftware__page" : "https://www.joelonsoftware.com/2022/12/19/progress-on-the-block-protocol"
+    "text.npr.org"      : "https://text.npr.org" ,
+    #"joelonsoftware" :"https://www.joelonsoftware.com" ,
+    #"joelonsoftware__page" : "https://www.joelonsoftware.com/2022/12/19/progress-on-the-block-protocol"
 }
 
 

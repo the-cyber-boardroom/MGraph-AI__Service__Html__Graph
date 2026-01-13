@@ -1,0 +1,77 @@
+════════════════════════════════════════════════════════════════════════════════
+PHASE E_6: PIPELINE STAGES BREAKDOWN
+════════════════════════════════════════════════════════════════════════════════
+
+┌────────────────────────────────────────────────────────────────────┐
+│ BENCHMARK METADATA                                                 │
+├────────────────────────────────────────────────────────────────────┤
+│ Property         │ Value                                           │
+├────────────────────────────────────────────────────────────────────┤
+│ Date             │ 2026-01-13 01:58:37                             │
+│ Version          │ v1.4.40                                         │
+│ Test Input       │ Synthetic HTML with 100 paragraphs (~300 nodes) │
+│ Measurement Mode │ Enum__Measure_Mode.FAST                         │
+│ Total Benchmarks │ 4                                               │
+└────────────────────────────────────────────────────────────────────┘
+
+DESCRIPTION
+────────────────────────────────────────────────────────────
+Establishes baseline performance for each LETS pipeline stage. Measures L1 (HTML parsing), L2 (MGraph construction), and L3 (HTML reconstruction). Validates that sum of parts ≈ full pipeline.
+
+LEGEND
+────────────────────────────────────────────────────────────
+  A_xx  Individual stage isolation  = Each stage measured independently
+  B_xx  Full pipeline reference     = Complete L1_L2_L3 for validation
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│ DETAILED CONVERSION BREAKDOWN                                                           │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark                        │ Time       │ Category                   │ % of Total │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│ A_01__L1__html_to_dict           │ 700.00µs   │ Individual stage isolation │ 0.9%       │
+│ A_02__L2__dict_to_mgraph         │ 31.10ms    │ Individual stage isolation │ 40.8%      │
+│ A_03__L3__mgraph_to_html         │ 5.60ms     │ Individual stage isolation │ 7.3%       │
+│ ──────────────────────────────── │ ────────── │ ──────────────────         │ ────────── │
+│ B_01__full_pipeline__L1_L2_L3    │ 38.90ms    │ Full pipeline reference    │ 51.0%      │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│ Total: 4 benchmarks                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+============================================================
+CATEGORY SUMMARY
+============================================================
+  Individual stage isolation:      37.40ms  (A_xx benchmarks)
+  Full pipeline reference:      38.90ms  (B_xx benchmarks)
+  ─────────────────────────────────────────────
+  Overhead:              -1500000ns  (full - create - convert)
+
+============================================================
+PERCENTAGE ANALYSIS (relative to Full Operations)
+============================================================
+  Converter Creation: 104.01% of full operation time
+  Convert Only:          0.0% of full operation time
+  Overhead:            -4.01% of full operation time
+
+============================================================
+STAGE BREAKDOWN (Full Operations)
+============================================================
+  L1__html_to_dict       700.00µs (  1.9%) 
+  L2__dict_to_mgraph      31.10ms ( 83.2%) █████████████████████████████████████████
+  L3__mgraph_to_html       5.60ms ( 15.0%) ███████
+
+============================================================
+BOTTLENECK ANALYSIS
+============================================================
+  Primary Bottleneck: B_01__full_pipeline__L1_L2_L3
+  Time:               38.90ms
+  Percentage:         104.0% of total
+
+============================================================
+KEY INSIGHT
+============================================================
+  Converter creation is 51.0% of total time.
+
+════════════════════════════════════════════════════════════════════════════════
+Report generated: 2026-01-13 01:58:37
+Version: v1.4.40
+════════════════════════════════════════════════════════════════════════════════

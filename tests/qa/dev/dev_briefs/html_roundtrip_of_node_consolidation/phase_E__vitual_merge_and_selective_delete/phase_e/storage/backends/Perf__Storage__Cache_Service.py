@@ -33,7 +33,8 @@ class Perf__Storage__Cache_Service(Perf__Storage__Base):                        
 
     def __init__(self, **kwargs):                                                           # Initialize with config binding
         super().__init__(**kwargs)
-        self.client.config = self.config                                                    # Bind config to client
+        if self.client:                             # todo: see if self.client is setup
+            self.client.config = self.config        #       this happens during the type_safe template creation (figure out a better way to handle this side effect and to do this type of dependency injection)                                     # Bind config to client
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Cache Key/Hash Generation

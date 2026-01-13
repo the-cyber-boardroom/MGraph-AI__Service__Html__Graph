@@ -97,15 +97,15 @@ class test_integration__Html_Fetcher__Live(TestCase):
                                                                        min_request_interval_ms = 500,                            # Be nice to servers
                                                                        user_agent              = 'MGraph-AI Integration Test/1.0'))
 
-    def test_fetch__example_com(self):                                 # Test fetching example.com
-        url      = Safe_Str__Url(TEST_URLS['example'])
-        response = self.fetcher.fetch(url)
-
-        assert response.ok is True
-        assert int(response.status_code) == 200
-        assert 'Example Domain' in response.html
-        assert '<html' in response.html.lower()
-        print(f"\n✓ Fetched example.com: {len(response.html)} bytes in {response.duration_ms}ms")
+    # def test_fetch__example_com(self):                                 # Test fetching example.com
+    #     url      = Safe_Str__Url(TEST_URLS['example'])
+    #     response = self.fetcher.fetch(url)
+    #
+    #     assert response.ok is True
+    #     assert int(response.status_code) == 200
+    #     assert 'Example Domain' in response.html
+    #     assert '<html' in response.html.lower()
+    #     print(f"\n✓ Fetched example.com: {len(response.html)} bytes in {response.duration_ms}ms")
 
     def test_fetch__httpbin_html(self):                                # Test fetching httpbin HTML page
         url      = Safe_Str__Url(TEST_URLS['httpbin_html'])

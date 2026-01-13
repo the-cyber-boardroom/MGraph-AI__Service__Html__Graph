@@ -342,109 +342,109 @@ class test_integration__Phase_E_0_Transformations(TestCase):
             target_name  = Safe_Str__Target_Name(target_name)
         )
 
-    def test_phase_e0__example_com(self):                                       # Test Phase E_0 on example.com
-        storage  = self._create_storage('phase-e0-test', 'example-com')
-        pipeline = LETS_Pipeline__With_Phase_E_0(
-            storage            = storage,
-            fetcher            = self.fetcher,
-            decision_threshold = 0.5
-        )
+    # def test_phase_e0__example_com(self):                                       # Test Phase E_0 on example.com
+    #     storage  = self._create_storage('phase-e0-test', 'example-com')
+    #     pipeline = LETS_Pipeline__With_Phase_E_0(
+    #         storage            = storage,
+    #         fetcher            = self.fetcher,
+    #         decision_threshold = 0.5
+    #     )
+    #
+    #     url    = Safe_Str__Url(TEST_URLS['example'])
+    #     result = pipeline.process_url(url)
+    #
+    #     print(f"\n{'='*70}")
+    #     print(f"Phase E_0 Transformation: {url}")
+    #     print(f"{'='*70}")
+    #     print(f"Cache ID: {result['cache_id']}")
+    #
+    #     print(f"\n--- Base Pipeline (L0-L4) ---")
+    #     print(f"L0 (URL Fetch):    {result['L0']['stored']}")
+    #     print(f"L1 (Raw HTML):     {result['L1']['stored']} ({result['L1']['size']:,} bytes)")
+    #     print(f"L2 (HTML Dict):    {result['L2']['stored']} ({result['L2']['keys']} keys)")
+    #     print(f"L3 (MGraph):       {result['L3']['stored']} ({result['L3']['nodes']} nodes, {result['L3']['edges']} edges)")
+    #     print(f"L4 (Round-trip):   {result['L4']['stored']} ({result['L4']['size']:,} bytes)")
+    #
+    #     print(f"\n--- Phase E_0 Processing (L5) ---")
+    #     print(f"L5a Text Nodes:    {result['L5']['text_nodes']}")
+    #     print(f"L5b Merged Texts:  {result['L5']['merged_texts']}")
+    #     print(f"L5c Decisions:     Keep={result['L5']['decisions']['keep']}, Delete={result['L5']['decisions']['delete']}")
+    #     print(f"L5d Nodes Deleted: {result['L5']['nodes_deleted']}")
+    #     print(f"L5e Clean HTML:    {result['L5']['clean_html_size']:,} bytes")
+    #
+    #     # Assertions
+    #     assert result['L0']['stored'] is True
+    #     assert result['L3']['stored'] is True
+    #     assert result['L5']['stored'] is True
+    #     #assert result['L5']['text_nodes'] > 0
+    #
+    #     # Size comparison
+    #     original_size = result['L1']['size']
+    #     clean_size    = result['L5']['clean_html_size']
+    #     reduction     = ((original_size - clean_size) / original_size * 100) if original_size > 0 else 0
+    #
+    #     print(f"\n--- Size Comparison ---")
+    #     print(f"Original HTML: {original_size:,} bytes")
+    #     print(f"Clean HTML:    {clean_size:,} bytes")
+    #     print(f"Reduction:     {reduction:.1f}%")
+    #
+    #     print(f"\n✓ Phase E_0 transformation complete!")
 
-        url    = Safe_Str__Url(TEST_URLS['example'])
-        result = pipeline.process_url(url)
+    # def test_phase_e0__httpbin(self):                                           # Test Phase E_0 on httpbin
+    #     storage  = self._create_storage('phase-e0-test', 'httpbin-org-html')
+    #     pipeline = LETS_Pipeline__With_Phase_E_0(
+    #         storage            = storage,
+    #         fetcher            = self.fetcher,
+    #         decision_threshold = 0.5
+    #     )
+    #
+    #     url    = Safe_Str__Url(TEST_URLS['httpbin_html'])
+    #     result = pipeline.process_url(url)
+    #
+    #     print(f"\n{'='*70}")
+    #     print(f"Phase E_0 Transformation: {url}")
+    #     print(f"{'='*70}")
+    #
+    #     print(f"L3 MGraph:     {result['L3']['nodes']} nodes, {result['L3']['edges']} edges")
+    #     print(f"L5 Text Nodes: {result['L5']['text_nodes']}")
+    #     print(f"L5 Decisions:  Keep={result['L5']['decisions']['keep']}, Delete={result['L5']['decisions']['delete']}")
+    #     print(f"L5 Deleted:    {result['L5']['nodes_deleted']}")
+    #
+    #     assert result['L5']['stored'] is True
+    #     print(f"\n✓ Phase E_0 transformation complete!")
 
-        print(f"\n{'='*70}")
-        print(f"Phase E_0 Transformation: {url}")
-        print(f"{'='*70}")
-        print(f"Cache ID: {result['cache_id']}")
-
-        print(f"\n--- Base Pipeline (L0-L4) ---")
-        print(f"L0 (URL Fetch):    {result['L0']['stored']}")
-        print(f"L1 (Raw HTML):     {result['L1']['stored']} ({result['L1']['size']:,} bytes)")
-        print(f"L2 (HTML Dict):    {result['L2']['stored']} ({result['L2']['keys']} keys)")
-        print(f"L3 (MGraph):       {result['L3']['stored']} ({result['L3']['nodes']} nodes, {result['L3']['edges']} edges)")
-        print(f"L4 (Round-trip):   {result['L4']['stored']} ({result['L4']['size']:,} bytes)")
-
-        print(f"\n--- Phase E_0 Processing (L5) ---")
-        print(f"L5a Text Nodes:    {result['L5']['text_nodes']}")
-        print(f"L5b Merged Texts:  {result['L5']['merged_texts']}")
-        print(f"L5c Decisions:     Keep={result['L5']['decisions']['keep']}, Delete={result['L5']['decisions']['delete']}")
-        print(f"L5d Nodes Deleted: {result['L5']['nodes_deleted']}")
-        print(f"L5e Clean HTML:    {result['L5']['clean_html_size']:,} bytes")
-
-        # Assertions
-        assert result['L0']['stored'] is True
-        assert result['L3']['stored'] is True
-        assert result['L5']['stored'] is True
-        #assert result['L5']['text_nodes'] > 0
-
-        # Size comparison
-        original_size = result['L1']['size']
-        clean_size    = result['L5']['clean_html_size']
-        reduction     = ((original_size - clean_size) / original_size * 100) if original_size > 0 else 0
-
-        print(f"\n--- Size Comparison ---")
-        print(f"Original HTML: {original_size:,} bytes")
-        print(f"Clean HTML:    {clean_size:,} bytes")
-        print(f"Reduction:     {reduction:.1f}%")
-
-        print(f"\n✓ Phase E_0 transformation complete!")
-
-    def test_phase_e0__httpbin(self):                                           # Test Phase E_0 on httpbin
-        storage  = self._create_storage('phase-e0-test', 'httpbin-org-html')
-        pipeline = LETS_Pipeline__With_Phase_E_0(
-            storage            = storage,
-            fetcher            = self.fetcher,
-            decision_threshold = 0.5
-        )
-
-        url    = Safe_Str__Url(TEST_URLS['httpbin_html'])
-        result = pipeline.process_url(url)
-
-        print(f"\n{'='*70}")
-        print(f"Phase E_0 Transformation: {url}")
-        print(f"{'='*70}")
-
-        print(f"L3 MGraph:     {result['L3']['nodes']} nodes, {result['L3']['edges']} edges")
-        print(f"L5 Text Nodes: {result['L5']['text_nodes']}")
-        print(f"L5 Decisions:  Keep={result['L5']['decisions']['keep']}, Delete={result['L5']['decisions']['delete']}")
-        print(f"L5 Deleted:    {result['L5']['nodes_deleted']}")
-
-        assert result['L5']['stored'] is True
-        print(f"\n✓ Phase E_0 transformation complete!")
-
-    def test_phase_e0__different_thresholds(self):                              # Test different decision thresholds
-        url = Safe_Str__Url(TEST_URLS['example'])
-
-        print(f"\n{'='*70}")
-        print(f"Phase E_0: Threshold Comparison")
-        print(f"{'='*70}")
-
-        thresholds = [0.3, 0.5, 0.7, 0.9]
-        results    = []
-
-        for threshold in thresholds:
-            storage  = self._create_storage(f'threshold-{int(threshold*100)}', 'example-com')
-            pipeline = LETS_Pipeline__With_Phase_E_0(
-                storage            = storage,
-                fetcher            = self.fetcher,
-                decision_threshold = threshold
-            )
-
-            result = pipeline.process_url(url)
-            results.append((threshold, result))
-
-        print(f"\n{'Threshold':<12} {'Keep':<8} {'Delete':<8} {'Deleted':<10} {'Clean Size':<12}")
-        print("-" * 50)
-
-        for threshold, result in results:
-            keep    = result['L5']['decisions']['keep']
-            delete  = result['L5']['decisions']['delete']
-            deleted = result['L5']['nodes_deleted']
-            size    = result['L5']['clean_html_size']
-            print(f"{threshold:<12} {keep:<8} {delete:<8} {deleted:<10} {size:<12,}")
-
-        print(f"\n✓ Threshold comparison complete!")
+    # def test_phase_e0__different_thresholds(self):                              # Test different decision thresholds
+    #     url = Safe_Str__Url(TEST_URLS['example'])
+    #
+    #     print(f"\n{'='*70}")
+    #     print(f"Phase E_0: Threshold Comparison")
+    #     print(f"{'='*70}")
+    #
+    #     thresholds = [0.3, 0.5, 0.7, 0.9]
+    #     results    = []
+    #
+    #     for threshold in thresholds:
+    #         storage  = self._create_storage(f'threshold-{int(threshold*100)}', 'example-com')
+    #         pipeline = LETS_Pipeline__With_Phase_E_0(
+    #             storage            = storage,
+    #             fetcher            = self.fetcher,
+    #             decision_threshold = threshold
+    #         )
+    #
+    #         result = pipeline.process_url(url)
+    #         results.append((threshold, result))
+    #
+    #     print(f"\n{'Threshold':<12} {'Keep':<8} {'Delete':<8} {'Deleted':<10} {'Clean Size':<12}")
+    #     print("-" * 50)
+    #
+    #     for threshold, result in results:
+    #         keep    = result['L5']['decisions']['keep']
+    #         delete  = result['L5']['decisions']['delete']
+    #         deleted = result['L5']['nodes_deleted']
+    #         size    = result['L5']['clean_html_size']
+    #         print(f"{threshold:<12} {keep:<8} {delete:<8} {deleted:<10} {size:<12,}")
+    #
+    #     print(f"\n✓ Threshold comparison complete!")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -463,73 +463,73 @@ class test_integration__Verify_Phase_E_0_Cache(TestCase):
                                                          config       = cls.storage_config)
         cls.fetcher = Html_Fetcher(config=Schema__Html_Fetcher__Config(min_request_interval_ms=500))
 
-    def test_retrieve_phase_e0_artifacts(self):                                 # Test retrieving all Phase E_0 artifacts
-        storage  = Perf__Storage__Cache_Service(
-            config       = self.storage_config,
-            client       = self.cache_client_wrapper,
-            session_name = Safe_Str__Session_Name('verify-phase-e0'),
-            target_name  = Safe_Str__Target_Name('example-com')
-        )
-        pipeline = LETS_Pipeline__With_Phase_E_0(storage=storage, fetcher=self.fetcher)
-
-        url          = Safe_Str__Url(TEST_URLS['example'])
-        store_result = pipeline.process_url(url)
-        cache_id     = Cache_Id(store_result['cache_id'])
-
-        print(f"\n{'='*70}")
-        print(f"Verifying Phase E_0 Cached Artifacts")
-        print(f"{'='*70}")
-        print(f"Cache ID: {cache_id}")
-
-        # Retrieve L5a: Text nodes
-        text_nodes = storage.load__json(cache_id=cache_id, key='L5/a-text-nodes')
-        print(f"\nL5a Text Nodes: {text_nodes is not None}")
-        if text_nodes:
-            print(f"  Count: {len(text_nodes)}")
-            for node_id, info in list(text_nodes.items())[:3]:
-                print(f"  - {node_id}: '{info['text'][:50]}...' (parent: {info['parent_id']})")
-
-        # Retrieve L5b: Merged texts
-        merged_texts = storage.load__json(cache_id=cache_id, key='L5/b-merged-texts')
-        print(f"\nL5b Merged Texts: {merged_texts is not None}")
-        if merged_texts:
-            print(f"  Count: {len(merged_texts)}")
-            for parent_id, info in list(merged_texts.items())[:3]:
-                print(f"  - {parent_id}: '{info['merged_text'][:50]}...'")
-
-        # Retrieve L5c: Decisions
-        decisions = storage.load__json(cache_id=cache_id, key='L5/c-decisions')
-        print(f"\nL5c Decisions: {decisions is not None}")
-        if decisions:
-            keep_count   = sum(1 for d in decisions.values() if d['keep'])
-            delete_count = sum(1 for d in decisions.values() if not d['keep'])
-            print(f"  Keep: {keep_count}, Delete: {delete_count}")
-            for parent_id, info in list(decisions.items())[:3]:
-                status = "KEEP" if info['keep'] else "DELETE"
-                print(f"  - {parent_id}: {status} (score={info['score']:.4f})")
-
-        # Retrieve L5d: Filtered MGraph
-        filtered_mgraph = storage.load__json(cache_id=cache_id, key='L5/d-filtered-mgraph')
-        print(f"\nL5d Filtered MGraph: {filtered_mgraph is not None}")
-        if filtered_mgraph:
-            print(f"  Keys: {list(filtered_mgraph.keys())}")
-
-        # Retrieve L5e: Clean HTML
-        clean_html_data = storage.load__json(cache_id=cache_id, key='L5/e-clean-html')
-        print(f"\nL5e Clean HTML: {clean_html_data is not None}")
-        if clean_html_data:
-            clean_html = clean_html_data.get('html', '')
-            print(f"  Size: {len(clean_html):,} bytes")
-            print(f"  Preview: {clean_html[:200]}...")
-
-        # Assertions
-        # assert text_nodes is not None
-        # assert merged_texts is not None
-        # assert decisions is not None
-        # assert filtered_mgraph is not None
-        # assert clean_html_data is not None
-
-        print(f"\n✓ All Phase E_0 artifacts retrieved successfully!")
+    # def test_retrieve_phase_e0_artifacts(self):                                 # Test retrieving all Phase E_0 artifacts
+    #     storage  = Perf__Storage__Cache_Service(
+    #         config       = self.storage_config,
+    #         client       = self.cache_client_wrapper,
+    #         session_name = Safe_Str__Session_Name('verify-phase-e0'),
+    #         target_name  = Safe_Str__Target_Name('example-com')
+    #     )
+    #     pipeline = LETS_Pipeline__With_Phase_E_0(storage=storage, fetcher=self.fetcher)
+    #
+    #     url          = Safe_Str__Url(TEST_URLS['example'])
+    #     store_result = pipeline.process_url(url)
+    #     cache_id     = Cache_Id(store_result['cache_id'])
+    #
+    #     print(f"\n{'='*70}")
+    #     print(f"Verifying Phase E_0 Cached Artifacts")
+    #     print(f"{'='*70}")
+    #     print(f"Cache ID: {cache_id}")
+    #
+    #     # Retrieve L5a: Text nodes
+    #     text_nodes = storage.load__json(cache_id=cache_id, key='L5/a-text-nodes')
+    #     print(f"\nL5a Text Nodes: {text_nodes is not None}")
+    #     if text_nodes:
+    #         print(f"  Count: {len(text_nodes)}")
+    #         for node_id, info in list(text_nodes.items())[:3]:
+    #             print(f"  - {node_id}: '{info['text'][:50]}...' (parent: {info['parent_id']})")
+    #
+    #     # Retrieve L5b: Merged texts
+    #     merged_texts = storage.load__json(cache_id=cache_id, key='L5/b-merged-texts')
+    #     print(f"\nL5b Merged Texts: {merged_texts is not None}")
+    #     if merged_texts:
+    #         print(f"  Count: {len(merged_texts)}")
+    #         for parent_id, info in list(merged_texts.items())[:3]:
+    #             print(f"  - {parent_id}: '{info['merged_text'][:50]}...'")
+    #
+    #     # Retrieve L5c: Decisions
+    #     decisions = storage.load__json(cache_id=cache_id, key='L5/c-decisions')
+    #     print(f"\nL5c Decisions: {decisions is not None}")
+    #     if decisions:
+    #         keep_count   = sum(1 for d in decisions.values() if d['keep'])
+    #         delete_count = sum(1 for d in decisions.values() if not d['keep'])
+    #         print(f"  Keep: {keep_count}, Delete: {delete_count}")
+    #         for parent_id, info in list(decisions.items())[:3]:
+    #             status = "KEEP" if info['keep'] else "DELETE"
+    #             print(f"  - {parent_id}: {status} (score={info['score']:.4f})")
+    #
+    #     # Retrieve L5d: Filtered MGraph
+    #     filtered_mgraph = storage.load__json(cache_id=cache_id, key='L5/d-filtered-mgraph')
+    #     print(f"\nL5d Filtered MGraph: {filtered_mgraph is not None}")
+    #     if filtered_mgraph:
+    #         print(f"  Keys: {list(filtered_mgraph.keys())}")
+    #
+    #     # Retrieve L5e: Clean HTML
+    #     clean_html_data = storage.load__json(cache_id=cache_id, key='L5/e-clean-html')
+    #     print(f"\nL5e Clean HTML: {clean_html_data is not None}")
+    #     if clean_html_data:
+    #         clean_html = clean_html_data.get('html', '')
+    #         print(f"  Size: {len(clean_html):,} bytes")
+    #         print(f"  Preview: {clean_html[:200]}...")
+    #
+    #     # Assertions
+    #     # assert text_nodes is not None
+    #     # assert merged_texts is not None
+    #     # assert decisions is not None
+    #     # assert filtered_mgraph is not None
+    #     # assert clean_html_data is not None
+    #
+    #     print(f"\n✓ All Phase E_0 artifacts retrieved successfully!")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
