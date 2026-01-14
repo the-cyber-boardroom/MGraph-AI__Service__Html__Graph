@@ -7,15 +7,14 @@
 
 import phase_e
 from unittest                                                                   import TestCase
-
-from osbot_utils.testing.Pytest import skip_pytest
+from osbot_utils.helpers.performance.testing.Html_Generator__For_Benchmarks     import Html_Generator__For_Benchmarks
+from osbot_utils.testing.Pytest                                                 import skip_pytest
 from osbot_utils.utils.Files                                                    import path_combine
 from phase_e.performance.Perf__Phase_E__Scalability                             import Perf__Phase_E__Scalability
 from phase_e.performance.Perf__Phase_E__Scalability                             import Schema__Scaling_Analysis
 from phase_e.performance.Perf__Phase_E__Scalability                             import Schema__Scaling_Comparison
 from phase_e.performance.Perf__Phase_E__Scalability                             import Schema__Scale_Point
 from phase_e.performance.Perf__Phase_E__Scalability                             import SIZES_QUICK, SIZES_STANDARD
-from phase_e.performance.Html_Generator__For_Benchmarks                         import Html_Generator__For_Benchmarks
 from phase_e.performance.Perf__Phase_E__Conversion                              import Perf__Phase_E__Conversion
 from phase_e.storage.backends.Perf__Storage__Local                              import Perf__Storage__Local
 

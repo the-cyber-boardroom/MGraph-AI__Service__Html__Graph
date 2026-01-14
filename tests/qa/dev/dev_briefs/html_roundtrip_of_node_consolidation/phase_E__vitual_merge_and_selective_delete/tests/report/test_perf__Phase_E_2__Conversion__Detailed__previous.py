@@ -5,18 +5,22 @@
 from unittest import TestCase
 
 import phase_e
-from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html import Html_MGraph__Document__To__Html
-from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_Dict__With__Node_Ids import Html__To__Html_Dict__With__Node_Ids
+from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__Document__To__Html                import Html_MGraph__Document__To__Html
+from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_Dict__With__Node_Ids            import Html__To__Html_Dict__With__Node_Ids
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document__Node_Id_Reuse import Html__To__Html_MGraph__Document__Node_Id_Reuse
-from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing import Perf_Benchmark__Timing
-from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Measure_Mode import Enum__Measure_Mode
-from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Benchmark__Timing__Config import Schema__Perf_Benchmark__Timing__Config
-from osbot_utils.utils.Files import path_combine
-from phase_e.report.builder.Perf_Report__Builder import Perf_Report__Builder
-from phase_e.report.collections.Dict__Perf_Report__Legend import Dict__Perf_Report__Legend
-from phase_e.report.renderers.Perf_Report__Renderer__Text import Perf_Report__Renderer__Text
-from phase_e.report.schemas.Schema__Perf_Report__Metadata import Schema__Perf_Report__Metadata
-from phase_e.report.storage.Perf_Report__Storage__File_System import Perf_Report__Storage__File_System
+from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing                                           import Perf_Benchmark__Timing
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Measure_Mode                                 import Enum__Measure_Mode
+from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Benchmark__Timing__Config            import Schema__Perf_Benchmark__Timing__Config
+from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report__Metadata                               import Schema__Perf_Report__Metadata
+from osbot_utils.helpers.performance.report.schemas.collections.Dict__Perf_Report__Legend                       import Dict__Perf_Report__Legend
+from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__File_System                           import Perf_Report__Storage__File_System
+from osbot_utils.utils.Files                                                                                    import path_combine
+from osbot_utils.helpers.performance.report.Perf_Report__Builder                                                import Perf_Report__Builder
+
+# from phase_e.report.builder.Perf_Report__Builder            import Perf_Report__Builder
+# from phase_e.report.collections.Dict__Perf_Report__Legend import Dict__Perf_Report__Legend
+# from phase_e.report.schemas.Schema__Perf_Report__Metadata import Schema__Perf_Report__Metadata
+# from phase_e.report.storage.Perf_Report__Storage__File_System import Perf_Report__Storage__File_System
 
 # Assuming these exist in your project - replace with actual imports
 # from mgraph_ai_service_html_graph                                                                             import version__mgraph_ai_service_html_graph

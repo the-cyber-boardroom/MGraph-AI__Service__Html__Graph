@@ -7,12 +7,13 @@
 
 import phase_e
 from unittest                                                                   import TestCase
+from osbot_utils.helpers.performance.testing.Html_Generator__For_Benchmarks     import Html_Generator__For_Benchmarks
 from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config              import Type_Safe__Config
 from osbot_utils.utils.Files                                                    import path_combine
 from phase_e.performance.Perf__Phase_E__Conversion                              import Perf__Phase_E__Conversion
 from phase_e.performance.Perf__Phase_E__Conversion                              import Schema__Conversion_Timing
 from phase_e.performance.Perf__Phase_E__Conversion                              import Schema__Conversion_Breakdown
-from phase_e.performance.Html_Generator__For_Benchmarks                         import Html_Generator__For_Benchmarks
+
 from phase_e.storage.backends.Perf__Storage__Local                              import Perf__Storage__Local
 
 

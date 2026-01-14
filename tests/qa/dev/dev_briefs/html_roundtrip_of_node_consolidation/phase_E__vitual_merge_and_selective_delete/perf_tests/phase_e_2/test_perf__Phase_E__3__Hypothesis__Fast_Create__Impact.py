@@ -18,7 +18,8 @@ from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing           
 from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Hypothesis                                       import Perf_Benchmark__Hypothesis
 from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config                                              import Type_Safe__Config
 from osbot_utils.utils.Files                                                                                    import path_combine
-from phase_e.performance.Html_Generator__For_Benchmarks                                                         import Html_Generator__For_Benchmarks
+from osbot_utils.helpers.performance.testing.Html_Generator__For_Benchmarks                                     import Html_Generator__For_Benchmarks
+
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

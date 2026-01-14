@@ -30,7 +30,6 @@ from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html__To__Html_MGraph__Document__Node_Id_Reuse import Html__To__Html_MGraph__Document__Node_Id_Reuse
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Document                              import Html_MGraph__Document
 from mgraph_db.mgraph.schemas.Schema__MGraph__Node                                                              import Schema__MGraph__Node
-from mgraph_db.mgraph.schemas.Schema__MGraph__Edge                                                              import Schema__MGraph__Edge
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                                                             import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                                                             import Edge_Path
 from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing                                           import Perf_Benchmark__Timing
@@ -41,12 +40,11 @@ from osbot_utils.type_safe.type_safe_core.config.type_safe_fast_create          
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                                               import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                                               import Safe_Id
 from osbot_utils.utils.Files                                                                                    import path_combine
-from phase_e.performance.Html_Generator__For_Benchmarks                                                         import Html_Generator__For_Benchmarks
-from phase_e.report.builder.Perf_Report__Builder                                                                import Perf_Report__Builder
-from phase_e.report.collections.Dict__Perf_Report__Legend                                                       import Dict__Perf_Report__Legend
-from phase_e.report.renderers.Perf_Report__Renderer__Text                                                       import Perf_Report__Renderer__Text
-from phase_e.report.schemas.Schema__Perf_Report__Metadata                                                       import Schema__Perf_Report__Metadata
-from phase_e.report.storage.Perf_Report__Storage__File_System                                                   import Perf_Report__Storage__File_System
+from osbot_utils.helpers.performance.report.Perf_Report__Builder                                                import Perf_Report__Builder
+from osbot_utils.helpers.performance.testing.Html_Generator__For_Benchmarks                                     import Html_Generator__For_Benchmarks
+from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report__Metadata                               import Schema__Perf_Report__Metadata
+from osbot_utils.helpers.performance.report.schemas.collections.Dict__Perf_Report__Legend                       import Dict__Perf_Report__Legend
+from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__File_System                           import Perf_Report__Storage__File_System
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -390,4 +388,4 @@ class test_perf__Phase_E__9__Benchmark__MGraph_New_Node__Internals(TestCase):
 
         self.storage.save(report, key=REPORT_KEY, formats=['txt'])
 
-        print(Perf_Report__Renderer__Text().render(report))
+        #print(Perf_Report__Renderer__Text().render(report))

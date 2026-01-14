@@ -32,12 +32,11 @@ from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Bench
 from osbot_utils.testing.Graph__Deterministic__Ids                                                              import graph_deterministic_ids
 from osbot_utils.type_safe.type_safe_core.config.type_safe_fast_create                                          import type_safe_fast_create
 from osbot_utils.utils.Files                                                                                    import path_combine
-from phase_e.performance.Html_Generator__For_Benchmarks                                                         import Html_Generator__For_Benchmarks
-from phase_e.report.builder.Perf_Report__Builder                                                                import Perf_Report__Builder
-from phase_e.report.collections.Dict__Perf_Report__Legend                                                       import Dict__Perf_Report__Legend
-from phase_e.report.renderers.Perf_Report__Renderer__Text                                                       import Perf_Report__Renderer__Text
-from phase_e.report.schemas.Schema__Perf_Report__Metadata                                                       import Schema__Perf_Report__Metadata
-from phase_e.report.storage.Perf_Report__Storage__File_System                                                   import Perf_Report__Storage__File_System
+from osbot_utils.helpers.performance.report.Perf_Report__Builder                                                import Perf_Report__Builder
+from osbot_utils.helpers.performance.testing.Html_Generator__For_Benchmarks                                     import Html_Generator__For_Benchmarks
+from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report__Metadata                               import Schema__Perf_Report__Metadata
+from osbot_utils.helpers.performance.report.schemas.collections.Dict__Perf_Report__Legend                       import Dict__Perf_Report__Legend
+from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__File_System                           import Perf_Report__Storage__File_System
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -311,4 +310,4 @@ class test_perf__Phase_E__7__Benchmark__Process_Body_Element__Line_By_Line(TestC
 
         self.storage.save(report, key=REPORT_KEY, formats=['txt'])
 
-        print(Perf_Report__Renderer__Text().render(report))
+        #print(Perf_Report__Renderer__Text().render(report))
