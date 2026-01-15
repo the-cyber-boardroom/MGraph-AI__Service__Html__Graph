@@ -45,18 +45,18 @@ trio = ["trio (>=0.31.0)", "trio (>=0.32.0)"]
 
 [[package]]
 name = "boto3"
-version = "1.42.25"
+version = "1.42.28"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.42.25-py3-none-any.whl", hash = "sha256:8128bde4f9d5ffce129c76d1a2efe220e3af967a2ad30bc305ba088bbc96343d"},
-    {file = "boto3-1.42.25.tar.gz", hash = "sha256:ccb5e757dd62698d25766cc54cf5c47bea43287efa59c93cf1df8c8fbc26eeda"},
+    {file = "boto3-1.42.28-py3-none-any.whl", hash = "sha256:7994bc2a094c1894f6a4221a1696c5d18af6c9c888191051866f1d05c4fba431"},
+    {file = "boto3-1.42.28.tar.gz", hash = "sha256:7d56c298b8d98f5e9b04cf5d6627f68e7792e25614533aef17f815681b5e1096"},
 ]
 
 [package.dependencies]
-botocore = ">=1.42.25,<1.43.0"
+botocore = ">=1.42.28,<1.43.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.16.0,<0.17.0"
 
@@ -65,14 +65,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.42.25"
+version = "1.42.28"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.42.25-py3-none-any.whl", hash = "sha256:470261966aab1d09a1cd4ba56810098834443602846559ba9504f6613dfa52dc"},
-    {file = "botocore-1.42.25.tar.gz", hash = "sha256:7ae79d1f77d3771e83e4dd46bce43166a1ba85d58a49cffe4c4a721418616054"},
+    {file = "botocore-1.42.28-py3-none-any.whl", hash = "sha256:d26c7a0851489ce1a18279f9802fe434bd736ea861d4888cc2c7d83fb1f6af8f"},
+    {file = "botocore-1.42.28.tar.gz", hash = "sha256:0c15e78d1accf97df691083331f682e97b1bef73ef12dcdaadcf652abf9c182c"},
 ]
 
 [package.dependencies]
@@ -325,14 +325,14 @@ typing-extensions = "*"
 
 [[package]]
 name = "mgraph-ai-service-cache-client"
-version = "0.23.0"
+version = "0.24.0"
 description = "MGraph-AI__Service__Cache__Client"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "mgraph_ai_service_cache_client-0.23.0-py3-none-any.whl", hash = "sha256:7c4cd967452d8a10d08b3a3b1a395043eb4aab8964b9a513b6b75c35b8e5e2a4"},
-    {file = "mgraph_ai_service_cache_client-0.23.0.tar.gz", hash = "sha256:1208c5ec19696a2f4e92b86c4195dc787c40e3123d018c3d5f0b2ebb33ca54b7"},
+    {file = "mgraph_ai_service_cache_client-0.24.0-py3-none-any.whl", hash = "sha256:b13a53c5b41e40d7627891e530d13914bc46427a77f241311504d7652e2ab5af"},
+    {file = "mgraph_ai_service_cache_client-0.24.0.tar.gz", hash = "sha256:ba9714a28a4b5530ea4941399174bacc5b83c43e509dd90bc98b878ee0eaa9b4"},
 ]
 
 [package.dependencies]
@@ -389,14 +389,14 @@ uvicorn = "*"
 
 [[package]]
 name = "osbot-fast-api-serverless"
-version = "1.32.0"
+version = "1.33.0"
 description = "OSBot-Fast-API-Serverless"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "osbot_fast_api_serverless-1.32.0-py3-none-any.whl", hash = "sha256:b3f6bb64832e6384475c956837121a8be472d1d2fbbaa8b662b67d9719e3f100"},
-    {file = "osbot_fast_api_serverless-1.32.0.tar.gz", hash = "sha256:f05245a7a8a84de785d351f304cc2d878f937da1643897f06922b282a65619b4"},
+    {file = "osbot_fast_api_serverless-1.33.0-py3-none-any.whl", hash = "sha256:9fe05e9b0c43977f9d8ec630e46ac4fe0b3b7da60dbd6e8af28a306f3e762724"},
+    {file = "osbot_fast_api_serverless-1.33.0.tar.gz", hash = "sha256:a50145f49b368cc4d11a03c7c1cc990467c61142515cb4aa5f06cf9dd70062d9"},
 ]
 
 [package.dependencies]
@@ -406,14 +406,14 @@ osbot-fast-api = "*"
 
 [[package]]
 name = "osbot-utils"
-version = "3.69.0"
+version = "3.71.0"
 description = "OWASP Security Bot - Utils"
 optional = false
 python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "osbot_utils-3.69.0-py3-none-any.whl", hash = "sha256:01f0b48f3717b631806abceec4a06ff59fd34c8c38caee8bbaa6131fa0fa5147"},
-    {file = "osbot_utils-3.69.0.tar.gz", hash = "sha256:9ff74105513a3a299ced7f29e173524477171fe1d2ee18e7069e521b94198b41"},
+    {file = "osbot_utils-3.71.0-py3-none-any.whl", hash = "sha256:e9187ac517587a5df1be4a019072170dbe35fd4920a8915d54503c40d067d439"},
+    {file = "osbot_utils-3.71.0.tar.gz", hash = "sha256:140bbe6482941d47c8dce6f625961544b6ea1083f95262896dc287dc0fe476ef"},
 ]
 
 [[package]]
