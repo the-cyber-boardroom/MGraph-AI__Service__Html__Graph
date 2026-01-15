@@ -5,7 +5,8 @@ FAST_API__TITLE                          = "MGraph AI Service Html Graph"
 FAST_API__DESCRIPTION                    = "Base template for MGraph-AI microservices"
 LAMBDA_DEPENDENCIES__HTML_GRAPH__SERVICE = ['mgraph-db==v1.18.0'                     ,
                                             'mgraph-ai-service-cache-client==v0.24.0',
-                                            'osbot-fast-api-serverless==v1.31.0'     ]
+                                            'osbot-fast-api-serverless==v1.31.0'     ,
+                                            'httpx==0.28.1']
 
 
 UI__CONSOLE__ROUTE__CONSOLE    = 'console'
