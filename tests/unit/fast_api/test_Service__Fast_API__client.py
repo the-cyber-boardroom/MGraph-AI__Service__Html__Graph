@@ -3,8 +3,12 @@ from fastapi                                                              import
 from osbot_fast_api.api.Fast_API                                          import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.api.schemas.consts.consts__Fast_API                   import EXPECTED_ROUTES__SET_COOKIE
 from osbot_fast_api_serverless.fast_api.routes.Routes__Info               import ROUTES_INFO__HEALTH__RETURN_VALUE, ROUTES_PATHS__INFO
+
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Cache__Document import ROUTES_PATHS__CACHE
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph           import ROUTES_PATHS__GRAPH
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Html            import ROUTES_PATHS__HTML
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__LETS__Steps import ROUTES_PATHS__LETS
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Profiles import ROUTES_PATHS__PROFILES
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Sample_Files    import ROUTES_PATHS__SAMPLES
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Timestamps      import ROUTES_PATHS__TIMESTAMPS
 from osbot_utils.utils.Env                                                import get_env
@@ -58,10 +62,20 @@ class test_Service__Fast_API__client(TestCase):
     #         assert _.is_local_stack_configured_and_available() is True
 
     def test__config_fast_api_routes(self):
-        assert self.fast_api.routes_paths() == sorted(ROUTES_PATHS__INFO          +
-                                                      EXPECTED_ROUTES__SET_COOKIE +
-                                                      ROUTES_PATHS__CONSOLE       +
-                                                      ROUTES_PATHS__GRAPH         +
-                                                      ROUTES_PATHS__SAMPLES       +
-                                                      ROUTES_PATHS__TIMESTAMPS    +
-                                                      ROUTES_PATHS__HTML          )
+        fast_api_paths = []
+        raw_paths      = sorted(ROUTES_PATHS__INFO          +
+                                EXPECTED_ROUTES__SET_COOKIE +
+                                ROUTES_PATHS__CONSOLE       +
+                                ROUTES_PATHS__GRAPH         +
+                                ROUTES_PATHS__SAMPLES       +
+                                ROUTES_PATHS__TIMESTAMPS    +
+                                ROUTES_PATHS__HTML          +
+                                ROUTES_PATHS__LETS          +
+                                ROUTES_PATHS__PROFILES      +
+                                ROUTES_PATHS__CACHE         )
+
+        for fast_api_path in self.fast_api.routes_paths():
+            fast_api_paths.append(str(fast_api_path))               # cast to str to make it easier compare
+
+        assert sorted(fast_api_paths)       == sorted(raw_paths)                        # this creates a better diff
+        assert self.fast_api.routes_paths() == sorted(raw_paths   )                     # but this also works :)

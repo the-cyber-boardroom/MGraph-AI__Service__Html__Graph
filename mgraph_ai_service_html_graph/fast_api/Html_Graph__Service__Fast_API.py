@@ -1,16 +1,19 @@
 import mgraph_ai_service_html_graph__render_ui
-from osbot_fast_api.api.decorators.route_path                        import route_path
-from osbot_fast_api.api.routes.Routes__Set_Cookie                    import Routes__Set_Cookie
-from osbot_fast_api_serverless.fast_api.Serverless__Fast_API         import Serverless__Fast_API
-from osbot_fast_api_serverless.fast_api.routes.Routes__Info          import Routes__Info
-from starlette.responses                                             import RedirectResponse
-from starlette.staticfiles                                           import StaticFiles
-from mgraph_ai_service_html_graph.config                             import FAST_API__TITLE, FAST_API__DESCRIPTION, UI__CONSOLE__ROUTE__CONSOLE, UI__CONSOLE__MAJOR__VERSION, UI__CONSOLE__LATEST__VERSION, UI__CONSOLE__ROUTE__START_PAGE
-from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph      import Routes__Graph
-from mgraph_ai_service_html_graph.fast_api.routes.Routes__Html       import Routes__Html
-from mgraph_ai_service_html_graph.fast_api.routes.Routes__Sample_Files import Routes__Samples_Files
-from mgraph_ai_service_html_graph.fast_api.routes.Routes__Timestamps import Routes__Timestamps
-from mgraph_ai_service_html_graph.utils.Version                      import version__mgraph_ai_service_html_graph
+from osbot_fast_api.api.decorators.route_path                               import route_path
+from osbot_fast_api.api.routes.Routes__Set_Cookie                           import Routes__Set_Cookie
+from osbot_fast_api_serverless.fast_api.Serverless__Fast_API                import Serverless__Fast_API
+from osbot_fast_api_serverless.fast_api.routes.Routes__Info                 import Routes__Info
+from starlette.responses                                                    import RedirectResponse
+from starlette.staticfiles                                                  import StaticFiles
+from mgraph_ai_service_html_graph.config                                    import FAST_API__TITLE, FAST_API__DESCRIPTION, UI__CONSOLE__ROUTE__CONSOLE, UI__CONSOLE__MAJOR__VERSION, UI__CONSOLE__LATEST__VERSION, UI__CONSOLE__ROUTE__START_PAGE
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Cache__Document   import Routes__Cache__Document
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph             import Routes__Graph
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Html              import Routes__Html
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__LETS__Steps       import Routes__LETS__Steps
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Profiles          import Routes__Profiles
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Sample_Files      import Routes__Samples_Files
+from mgraph_ai_service_html_graph.fast_api.routes.Routes__Timestamps        import Routes__Timestamps
+from mgraph_ai_service_html_graph.utils.Version                             import version__mgraph_ai_service_html_graph
 
 
 ROUTES_PATHS__CONSOLE        = [f'/{UI__CONSOLE__ROUTE__CONSOLE}',
@@ -26,12 +29,15 @@ class Html_Graph__Service__Fast_API(Serverless__Fast_API):
         return super().setup()
 
     def setup_routes(self):
-        self.add_routes(Routes__Graph        )
-        self.add_routes(Routes__Timestamps   )
-        self.add_routes(Routes__Samples_Files)
-        self.add_routes(Routes__Html         )
-        self.add_routes(Routes__Info         )
-        self.add_routes(Routes__Set_Cookie   )
+        self.add_routes(Routes__Graph          )
+        self.add_routes(Routes__LETS__Steps    )
+        self.add_routes(Routes__Profiles       )
+        self.add_routes(Routes__Cache__Document)
+        self.add_routes(Routes__Samples_Files  )
+        self.add_routes(Routes__Html           )
+        self.add_routes(Routes__Timestamps     )
+        self.add_routes(Routes__Info           )
+        self.add_routes(Routes__Set_Cookie     )
 
         self.add_event_stream()
 
