@@ -325,14 +325,14 @@ typing-extensions = "*"
 
 [[package]]
 name = "mgraph-ai-service-cache-client"
-version = "0.24.0"
+version = "0.25.0"
 description = "MGraph-AI__Service__Cache__Client"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "mgraph_ai_service_cache_client-0.24.0-py3-none-any.whl", hash = "sha256:b13a53c5b41e40d7627891e530d13914bc46427a77f241311504d7652e2ab5af"},
-    {file = "mgraph_ai_service_cache_client-0.24.0.tar.gz", hash = "sha256:ba9714a28a4b5530ea4941399174bacc5b83c43e509dd90bc98b878ee0eaa9b4"},
+    {file = "mgraph_ai_service_cache_client-0.25.0-py3-none-any.whl", hash = "sha256:ce524c2d0161abf3fd4a7524058f9e065b6046d64beb68e63c35a3c0f64dcfad"},
+    {file = "mgraph_ai_service_cache_client-0.25.0.tar.gz", hash = "sha256:26c68cdb5f8554b9e248b87627758a01d58bce1a39a079953fa0213b33f1f43e"},
 ]
 
 [package.dependencies]
