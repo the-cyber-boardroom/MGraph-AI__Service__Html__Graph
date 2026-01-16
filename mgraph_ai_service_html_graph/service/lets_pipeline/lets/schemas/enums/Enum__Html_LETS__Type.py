@@ -3,10 +3,10 @@
 # Enum values ARE the class types - enables @type_safe string auto-conversion
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from enum                                                                        import Enum
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.implementations.Html_LETS__Html__From__Raw import Html_LETS__Html__From__Raw
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.implementations.Html_LETS__Html__To__Dict  import Html_LETS__Html__To__Dict
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.implementations.Html_LETS__Dict__To__MGraph import Html_LETS__Dict__To__MGraph
+from enum                                                                                       import Enum
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.steps.Html_LETS__Html__From__Raw   import Html_LETS__Html__From__Raw
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.steps.Html_LETS__Html__To__Dict    import Html_LETS__Html__To__Dict
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.steps.Html_LETS__Dict__To__MGraph  import Html_LETS__Dict__To__MGraph
 
 
 class Enum__Html_LETS__Type(Enum):                                               # LETS name → class mapping

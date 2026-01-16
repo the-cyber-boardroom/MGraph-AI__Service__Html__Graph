@@ -3,27 +3,21 @@
 # Parses HTML and creates a structured dictionary with node IDs
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from typing                                                                      import Dict, Any
-from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                   import type_safe
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html        import Safe_Str__Html
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.base.Html_LETS__Base                      import Html_LETS__Base
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Config              import Schema__LETS__Config
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Input               import Schema__LETS__Load__Input
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Input               import Schema__LETS__Transform__Input
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Input               import Schema__LETS__Save__Input
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Output              import Schema__LETS__Load__Output
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Output              import Schema__LETS__Transform__Output
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Output              import Schema__LETS__Save__Output
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.safe_str.Safe_Str__LETS__Name             import Safe_Str__LETS__Name
+from typing                                                                                                         import Dict, Any
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.colections.Schema__Html_Dict                   import Schema__Html_Dict
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.lets_load.Schema__LETS__Load__Input            import Schema__LETS__Load__Input
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.lets_load.Schema__LETS__Load__Output           import Schema__LETS__Load__Output
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.lets_save.Schema__LETS__Save__Input            import Schema__LETS__Save__Input
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.lets_save.Schema__LETS__Save__Output           import Schema__LETS__Save__Output
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.lets_transform.Schema__LETS__Transform__Input  import Schema__LETS__Transform__Input
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.lets_transform.Schema__LETS__Transform__Output import Schema__LETS__Transform__Output
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.safe_str.Safe_Str__LETS__Name                  import Safe_Str__LETS__Name
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                                      import type_safe
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                                           import Safe_Str__Html
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.base.Html_LETS__Base                                   import Html_LETS__Base
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Config                           import Schema__LETS__Config
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Html Dict Schema (Type_Safe wrapper for dict structure)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-class Schema__Html_Dict(Type_Safe):                                              # Parsed HTML dictionary
-    html_dict : Dict[str, Any]                                                   # The dictionary structure
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

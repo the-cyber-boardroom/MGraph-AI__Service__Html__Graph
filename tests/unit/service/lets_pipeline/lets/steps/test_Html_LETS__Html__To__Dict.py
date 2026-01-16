@@ -3,13 +3,13 @@
 # Tests parsing HTML into structured dictionary
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from unittest                                                                                           import TestCase
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.base.Html_LETS__Base                       import Html_LETS__Base
-from osbot_utils.type_safe.Type_Safe                                                                    import Type_Safe
-from osbot_utils.utils.Objects                                                                          import base_types
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                               import Safe_Str__Html
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.implementations.Html_LETS__Html__To__Dict  import Schema__Html_To_Dict__Load__Input, Schema__Html_To_Dict__Load__Output, Schema__Html_To_Dict__Transform__Input, Schema__Html_To_Dict__Transform__Output, Schema__Html_Dict, Schema__Html_To_Dict__Save__Input, Html_LETS__Html__To__Dict
-from mgraph_ai_service_html_graph.utils.testing.Html_Generator__For_Tests                               import Html_Generator__For_Tests
+from unittest                                                                                 import TestCase
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.base.Html_LETS__Base             import Html_LETS__Base
+from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
+from osbot_utils.utils.Objects                                                                import base_types
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                     import Safe_Str__Html
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.steps.Html_LETS__Html__To__Dict  import Schema__Html_To_Dict__Load__Input, Schema__Html_To_Dict__Load__Output, Schema__Html_To_Dict__Transform__Input, Schema__Html_To_Dict__Transform__Output, Schema__Html_Dict, Schema__Html_To_Dict__Save__Input, Html_LETS__Html__To__Dict
+from mgraph_ai_service_html_graph.utils.testing.Html_Generator__For_Tests                     import Html_Generator__For_Tests
 
 
 class test_Html_LETS__Html__To__Dict(TestCase):

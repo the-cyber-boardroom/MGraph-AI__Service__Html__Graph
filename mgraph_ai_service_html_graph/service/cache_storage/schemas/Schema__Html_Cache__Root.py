@@ -2,27 +2,14 @@
 # Schema__Html_Cache__Root - Root document that manages cached HTML state
 # This is the "index" that tracks all transformation states for a document
 # ═══════════════════════════════════════════════════════════════════════════════
-
-from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now            import Timestamp_Now
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id             import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url                    import Safe_Str__Url
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash          import Safe_Str__Hash
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                       import Type_Safe__Dict
-from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Cache_Key        import Safe_Str__Cache_Key
-from mgraph_ai_service_html_graph.service.cache_storage.enums.Enum__Source_Type             import Enum__Source_Type
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.safe_str.Safe_Str__LETS__Name  import Safe_Str__LETS__Name
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Status   import Schema__LETS__Status
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Typed Collection for LETS Status
-# ═══════════════════════════════════════════════════════════════════════════════
-
-class Dict__LETS__Status__By_Name(Type_Safe__Dict):                              # Status dict by LETS name
-    expected_key_type   = Safe_Str__LETS__Name
-    expected_value_type = Schema__LETS__Status
-
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.colections.Dict__LETS__Status__By_Name import Dict__LETS__Status__By_Name
+from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                 import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url                        import Safe_Str__Url
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash              import Safe_Str__Hash
+from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Cache_Key            import Safe_Str__Cache_Key
+from mgraph_ai_service_html_graph.service.cache_storage.enums.Enum__Source_Type                 import Enum__Source_Type
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Root Document Schema

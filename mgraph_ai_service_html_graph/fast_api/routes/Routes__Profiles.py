@@ -8,7 +8,7 @@ from fastapi                                                                    
 from osbot_fast_api.api.decorators.route_path                                                        import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                                      import Fast_API__Routes
 from mgraph_ai_service_html_graph.service.lets_pipeline.lets.base.Html_LETS__Executor                import Html_LETS__Executor
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Input             import Schema__LETS__Input
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.lets_input.Schema__LETS__Input  import Schema__LETS__Input
 from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.Html_LETS__Profile__Registry        import Html_LETS__Profile__Registry
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace               import Safe_Str__Namespace
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                   import Cache_Id

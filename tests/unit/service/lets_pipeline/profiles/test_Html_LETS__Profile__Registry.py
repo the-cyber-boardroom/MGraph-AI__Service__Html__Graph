@@ -3,16 +3,16 @@
 # Tests profile registration, lookup, and built-in profiles
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from unittest                                                                                            import TestCase
-from osbot_utils.type_safe.Type_Safe                                                                     import Type_Safe
-from osbot_utils.utils.Objects                                                                           import base_types
-from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.Html_LETS__Profile__Registry            import Html_LETS__Profile__Registry
-from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.Html_LETS__Profile__Registry            import Dict__Profiles__By_Id
-from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.schemas.Schema__LETS__Profile           import Schema__LETS__Profile
-from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.profiles.profile__html_to_dict          import PROFILE__HTML_TO_DICT
-from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.profiles.profile__html_to_mgraph        import PROFILE__HTML_TO_MGRAPH
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.implementations.Html_LETS__Html__To__Dict   import Html_LETS__Html__To__Dict
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.implementations.Html_LETS__Dict__To__MGraph import Html_LETS__Dict__To__MGraph
+from unittest                                                                                       import TestCase
+from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
+from osbot_utils.utils.Objects                                                                      import base_types
+from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.Html_LETS__Profile__Registry       import Html_LETS__Profile__Registry
+from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.Html_LETS__Profile__Registry       import Dict__Profiles__By_Id
+from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.schemas.Schema__LETS__Profile      import Schema__LETS__Profile
+from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.profiles.profile__html_to_dict     import PROFILE__HTML_TO_DICT
+from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.profiles.profile__html_to_mgraph   import PROFILE__HTML_TO_MGRAPH
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.steps.Html_LETS__Html__To__Dict        import Html_LETS__Html__To__Dict
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.steps.Html_LETS__Dict__To__MGraph      import Html_LETS__Dict__To__MGraph
 
 
 class test_Html_LETS__Profile__Registry(TestCase):

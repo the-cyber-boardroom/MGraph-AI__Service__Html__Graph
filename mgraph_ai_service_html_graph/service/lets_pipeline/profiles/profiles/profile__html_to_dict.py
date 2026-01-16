@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from mgraph_ai_service_html_graph.service.lets_pipeline.profiles.schemas.Schema__LETS__Profile         import Schema__LETS__Profile
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.implementations.Html_LETS__Html__To__Dict import Html_LETS__Html__To__Dict
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.steps.Html_LETS__Html__To__Dict import Html_LETS__Html__To__Dict
 
 
 PROFILE__HTML_TO_DICT = Schema__LETS__Profile(profile_id    = 'html-to-dict'                      ,

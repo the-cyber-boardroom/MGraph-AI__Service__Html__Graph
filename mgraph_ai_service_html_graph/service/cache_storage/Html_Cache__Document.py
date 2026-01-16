@@ -2,21 +2,22 @@
 # Html_Cache__Document - Manages cached HTML document state
 # The root document serves as the state manager for all transformations
 # ═══════════════════════════════════════════════════════════════════════════════
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.safe_str.Safe_Str__LETS__Name      import Safe_Str__LETS__Name
-from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Status       import Schema__LETS__Status
-from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                import Timestamp_Now
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                  import type_safe
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                 import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace          import Safe_Str__Namespace
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Json__Field_Path   import Safe_Str__Json__Field_Path
-from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Cache_Key            import Safe_Str__Cache_Key
-from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Data_File_Id         import Safe_Str__Data_File_Id
-from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Layer_Name           import Safe_Str__Layer_Name
-from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                      import Html_Cache__Client
-from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Layer                       import Html_Cache__Layer
-from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cache__Root        import Schema__Html_Cache__Root
-from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cache__Entry       import Schema__Html_Cache__Entry
+
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Status           import Schema__LETS__Status
+from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.safe_str.Safe_Str__LETS__Name  import Safe_Str__LETS__Name
+from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                    import Timestamp_Now
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                      import type_safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                     import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace              import Safe_Str__Namespace
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Json__Field_Path       import Safe_Str__Json__Field_Path
+from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Cache_Key                import Safe_Str__Cache_Key
+from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Data_File_Id             import Safe_Str__Data_File_Id
+from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Layer_Name               import Safe_Str__Layer_Name
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                          import Html_Cache__Client
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Layer                           import Html_Cache__Layer
+from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cache__Root            import Schema__Html_Cache__Root
+from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cache__Entry           import Schema__Html_Cache__Entry
 
 
 class Html_Cache__Document(Type_Safe):                                           # Cached document manager
