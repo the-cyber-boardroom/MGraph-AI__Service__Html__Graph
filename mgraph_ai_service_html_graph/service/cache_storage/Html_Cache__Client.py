@@ -106,12 +106,18 @@ class Html_Cache__Client(Type_Safe):                                            
                            cache_key : Safe_Str__Cache_Key                       # Semantic path key
                       ) -> Cache_Id:                                             # Returns Cache_Id if found
         cache_hash = self.hash_generator.from_string(cache_key)
+        cache_id   = self.cache_id__from_hash(namespace = namespace, cache_hash = cache_hash)
+        return cache_id
+
+    def cache_id__from_hash(self,
+                            namespace : Safe_Str__Namespace ,
+                            cache_hash : Safe_Str__Cache_Hash
+                       ) -> Cache_Id:
         response   = self.cache_client.retrieve().retrieve__hash__cache_hash__cache_id(cache_hash = cache_hash,
                                                                                        namespace  = namespace )
         if response:
             return response.get('cache_id')
         return None
-
     # ═══════════════════════════════════════════════════════════════════════════
     # Data Operations (data files attached to cache entries)
     # ═══════════════════════════════════════════════════════════════════════════
