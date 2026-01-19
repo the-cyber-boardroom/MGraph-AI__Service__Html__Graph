@@ -8,7 +8,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                 import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url                        import Safe_Str__Url
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash              import Safe_Str__Hash
-from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Cache_Key            import Safe_Str__Cache_Key
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Key            import Safe_Str__Cache__File__Cache_Key
 from mgraph_ai_service_html_graph.service.cache_storage.enums.Enum__Source_Type                 import Enum__Source_Type
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ from mgraph_ai_service_html_graph.service.cache_storage.enums.Enum__Source_Type 
 
 class Schema__Html_Cache__Root(Type_Safe):                                       # Root document - state manager
     # Identity
-    cache_key       : Safe_Str__Cache_Key                                        # Semantic path for lookup
+    cache_key       : Safe_Str__Cache__File__Cache_Key                                        # Semantic path for lookup
 
     # Source information
     source_type     : Enum__Source_Type     = Enum__Source_Type.RAW_HTML         # How HTML was sourced

@@ -10,7 +10,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Nam
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                        import Cache_Id
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                import Html_Cache__Client
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Document                              import Html_Cache__Document
-from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Cache_Key                      import Safe_Str__Cache_Key
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Key                      import Safe_Str__Cache__File__Cache_Key
 from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Layer_Name                     import Safe_Str__Layer_Name
 from mgraph_ai_service_html_graph.schemas.routes.cache.Schema__Cache__Document__Find_Or_Create__Request   import Schema__Cache__Document__Find_Or_Create__Request
 from mgraph_ai_service_html_graph.schemas.routes.cache.Schema__Cache__Document__Response                  import Schema__Cache__Document__Response
@@ -49,9 +49,9 @@ class Routes__Cache__Document(Fast_API__Routes):                                
             raise HTTPException(status_code=400, detail={"error_type": "INVALID_INPUT",
                                                          "message"   : "cache_key is required"})
 
-        document = Html_Cache__Document(client    = self.cache_client         ,
-                                        namespace = namespace                 ,
-                                        cache_key = Safe_Str__Cache_Key(request.cache_key))
+        document = Html_Cache__Document(client    = self.cache_client,
+                                        namespace = namespace,
+                                        cache_key = Safe_Str__Cache__File__Cache_Key(request.cache_key))
 
         cache_id = document.ensure_cache_id()                                    # Creates if not exists
 

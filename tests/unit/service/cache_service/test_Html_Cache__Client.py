@@ -4,6 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                   import TestCase
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash    import Safe_Str__Cache__File__Cache_Hash
 from mgraph_ai_service_cache_client.utils.Version                                               import version__mgraph_ai_service_cache_client
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Store__Response     import Schema__Cache__Data__Store__Response
@@ -30,7 +31,6 @@ class test_Html_Cache__Client(TestCase):
         response = self.html_cache_client.entry__store(namespace       = self.namespace,
                                                        cache_key       = cache_key     ,
                                                        file_id         = 'html-entry'  ,
-                                                       json_field_path = 'cache_key'   ,
                                                        entry           = entry         )
         return response.cache_id
 
@@ -74,7 +74,6 @@ class test_Html_Cache__Client(TestCase):
             response = _.entry__store(namespace       = self.namespace       ,
                                       cache_key       = 'test/entry-store'   ,
                                       file_id         = 'html-entry'         ,
-                                      json_field_path = 'cache_key'          ,
                                       entry           = entry                )
 
             assert type(response)      is Schema__Cache__Store__Response
@@ -143,9 +142,8 @@ class test_Html_Cache__Client(TestCase):
 
     def test_entry__exists_by_hash__false(self):                                 # Test exists by hash returns False
         with self.html_cache_client as _:
-            from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
             result = _.entry__exists_by_hash(namespace  = self.namespace              ,
-                                             cache_hash = Safe_Str__Cache_Hash('c123456789'))
+                                             cache_hash = 'c123456789')
 
             assert result is False
 
@@ -576,10 +574,9 @@ class test_Html_Cache__Client(TestCase):
             response         = _.entry__store(namespace       = self.namespace      ,
                                               cache_key       = 'example.com/page-1',
                                               file_id         = 'html-entry'        ,
-                                              json_field_path = 'cache_key'         ,
                                               entry           = entry               )
             cache_id         = response.cache_id
-            cache_hash       = _.hash_generator.from_string(cache_key)
+            cache_hash       = Safe_Str__Cache__File__Cache_Hash(_.hash_generator.from_string(cache_key))
             cache_id__shared = f'{cache_id[0:2]}/{cache_id[2:4]}/{cache_id}'
             assert type(_)                    is Html_Cache__Client
             assert response                   is not None
@@ -595,11 +592,10 @@ class test_Html_Cache__Client(TestCase):
                                                                                 'test-namespace/data/key-based/example.com/page-1/html-entry.json.metadata'],
                                                                     by_hash = [ 'test-namespace/refs/by-hash/86/95/86957ee90c614202.json'],
                                                                     by_id   = [f'test-namespace/refs/by-id/{cache_id__shared}.json']),
-                                                    size        = 53 )
+                                                    size        = 39 )
 
             assert _.cache_id__from_key   (namespace = self.namespace, cache_key = cache_key  ) == cache_id
-            assert _.entry__retrieve      (namespace = self.namespace, cache_id  = cache_id   ) == {'cache_key': 'example.com/page-1',
-                                                                                                    'data'     : {}}
+            assert _.entry__retrieve      (namespace = self.namespace, cache_id  = cache_id   ) == {'cache_key': 'example.com/page-1'}
             assert _.entry__exists_by_hash(namespace = self.namespace, cache_hash = cache_hash) is True
             assert _.entry__exists        (namespace = self.namespace, cache_id   = cache_id  ) is True
             entry.data = {'new': 'data', 'is': 42}
@@ -626,7 +622,6 @@ class test_Html_Cache__Client(TestCase):
             response  = _.entry__store(namespace       = self.namespace            ,
                                        cache_key       = 'example.com/data-test'   ,
                                        file_id         = 'parent-entry'            ,
-                                       json_field_path = 'cache_key'               ,
                                        entry           = entry                     )
             cache_id  = response.cache_id
 

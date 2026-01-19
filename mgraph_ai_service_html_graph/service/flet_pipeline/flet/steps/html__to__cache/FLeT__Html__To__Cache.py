@@ -1,64 +1,46 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# FLeT__Html__To__Cache - Store HTML in cache service
-# Round-trip part 1: HTML → Cache (with hash-based deduplication)
-# ═══════════════════════════════════════════════════════════════════════════════
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.actions.action__html_to_cache__extract               import action__html_to_cache__extract
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.actions.action__html_to_cache__load                  import action__html_to_cache__load
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.actions.action__html_to_cache__save                  import action__html_to_cache__save
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.actions.action__html_to_cache__transform             import action__html_to_cache__transform
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Load__Input           import Schema__Html_To_Cache__Load__Input
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Save__Output          import Schema__Html_To_Cache__Save__Output
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                                                               import Safe_Str__Html
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace                                                  import Safe_Str__Namespace
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.base.Html_FLeT__Base                                                       import Html_FLeT__Base
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.schemas.Schema__FLeT__Config                                               import Schema__FLeT__Config
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.schemas.safe_str.Safe_Str__FLeT__Name                                      import Safe_Str__FLeT__Name
-from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                                              import Html_Cache__Client
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# FLeT Implementation
+# FLeT__Html__To__Cache - Save HTML content to cache
+# Single responsibility: take HTML and save it to the document's data layer
+#
+# What this FLeT does:
+#   - Receives HTML content
+#   - Saves it to cache data layer under specified data_key
+#
+# What this FLeT does NOT do (moved to orchestrator):
+#   - Entity creation (cache_id must be provided)
+#   - cache_key resolution
+#   - cache_hash computation
+#   - Deduplication checks
 # ═══════════════════════════════════════════════════════════════════════════════
 
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                                           import type_safe
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.base.Html_FLeT__Base                                        import Html_FLeT__Base
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.schemas.Schema__FLeT__Config                                import Schema__FLeT__Config
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.schemas.Schema__FLeT__Execution__Result                     import Schema__FLeT__Execution__Result
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.actions.action__html_to_cache__save   import action__html_to_cache__save
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Input  import Schema__Html_To_Cache__Input
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Output import Schema__Html_To_Cache__Output
 
 
-    def setup(self) -> 'FLeT__Html__To__Cache':
-        self.config = Schema__FLeT__Config(name        = Safe_Str__FLeT__Name('html-to-cache')    ,
-                                           description = 'Store HTML in cache with hash-based deduplication')
+
+class FLeT__Html__To__Cache(Html_FLeT__Base):                                             # Save HTML to cache
+
+    def setup(self) -> 'FLeT__Html__To__Cache':                                           # Initialize configuration
+        self.config = Schema__FLeT__Config(name        = 'html-to-cache'                        ,
+                                           description = 'Save HTML content to cache data layer')
         return self
 
-    def run_pipeline(self                                          ,                  # Override to inject cache_client
-                     input_data: Schema__Html_To_Cache__Load__Input
-                ) -> Schema__Html_To_Cache__Save__Output:
-        cls = type(self)                    # Get actual class for static method calls
-        load_output      = cls.load     (input_data                                      )
-        extract_output   = cls.extract  (load_output    , cache_client=self.cache_client )
-        transform_output = cls.transform(extract_output , cache_client=self.cache_client )
-        save_output      = cls.save     (transform_output, cache_client=self.cache_client)
-        return save_output
-
-    # ═══════════════════════════════════════════════════════════════════════════
-    # Convenience Methods
-    # ═══════════════════════════════════════════════════════════════════════════
-
-    @classmethod
-    def from_html(cls                                ,
-                  html        : str                  ,
-                  cache_client: Html_Cache__Client   ,
-                  namespace   : str = 'html-cache'   ,
-                  cache_key   : str = ''             ,
-                  url         : str = ''
-             ) -> Schema__Html_To_Cache__Save__Output:
-        flet = cls(cache_client=cache_client).setup()
-        input_data = Schema__Html_To_Cache__Load__Input(html      = Safe_Str__Html(html)        ,
-                                                        namespace = Safe_Str__Namespace(namespace),
-                                                        cache_key = cache_key                   ,
-                                                        url       = url                         )
-        flet.execute(input_data)
-        flet.flow.print_log_messages()
-        return flet.flow.flow_return_value
+    def run_actions(self                                          ,                       # Execute single save action
+                    input_data: Schema__Html_To_Cache__Input
+               ) -> Schema__Html_To_Cache__Output:
+        return action__html_to_cache__save(input_data   = input_data       ,
+                                           cache_client = self.cache_client,
+                                           cache_id     = self.cache_id    ,
+                                           namespace    = self.namespace   )
 
     @type_safe
-    def execute(self, input_data: Schema__Html_To_Cache__Load__Input) -> Schema__Html_To_Cache__Save__Output:
+    def execute(self                                              ,                       # Type-safe execute override
+                input_data: Schema__Html_To_Cache__Input
+           ) -> Schema__FLeT__Execution__Result:
+
         return super().execute(input_data=input_data)

@@ -1,62 +1,55 @@
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Save__Output          import Schema__Html_To_Cache__Save__Output
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Transform__Output     import Schema__Html_To_Cache__Transform__Output
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                                                          import type_safe
-from osbot_utils.helpers.flows.decorators.task                                                                                          import task
-from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                                                      import Cache_Id
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.schemas.Schema__Html_Entry                                                 import Schema__Html_Entry
-from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                                              import Html_Cache__Client
+# ═══════════════════════════════════════════════════════════════════════════════
+# action__html_to_cache__save - Save HTML content to cache data layer
+# This is the ONLY action in FLeT__Html__To__Cache (single responsibility)
+#
+# Requires:
+#   - cache_client: For storage operations
+#   - cache_id: Already-established entity ID (from orchestrator)
+#   - namespace: Cache namespace
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                                   import Html_Cache__Client
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Input      import Schema__Html_To_Cache__Input
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Output     import Schema__Html_To_Cache__Output
+from osbot_utils.helpers.flows.decorators.task                                                                               import task
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                                           import Cache_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace                                       import Safe_Str__Namespace
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                                               import type_safe
 
 
 @task()
 @type_safe
-def action__html_to_cache__save(input_data  : Schema__Html_To_Cache__Transform__Output,
-                                cache_client: Html_Cache__Client = None
-                           ) -> Schema__Html_To_Cache__Save__Output:
-    if cache_client is None:                                                          # No cache client - return success without saving
-        return Schema__Html_To_Cache__Save__Output(success    = True                 ,
-                                                   html_hash  = input_data.html_hash ,
-                                                   cache_key  = input_data.cache_key ,
-                                                   namespace  = input_data.namespace ,
-                                                   from_cache = False                )
+def action__html_to_cache__save(input_data   : Schema__Html_To_Cache__Input       ,       # HTML content to save
+                                cache_client : Html_Cache__Client            = None,      # Cache client for storage
+                                cache_id     : Cache_Id                      = None,      # Entity cache_id
+                                namespace    : Safe_Str__Namespace           = None       # Cache namespace
+                           ) -> Schema__Html_To_Cache__Output:                            # Save result
+    html_str     = str(input_data.html)
+    char_count   = len(html_str)
+    data_key     = input_data.data_key
+    data_file_id = input_data.data_file_id
 
-    namespace = input_data.namespace
-    cache_key = input_data.cache_key
+    # Handle missing dependencies gracefully
+    if cache_client is None or cache_id is None or namespace is None:
+        return Schema__Html_To_Cache__Output(success      = False       ,
+                                             data_key     = data_key    ,
+                                             data_file_id = data_file_id,
+                                             char_count   = char_count  )
 
-    # Check if already exists by hash
-    if cache_client.entry__exists_by_hash(namespace  = namespace           ,
-                                          cache_hash = input_data.html_hash):
-        cache_id = cache_client.cache_id__from_hash(namespace  = namespace           ,
-                                                    cache_hash = input_data.html_hash)
-        return Schema__Html_To_Cache__Save__Output(success    = True                 ,
-                                                   cache_id   = cache_id             ,
-                                                   html_hash  = input_data.html_hash ,
-                                                   cache_key  = cache_key            ,
-                                                   namespace  = namespace            ,
-                                                   from_cache = True                 )
-
-    # Store new entry
-
-
-    entry = Schema__Html_Entry(html       = input_data.html     ,
-                               cache_hash = input_data.html_hash,
-                               char_count = input_data.char_count)
-
-    response = cache_client.entry__store(namespace       = namespace           ,
-                                         cache_key       = cache_key           ,
-                                         file_id         = 'html-content'      ,
-                                         json_field_path = 'cache_hash'        ,
-                                         entry           = entry               )
+    # Store to data layer
+    response = cache_client.data__store_string(namespace    = namespace   ,
+                                               cache_id     = cache_id    ,
+                                               data_key     = data_key    ,
+                                               data_file_id = data_file_id,
+                                               content      = html_str    )
     if response:
-        cache_id = response.cache_id
-        print('here!!!!!')
-        response.print_obj()
-        return Schema__Html_To_Cache__Save__Output(success    = True,
-                                                   cache_id   = cache_id            ,
-                                                   html_hash  = input_data.html_hash,
-                                                   cache_key  = cache_key           ,
-                                                   namespace  = namespace           )
+        return Schema__Html_To_Cache__Output(success        = True        ,
+                                             data_key       = data_key    ,
+                                             data_file_id   = data_file_id,
+                                             char_count     = char_count  ,
+                                             store_response = response    )
     else:
-        return Schema__Html_To_Cache__Save__Output(success    = False,
-                                                   html_hash  = input_data.html_hash,
-                                                   cache_key  = cache_key           ,
-                                                   namespace  = namespace           )
+        return Schema__Html_To_Cache__Output(success      = False       ,
+                                             data_key     = data_key    ,
+                                             data_file_id = data_file_id,
+                                             char_count   = char_count  )

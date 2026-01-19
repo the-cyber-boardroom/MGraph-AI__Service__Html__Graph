@@ -10,8 +10,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                      import type_safe
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id                     import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace              import Safe_Str__Namespace
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Json__Field_Path       import Safe_Str__Json__Field_Path
-from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Cache_Key                import Safe_Str__Cache_Key
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Key         import Safe_Str__Cache__File__Cache_Key
 from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Data_File_Id             import Safe_Str__Data_File_Id
 from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Layer_Name               import Safe_Str__Layer_Name
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                          import Html_Cache__Client
@@ -23,7 +22,7 @@ from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cac
 class Html_Cache__Document(Type_Safe):                                           # Cached document manager
     client     : Html_Cache__Client                                              # Cache service client
     namespace  : Safe_Str__Namespace                                             # Cache namespace
-    cache_key  : Safe_Str__Cache_Key                                             # Semantic path
+    cache_key  : Safe_Str__Cache__File__Cache_Key                                             # Semantic path
     file_id    : Safe_Str__Data_File_Id = 'html-entry'                           # Root document name
     cache_id   : Safe_Str__Id           = None                                   # Resolved cache ID
     root       : Schema__Html_Cache__Root = None                                 # Loaded root document
@@ -51,7 +50,6 @@ class Html_Cache__Document(Type_Safe):                                          
         response = self.client.entry__store(namespace       = self.namespace                       ,
                                             cache_key       = self.cache_key                       ,
                                             file_id         = self.file_id                         ,
-                                            json_field_path = Safe_Str__Json__Field_Path('cache_key'),
                                             entry           = entry                                )
         if response and response.cache_id:
             return response.cache_id
