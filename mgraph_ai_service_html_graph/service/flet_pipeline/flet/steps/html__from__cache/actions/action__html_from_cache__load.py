@@ -8,15 +8,15 @@
 #   - namespace: Cache namespace
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                                              import Enum__Cache__Data_Type
-from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                                  import Html_Cache__Client
-from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__from__cache.schemas.Schema__Html_From_Cache__Input import Schema__Html_From_Cache__Input
+from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                                               import Enum__Cache__Data_Type
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                                   import Html_Cache__Client
+from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__from__cache.schemas.Schema__Html_From_Cache__Input  import Schema__Html_From_Cache__Input
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__from__cache.schemas.Schema__Html_From_Cache__Output import Schema__Html_From_Cache__Output
-from osbot_utils.helpers.flows.decorators.task                                                                              import task
-from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                                          import Cache_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace                                      import Safe_Str__Namespace
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                                                   import Safe_Str__Html
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                                              import type_safe
+from osbot_utils.helpers.flows.decorators.task                                                                               import task
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                                           import Cache_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace                                       import Safe_Str__Namespace
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                                                    import Safe_Str__Html
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                                               import type_safe
 
 
 @task()
@@ -36,10 +36,10 @@ def action__html_from_cache__load(input_data   : Schema__Html_From_Cache__Input 
                                                found   = False            )
 
     # Check if data exists
-    exists = cache_client.data__exists(namespace    = namespace                  ,
-                                       cache_id     = cache_id                   ,
-                                       data_key     = data_key                   ,
-                                       data_file_id = data_file_id               ,
+    exists = cache_client.data__exists(namespace    = namespace                    ,
+                                       cache_id     = cache_id                     ,
+                                       data_key     = data_key                     ,
+                                       data_file_id = data_file_id                 ,
                                        data_type    = Enum__Cache__Data_Type.STRING)
 
     if exists is False:
