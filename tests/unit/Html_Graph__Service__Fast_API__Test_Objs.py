@@ -1,17 +1,18 @@
 from typing                                                                                 import Tuple
 from fastapi                                                                                import FastAPI
+from starlette.testclient                                                                   import TestClient
+from osbot_utils.utils.Env                                                                  import set_env, load_dotenv, get_env
 from mgraph_ai_service_cache.fast_api.Cache_Service__Fast_API                               import Cache_Service__Fast_API
 from mgraph_ai_service_cache.service.cache.Cache__Service                                   import Cache__Service
 from mgraph_ai_service_cache_client.client.Client__Cache__Service                           import Client__Cache__Service
 from mgraph_ai_service_cache_client.client.client_contract.Cache__Service__Fast_API__Client import Cache__Service__Fast_API__Client
 from osbot_fast_api.api.Fast_API                                                            import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API__Config                        import Serverless__Fast_API__Config
+from mgraph_ai_service_cache_client.schemas.consts.consts__Cache_Client                     import ENV_VAR__URL__TARGET_SERVER__CACHE_SERVICE
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                  import Html_Cache__Client
 from osbot_utils.helpers.cache.Cache__Hash__Generator                                       import Cache__Hash__Generator
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
-from osbot_utils.utils.Env                                                                  import set_env
-from starlette.testclient                                                                   import TestClient
 from mgraph_ai_service_html_graph.fast_api.Html_Graph__Service__Fast_API                    import Html_Graph__Service__Fast_API
 
 TEST_API_KEY__NAME = 'key-used-in-pytest'
@@ -59,3 +60,10 @@ def create_html_cache_client() -> Tuple[Html_Cache__Client, Cache__Service]:    
     html_cache_client           = Html_Cache__Client(cache_client   = cache_client        ,
                                                      hash_generator = Cache__Hash__Generator())
     return html_cache_client, cache_service
+
+def load_local_dotenv(dot_env_file):
+    load_dotenv(dotenv_path=dot_env_file, override=True)
+    if get_env(ENV_VAR__URL__TARGET_SERVER__CACHE_SERVICE):
+        return True
+    else:
+        return False

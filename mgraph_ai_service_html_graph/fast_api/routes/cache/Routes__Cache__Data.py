@@ -32,7 +32,7 @@ ROUTES_PATHS__CACHE_DATA = [f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{c
 
 class Routes__Cache__Data(Fast_API__Routes):                                        # Cache data file routes
     tag     : str                  = TAG__ROUTES_CACHE_DATA                         # Route tag
-    service : Cache__Data__Service = None                                           # Data service
+    service : Cache__Data__Service                                                  # Data service
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # List Operations

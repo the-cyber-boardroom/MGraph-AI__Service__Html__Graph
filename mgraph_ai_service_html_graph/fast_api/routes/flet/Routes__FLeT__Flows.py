@@ -27,7 +27,7 @@ ROUTES_PATHS__FLET_FLOWS = [f'/{TAG__ROUTES_FLET_FLOWS}' + '/flows/{namespace}/{
 
 class Routes__FLeT__Flows(Fast_API__Routes):                                        # FLeT flow observability routes
     tag     : str                  = TAG__ROUTES_FLET_FLOWS                         # Route tag
-    service : FLeT__Flows__Service = None                                           # Flows service
+    service : FLeT__Flows__Service                                                  # Flows service
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # List FLeTs

@@ -11,6 +11,8 @@ from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace           import Safe_Str__Cache__Namespace
 from osbot_fast_api.api.decorators.route_path                                                   import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                                 import Fast_API__Routes
+from mgraph_ai_service_cache_client.schemas.consts.consts__Cache_Client                         import ENV_VAR__URL__TARGET_SERVER__CACHE_SERVICE
+from mgraph_ai_service_html_graph.schemas.cache.Schema__Route__Cache_Status__Response           import Schema__Route__Cache_Status__Response
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request          import Schema__Entity__Create__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response         import Schema__Entity__Create__Response
@@ -19,8 +21,7 @@ from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Exists__R
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Request          import Schema__Entity__Lookup__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Response         import Schema__Entity__Lookup__Response
 from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service                          import Cache__Entity__Service
-
-
+from osbot_utils.utils.Env import get_env
 
 TAG__ROUTES_CACHE_ENTITY = 'cache-entity'
 
@@ -39,6 +40,19 @@ class Routes__Cache__Entity(Fast_API__Routes):                                  
     # ═══════════════════════════════════════════════════════════════════════════════
     # Create Operation
     # ═══════════════════════════════════════════════════════════════════════════════
+
+    def cache__status(self) -> Schema__Route__Cache_Status__Response:
+        target_server = get_env(ENV_VAR__URL__TARGET_SERVER__CACHE_SERVICE)
+        cache_enabled = target_server is not None
+        if cache_enabled:
+            health_check = self.service.cache_client.health_check()
+        else:
+            health_check = False
+
+        cache_status  = Schema__Route__Cache_Status__Response(cache_enabled = cache_enabled ,
+                                                              health_check  = health_check  ,
+                                                              target_server = target_server )
+        return cache_status
 
     @route_path('/{namespace}/entity/create')
     def entity__create(self                                            ,            # Create or get existing entity
@@ -156,6 +170,7 @@ class Routes__Cache__Entity(Fast_API__Routes):                                  
     # ═══════════════════════════════════════════════════════════════════════════════
 
     def setup_routes(self):                                                         # Configure all routes
+        self.add_route_get   (self.cache__status   )
         self.add_route_post  (self.entity__create  )
         self.add_route_post  (self.entity__lookup  )
         self.add_route_get   (self.entity__get     )

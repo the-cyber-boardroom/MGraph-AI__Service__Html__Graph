@@ -26,7 +26,7 @@ ROUTES_PATHS__FLET_HTML_EXECUTE = [f'/{TAG__ROUTES_FLET_HTML_EXECUTE}' + '/html/
 
 class Routes__FLeT__Html__Execute(Fast_API__Routes):                                # FLeT HTML execution routes
     tag     : str                          = TAG__ROUTES_FLET_HTML_EXECUTE          # Route tag
-    service : FLeT__Html__Execute__Service = None                                   # Execution service
+    service : FLeT__Html__Execute__Service                                          # Execution service
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Execute Html-To-Cache

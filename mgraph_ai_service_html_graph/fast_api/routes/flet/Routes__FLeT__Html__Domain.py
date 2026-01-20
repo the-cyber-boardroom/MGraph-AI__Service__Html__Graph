@@ -39,7 +39,7 @@ ROUTES_PATHS__FLET_HTML_DOMAIN = [f'/{TAG__ROUTES_FLET_HTML_DOMAIN}'+ '/html/sto
 
 class Routes__FLeT__Html__Domain(Fast_API__Routes):                                 # Domain-level HTML routes
     tag     : str                         = TAG__ROUTES_FLET_HTML_DOMAIN            # Route tag
-    service : FLeT__Html__Domain__Service = None                                    # Domain service
+    service : FLeT__Html__Domain__Service                                           # Domain service
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Store Operations
