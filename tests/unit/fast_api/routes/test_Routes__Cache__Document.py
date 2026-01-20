@@ -188,6 +188,7 @@ class test_Routes__Cache__Document(TestCase):
         assert result.namespace == self.namespace
         assert result.layers    is not None
         assert 'raw-html'       in result.layers
+        assert result.layers    == ['raw-html']
 
     def test_document__layers__empty(self):
         """Test layers for document with no data files"""

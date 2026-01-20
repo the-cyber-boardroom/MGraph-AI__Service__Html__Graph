@@ -15,6 +15,7 @@ from mgraph_ai_service_html_graph.fast_api.routes.cache.Routes__Cache__Entity   
 from mgraph_ai_service_html_graph.fast_api.routes.flet.Routes__FLeT__Flows          import ROUTES_PATHS__FLET_FLOWS
 from mgraph_ai_service_html_graph.fast_api.routes.flet.Routes__FLeT__Html__Domain   import ROUTES_PATHS__FLET_HTML_DOMAIN
 from mgraph_ai_service_html_graph.fast_api.routes.flet.Routes__FLeT__Html__Execute  import ROUTES_PATHS__FLET_HTML_EXECUTE
+from mgraph_ai_service_html_graph.fast_api.routes.ifd.Routes__IFD__Snapshot         import ROUTES_PATHS__IFD_SNAPSHOT
 from osbot_utils.utils.Env                                                          import get_env
 from starlette.testclient                                                           import TestClient
 from mgraph_ai_service_html_graph.fast_api.Html_Graph__Service__Fast_API            import Html_Graph__Service__Fast_API, ROUTES_PATHS__CONSOLE
@@ -81,7 +82,8 @@ class test_Service__Fast_API__client(TestCase):
                                 ROUTES_PATHS__FLET_HTML_DOMAIN  +
                                 ROUTES_PATHS__FLET_HTML_EXECUTE +
                                 ROUTES_PATHS__CACHE_DATA        +
-                                ROUTES_PATHS__CACHE_ENTITY      )
+                                ROUTES_PATHS__CACHE_ENTITY      +
+                                ROUTES_PATHS__IFD_SNAPSHOT      )
 
         for fast_api_path in self.fast_api.routes_paths():
             fast_api_paths.append(str(fast_api_path))               # cast to str to make it easier compare

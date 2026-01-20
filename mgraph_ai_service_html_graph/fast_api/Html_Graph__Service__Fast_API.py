@@ -18,6 +18,7 @@ from mgraph_ai_service_html_graph.fast_api.routes.cache.Routes__Cache__Entity   
 from mgraph_ai_service_html_graph.fast_api.routes.flet.Routes__FLeT__Flows          import Routes__FLeT__Flows
 from mgraph_ai_service_html_graph.fast_api.routes.flet.Routes__FLeT__Html__Domain   import Routes__FLeT__Html__Domain
 from mgraph_ai_service_html_graph.fast_api.routes.flet.Routes__FLeT__Html__Execute  import Routes__FLeT__Html__Execute
+from mgraph_ai_service_html_graph.fast_api.routes.ifd.Routes__IFD__Snapshot import Routes__IFD__Snapshot
 from mgraph_ai_service_html_graph.utils.Version                                     import version__mgraph_ai_service_html_graph
 
 
@@ -51,6 +52,7 @@ class Html_Graph__Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Html           )
         self.add_routes(Routes__Timestamps     )
         self.add_routes(Routes__Info           )
+        self.add_routes(Routes__IFD__Snapshot )
         self.add_routes(Routes__Set_Cookie     )
 
         self.add_event_stream()
