@@ -20,12 +20,14 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 
 TAG__ROUTES_CACHE_DATA = 'cache-data'
 
-ROUTES_PATHS__CACHE_DATA = ['/cache/{namespace}/data/{cache_id}'                                            ,
-                            '/cache/{namespace}/data/{cache_id}/paths'                                      ,
-                            '/cache/{namespace}/data/{cache_id}/string/{data_key:path}/{data_file_id}'      ,
-                            '/cache/{namespace}/data/{cache_id}/json/{data_key:path}/{data_file_id}'        ,
-                            '/cache/{namespace}/data/{cache_id}/store/string/{data_key:path}/{data_file_id}',
-                            '/cache/{namespace}/data/{cache_id}/store/json/{data_key:path}/{data_file_id}'  ]
+ROUTES_PATHS__CACHE_DATA = [f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{cache_id}'                                                  ,
+                            f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{cache_id}/exists/{data_type}/{data_key:path}/{data_file_id}',
+                            f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{cache_id}/paths'                                            ,
+                            f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{cache_id}/string/{data_key:path}/{data_file_id}'            ,
+                            f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{cache_id}/json/{data_key:path}/{data_file_id}'              ,
+                            f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{cache_id}/store/string/{data_key:path}/{data_file_id}'      ,
+                            f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{cache_id}/store/json/{data_key:path}/{data_file_id}'        ,
+                            f'/{TAG__ROUTES_CACHE_DATA}' + '/{namespace}/data/{cache_id}/{data_type}/{data_key:path}/{data_file_id}'       ]
 
 
 class Routes__Cache__Data(Fast_API__Routes):                                        # Cache data file routes

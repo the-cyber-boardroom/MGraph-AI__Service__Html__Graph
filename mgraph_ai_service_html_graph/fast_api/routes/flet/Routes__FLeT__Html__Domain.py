@@ -28,13 +28,13 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 
 TAG__ROUTES_FLET_HTML_DOMAIN = 'flet-html-domain'
 
-ROUTES_PATHS__FLET_HTML_DOMAIN = ['/flet/html/store/{namespace}/raw'                 ,
-                                  '/flet/html/store/{namespace}/url'                 ,
-                                  '/flet/html/store/{namespace}/key/{cache_key:path}',
-                                  '/flet/html/load/{namespace}/id'                   ,
-                                  '/flet/html/load/{namespace}/hash'                 ,
-                                  '/flet/html/load/{namespace}/key/{cache_key:path}' ,
-                                  '/flet/html/load/{namespace}/url'                  ]
+ROUTES_PATHS__FLET_HTML_DOMAIN = [f'/{TAG__ROUTES_FLET_HTML_DOMAIN}'+ '/html/store/{namespace}/raw'                 ,
+                                  f'/{TAG__ROUTES_FLET_HTML_DOMAIN}'+ '/html/store/{namespace}/url'                 ,
+                                  f'/{TAG__ROUTES_FLET_HTML_DOMAIN}'+ '/html/store/{namespace}/key/{cache_key:path}',
+                                  f'/{TAG__ROUTES_FLET_HTML_DOMAIN}'+ '/html/load/{namespace}/id'                   ,
+                                  f'/{TAG__ROUTES_FLET_HTML_DOMAIN}'+ '/html/load/{namespace}/hash'                 ,
+                                  f'/{TAG__ROUTES_FLET_HTML_DOMAIN}'+ '/html/load/{namespace}/key/{cache_key:path}' ,
+                                  f'/{TAG__ROUTES_FLET_HTML_DOMAIN}'+ '/html/load/{namespace}/url'                  ]
 
 
 class Routes__FLeT__Html__Domain(Fast_API__Routes):                                 # Domain-level HTML routes

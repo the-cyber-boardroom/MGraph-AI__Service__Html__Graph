@@ -20,8 +20,8 @@ from mgraph_ai_service_html_graph.service.flet_pipeline.flet.FLeT__Html__Execute
 
 TAG__ROUTES_FLET_HTML_EXECUTE = 'flet-html-execute'
 
-ROUTES_PATHS__FLET_HTML_EXECUTE = ['/flet/html/to/cache/{namespace}/{cache_id}'  ,
-                                   '/flet/html/from/cache/{namespace}/{cache_id}']
+ROUTES_PATHS__FLET_HTML_EXECUTE = [f'/{TAG__ROUTES_FLET_HTML_EXECUTE}' + '/html/to/cache/{namespace}/{cache_id}'  ,
+                                   f'/{TAG__ROUTES_FLET_HTML_EXECUTE}' + '/html/from/cache/{namespace}/{cache_id}']
 
 
 class Routes__FLeT__Html__Execute(Fast_API__Routes):                                # FLeT HTML execution routes

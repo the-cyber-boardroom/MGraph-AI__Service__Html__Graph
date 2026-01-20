@@ -18,11 +18,11 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 
 TAG__ROUTES_FLET_FLOWS = 'flet-flows'
 
-ROUTES_PATHS__FLET_FLOWS = ['/flet/flows/{namespace}/{cache_id}'                    ,
-                            '/flet/flows/{namespace}/{cache_id}/{flet_name}'        ,
-                            '/flet/flows/{namespace}/{cache_id}/{flet_name}/logs'   ,
-                            '/flet/flows/{namespace}/{cache_id}/{flet_name}/tasks'  ,
-                            '/flet/flows/{namespace}/{cache_id}/{flet_name}/durations']
+ROUTES_PATHS__FLET_FLOWS = [f'/{TAG__ROUTES_FLET_FLOWS}' + '/flows/{namespace}/{cache_id}'                    ,
+                            f'/{TAG__ROUTES_FLET_FLOWS}' + '/flows/{namespace}/{cache_id}/{flet_name}'        ,
+                            f'/{TAG__ROUTES_FLET_FLOWS}' + '/flows/{namespace}/{cache_id}/{flet_name}/logs'   ,
+                            f'/{TAG__ROUTES_FLET_FLOWS}' + '/flows/{namespace}/{cache_id}/{flet_name}/tasks'  ,
+                            f'/{TAG__ROUTES_FLET_FLOWS}' + '/flows/{namespace}/{cache_id}/{flet_name}/durations']
 
 
 class Routes__FLeT__Flows(Fast_API__Routes):                                        # FLeT flow observability routes

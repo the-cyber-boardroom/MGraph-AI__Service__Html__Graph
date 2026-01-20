@@ -24,12 +24,12 @@ from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service          
 
 TAG__ROUTES_CACHE_ENTITY = 'cache-entity'
 
-ROUTES_PATHS__CACHE_ENTITY = ['/cache/{namespace}/entity/create'             ,
-                              '/cache/{namespace}/entity/lookup'             ,
-                              '/cache/{namespace}/entity/{cache_id}'         ,
-                              '/cache/{namespace}/entity/{cache_id}/metadata',
-                              '/cache/{namespace}/entity/{cache_id}/refs'    ,
-                              '/cache/{namespace}/entity/{cache_id}/exists'  ]
+ROUTES_PATHS__CACHE_ENTITY = [f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/create'             ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/lookup'             ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}'         ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/metadata',
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/refs'    ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/exists'  ]
 
 
 class Routes__Cache__Entity(Fast_API__Routes):                                      # Cache entity routes
