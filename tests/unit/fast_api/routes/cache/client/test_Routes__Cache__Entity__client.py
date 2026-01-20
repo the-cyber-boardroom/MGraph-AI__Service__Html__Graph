@@ -8,7 +8,7 @@ from osbot_utils.testing.__                                                     
 from mgraph_ai_service_html_graph.schemas.cache.Schema__Route__Cache_Status__Response       import Schema__Route__Cache_Status__Response
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
 from osbot_utils.utils.Files                                                                import path_combine
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import setup__html_graph_service__fast_api_test_objs, load_local_dotenv
+from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import setup__html_graph_service__fast_api_test_objs, load_local_dotenv, unload_local_dotenv
 from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
 
@@ -16,8 +16,8 @@ class test_Routes__Cache__Entity__client(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        dot_env_file = path_combine(__file__, '../.local-cache.env')
-        if load_local_dotenv(dot_env_file) is False:
+        cls.dot_env_file = path_combine(__file__, '../.local-cache.env')
+        if load_local_dotenv(cls.dot_env_file) is False:
             pytest.skip('test needs local env vars set')
         with setup__html_graph_service__fast_api_test_objs() as _:
             cls.client    = _.fast_api__client
@@ -25,6 +25,9 @@ class test_Routes__Cache__Entity__client(TestCase):
         cls.namespace = 'test-routes-cache-entity-client'
         cls.base_path = '/cache-entity'
 
+    @classmethod
+    def tearDownClass(cls):
+        assert unload_local_dotenv(cls.dot_env_file)
 
 
     def cache_key(self, suffix: str = '') -> str:                                           # Generate unique cache key

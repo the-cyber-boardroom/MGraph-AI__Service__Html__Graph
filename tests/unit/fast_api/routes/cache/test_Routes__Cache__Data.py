@@ -49,10 +49,10 @@ class test_Routes__Cache__Data(TestCase):
 
     def test__init__(self):                                                         # Test initialization
         with Routes__Cache__Data() as _:
-            assert type(_)       is Routes__Cache__Data
-            assert base_types(_) == [Fast_API__Routes, Type_Safe, object]
-            assert _.tag         == TAG__ROUTES_CACHE_DATA
-            assert _.service     is None
+            assert type(_)         is Routes__Cache__Data
+            assert base_types(_)   == [Fast_API__Routes, Type_Safe, object]
+            assert _.tag           == TAG__ROUTES_CACHE_DATA
+            assert type(_.service) is Cache__Data__Service
 
     def test__init____with_service(self):                                           # Test with service
         with Routes__Cache__Data(service=self.data_service) as _:

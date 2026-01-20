@@ -14,6 +14,7 @@ from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Load__Respon
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Store__Key__Request             import Schema__Html__Store__Key__Request
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Store__Raw__Request             import Schema__Html__Store__Raw__Request
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Store__Response                 import Schema__Html__Store__Response
+from mgraph_ai_service_html_graph.service.cache.Cache__Data__Service import Cache__Data__Service
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.FLeT__Html__Domain__Service            import FLeT__Html__Domain__Service
 from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                                  import Cache_Id
@@ -36,10 +37,10 @@ class test_Routes__FLeT__Html__Domain(TestCase):
 
     def test__init__(self):                                                         # Test initialization
         with Routes__FLeT__Html__Domain() as _:
-            assert type(_)       is Routes__FLeT__Html__Domain
-            assert base_types(_) == [Fast_API__Routes, Type_Safe, object]
-            assert _.tag         == TAG__ROUTES_FLET_HTML_DOMAIN
-            assert _.service     is None
+            assert type(_)         is Routes__FLeT__Html__Domain
+            assert base_types(_)   == [Fast_API__Routes, Type_Safe, object]
+            assert _.tag           == TAG__ROUTES_FLET_HTML_DOMAIN
+            assert type(_.service) is FLeT__Html__Domain__Service
 
     def test__init____with_service(self):                                           # Test with service
         with Routes__FLeT__Html__Domain(service=self.domain_service) as _:

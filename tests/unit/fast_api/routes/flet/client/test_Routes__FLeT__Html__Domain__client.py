@@ -7,7 +7,7 @@ import pytest
 from unittest                                                                               import TestCase
 from osbot_utils.utils.Files                                                                import path_combine
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import setup__html_graph_service__fast_api_test_objs
+from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import setup__html_graph_service__fast_api_test_objs, unload_local_dotenv
 from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import load_local_dotenv
 from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import TEST_API_KEY__NAME, TEST_API_KEY__VALUE
 
@@ -16,8 +16,8 @@ class test_Routes__FLeT__Html__Domain__client(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        dot_env_file = path_combine(__file__, '../.local-cache.env')
-        if load_local_dotenv(dot_env_file) is False:
+        cls.dot_env_file = path_combine(__file__, '../.local-cache.env')
+        if load_local_dotenv(cls.dot_env_file) is False:
             pytest.skip('test needs local env vars set')
 
         with setup__html_graph_service__fast_api_test_objs() as _:
@@ -26,6 +26,11 @@ class test_Routes__FLeT__Html__Domain__client(TestCase):
 
         cls.namespace = 'test-routes-flet-html-domain-client'
         cls.base_path = '/flet-html-domain'
+
+    @classmethod
+    def tearDownClass(cls):
+        assert unload_local_dotenv(cls.dot_env_file)
+
 
     def cache_key(self, suffix: str = '') -> str:                                           # Generate unique cache key
         return f'test/client/{Random_Guid()}/{suffix}'
@@ -173,7 +178,7 @@ class test_Routes__FLeT__Html__Domain__client(TestCase):
         response = self.client.post(url, json={'cache_id': ''})
 
         assert response.status_code == 404
-        assert response.json() == {'detail': 'Entity not found: '}                
+        assert response.json() == {'detail': 'Entity not found: '}
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Load by Key Tests

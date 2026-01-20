@@ -1,7 +1,7 @@
 from typing                                                                                 import Tuple
 from fastapi                                                                                import FastAPI
 from starlette.testclient                                                                   import TestClient
-from osbot_utils.utils.Env                                                                  import set_env, load_dotenv, get_env
+from osbot_utils.utils.Env import set_env, load_dotenv, get_env, unload_dotenv
 from mgraph_ai_service_cache.fast_api.Cache_Service__Fast_API                               import Cache_Service__Fast_API
 from mgraph_ai_service_cache.service.cache.Cache__Service                                   import Cache__Service
 from mgraph_ai_service_cache_client.client.Client__Cache__Service                           import Client__Cache__Service
@@ -67,3 +67,10 @@ def load_local_dotenv(dot_env_file):
         return True
     else:
         return False
+
+def unload_local_dotenv(dot_env_file):
+    unload_dotenv(dotenv_path=dot_env_file)
+    if get_env(ENV_VAR__URL__TARGET_SERVER__CACHE_SERVICE):
+        return False
+    else:
+        return True

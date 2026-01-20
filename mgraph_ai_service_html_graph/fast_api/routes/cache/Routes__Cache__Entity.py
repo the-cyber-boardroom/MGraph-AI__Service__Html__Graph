@@ -25,7 +25,8 @@ from osbot_utils.utils.Env import get_env
 
 TAG__ROUTES_CACHE_ENTITY = 'cache-entity'
 
-ROUTES_PATHS__CACHE_ENTITY = [f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/create'             ,
+ROUTES_PATHS__CACHE_ENTITY = [f'/{TAG__ROUTES_CACHE_ENTITY}' + '/cache/status'                          ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/create'             ,
                               f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/lookup'             ,
                               f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}'         ,
                               f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/metadata',

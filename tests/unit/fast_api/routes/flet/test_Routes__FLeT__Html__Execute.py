@@ -12,6 +12,7 @@ from mgraph_ai_service_html_graph.schemas.flet.html.Schema__FLeT__Html__From__Ca
 from mgraph_ai_service_html_graph.schemas.flet.html.Schema__FLeT__Html__From__Cache__Response   import Schema__FLeT__Html__From__Cache__Response
 from mgraph_ai_service_html_graph.schemas.flet.html.Schema__FLeT__Html__To__Cache__Request      import Schema__FLeT__Html__To__Cache__Request
 from mgraph_ai_service_html_graph.schemas.flet.html.Schema__FLeT__Html__To__Cache__Response     import Schema__FLeT__Html__To__Cache__Response
+from mgraph_ai_service_html_graph.service.cache.Cache__Data__Service import Cache__Data__Service
 from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service                          import Cache__Entity__Service
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.FLeT__Html__Execute__Service       import FLeT__Html__Execute__Service
 from osbot_fast_api.api.routes.Fast_API__Routes                                                 import Fast_API__Routes
@@ -44,10 +45,10 @@ class test_Routes__FLeT__Html__Execute(TestCase):
 
     def test__init__(self):                                                         # Test initialization
         with Routes__FLeT__Html__Execute() as _:
-            assert type(_)       is Routes__FLeT__Html__Execute
-            assert base_types(_) == [Fast_API__Routes, Type_Safe, object]
-            assert _.tag         == TAG__ROUTES_FLET_HTML_EXECUTE
-            assert _.service     is None
+            assert type(_)         is Routes__FLeT__Html__Execute
+            assert base_types(_)   == [Fast_API__Routes, Type_Safe, object]
+            assert _.tag           == TAG__ROUTES_FLET_HTML_EXECUTE
+            assert type(_.service) is FLeT__Html__Execute__Service
 
     def test__init____with_service(self):                                           # Test with service
         with Routes__FLeT__Html__Execute(service=self.execute_service) as _:

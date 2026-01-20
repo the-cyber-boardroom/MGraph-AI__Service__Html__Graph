@@ -78,10 +78,10 @@ class test_Routes__FLeT__Flows(TestCase):
 
     def test__init__(self):                                                         # Test initialization
         with Routes__FLeT__Flows() as _:
-            assert type(_)       is Routes__FLeT__Flows
-            assert base_types(_) == [Fast_API__Routes, Type_Safe, object]
-            assert _.tag         == TAG__ROUTES_FLET_FLOWS
-            assert _.service     is None
+            assert type(_)         is Routes__FLeT__Flows
+            assert base_types(_)   == [Fast_API__Routes, Type_Safe, object]
+            assert _.tag           == TAG__ROUTES_FLET_FLOWS
+            assert type(_.service) is FLeT__Flows__Service
 
     def test__init____with_service(self):                                           # Test with service
         with Routes__FLeT__Flows(service=self.flows_service) as _:
