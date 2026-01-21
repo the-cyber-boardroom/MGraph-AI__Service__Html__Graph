@@ -135,6 +135,74 @@ class test_Routes__Cache__Entity__client(TestCase):
         assert result['success'] is False
 
     # ═══════════════════════════════════════════════════════════════════════════════
+    # List By Path Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
+
+    def test_entity__list_by_path(self):
+        base_path = f'test/client-list/{Random_Guid()[:8]}'
+
+        # Create some entities
+        create_url = f'{self.base_path}/{self.namespace}/entity/create'
+        self.client.post(create_url, json={'cache_key': f'{base_path}/item-1'})
+        self.client.post(create_url, json={'cache_key': f'{base_path}/item-2'})
+        self.client.post(create_url, json={'cache_key': f'{base_path}/item-3'})
+
+        # List
+        list_url = f'{self.base_path}/{self.namespace}/entities/list/{base_path}'
+        response = self.client.get(list_url)
+
+        assert response.status_code == 200
+        result = response.json()
+        assert result['success']     is True
+        assert result['namespace']   == self.namespace
+        assert result['path_prefix'] == base_path
+        assert result['count']       == 3
+        assert result                == { 'count': 3,
+                                          'entities': ['item-1', 'item-2', 'item-3'],
+                                          'namespace': 'test-routes-cache-entity-client',
+                                          'path_prefix': base_path,
+                                          'success': True}
+
+
+    def test_entity__list_by_path__empty(self):
+        empty_path = f'test/client-empty/{Random_Guid()}'
+
+        list_url = f'{self.base_path}/{self.namespace}/entities/list/{empty_path}'
+        response = self.client.get(list_url)
+
+        assert response.status_code == 200
+        result = response.json()
+        assert result['success'] is True
+        assert result['count']   == 0
+        assert result['entities'] == []
+
+    def test_entity__list_by_path__drill_down(self):
+        base_path = f'test/client-drill/{Random_Guid()[:8]}'
+
+        # Create nested structure
+        create_url = f'{self.base_path}/{self.namespace}/entity/create'
+        self.client.post(create_url, json={'cache_key': f'{base_path}/sites/example.com/page1'})
+        self.client.post(create_url, json={'cache_key': f'{base_path}/sites/example.com/page2'})
+        self.client.post(create_url, json={'cache_key': f'{base_path}/sites/other.com/index'})
+
+        # List at base
+        response_1 = self.client.get(f'{self.base_path}/{self.namespace}/entities/list/{base_path}')
+        assert response_1.json()['entities'] == ['sites']
+
+        # Drill into sites
+        response_2 = self.client.get(f'{self.base_path}/{self.namespace}/entities/list/{base_path}/sites')
+        result_2 = response_2.json()
+        assert result_2['count'] == 2
+        assert 'example_com' in result_2['entities']
+        assert 'other_com'   in result_2['entities']
+
+        # Drill into example.com
+        response_3 = self.client.get(f'{self.base_path}/{self.namespace}/entities/list/{base_path}/sites/example.com')
+        result_3 = response_3.json()
+        assert result_3['count'] == 2
+        assert 'page1' in result_3['entities']
+        assert 'page2' in result_3['entities']
+    # ═══════════════════════════════════════════════════════════════════════════════
     # Get Tests
     # ═══════════════════════════════════════════════════════════════════════════════
 

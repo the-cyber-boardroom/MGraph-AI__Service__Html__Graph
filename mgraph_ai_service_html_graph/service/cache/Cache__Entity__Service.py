@@ -2,19 +2,21 @@
 # Cache__Entity__Service - Service layer for cache entity operations
 # Provides business logic for entity CRUD operations
 # ═══════════════════════════════════════════════════════════════════════════════
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs        import Schema__Cache__File__Refs
-from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata    import Schema__Cache__File__Metadata
-from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace   import Safe_Str__Cache__Namespace
-from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request  import Schema__Entity__Create__Request
-from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response import Schema__Entity__Create__Response
-from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Delete__Response import Schema__Entity__Delete__Response
-from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Exists__Response import Schema__Entity__Exists__Response
-from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Request  import Schema__Entity__Lookup__Request
-from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Response import Schema__Entity__Lookup__Response
-from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client              import Html_Cache__Client
-from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                      import Cache_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                          import type_safe
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
+from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata            import Schema__Cache__File__Metadata
+from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace           import Safe_Str__Cache__Namespace
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request          import Schema__Entity__Create__Request
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response         import Schema__Entity__Create__Response
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Delete__Response         import Schema__Entity__Delete__Response
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Exists__Response         import Schema__Entity__Exists__Response
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__By__Path__Response import Schema__Entity__List__By__Path__Response
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Request          import Schema__Entity__Lookup__Request
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Response         import Schema__Entity__Lookup__Response
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                      import Html_Cache__Client
+from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                  import type_safe
 
 
 class Cache__Entity__Service(Type_Safe):                                            # Service for entity operations
@@ -64,6 +66,27 @@ class Cache__Entity__Service(Type_Safe):                                        
         return Schema__Entity__Lookup__Response(success = True ,
                                                 found   = False)
 
+
+
+
+
+
+
+    def list_by_path(self, namespace  : Safe_Str__Cache__Namespace,
+                           path_prefix: Safe_Str__File__Path
+                      ) -> Schema__Entity__List__By__Path__Response:
+        admin_storage = self.cache_client.cache_client.admin_storage()
+        search_path   = f'{namespace}/data/key-based/{path_prefix}' if path_prefix else f'{namespace}/data/key-based'
+
+        folders = admin_storage.folders(path             = search_path,
+                                        recursive        = False      ,
+                                        return_full_path = False      )
+
+        return Schema__Entity__List__By__Path__Response(success     = True       ,                      # todo: review the use of success here
+                                                        namespace   = namespace  ,
+                                                        path_prefix = path_prefix,
+                                                        count       = len(folders),
+                                                        entities    = folders    )
     # ═══════════════════════════════════════════════════════════════════════════════
     # Get Operations
     # ═══════════════════════════════════════════════════════════════════════════════

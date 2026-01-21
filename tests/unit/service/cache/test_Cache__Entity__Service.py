@@ -9,6 +9,7 @@ from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity        
 from mgraph_ai_service_cache_client.utils.Version                                               import version__mgraph_ai_service_cache_client
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request          import Schema__Entity__Create__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response         import Schema__Entity__Create__Response
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__By__Path__Response import Schema__Entity__List__By__Path__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Request          import Schema__Entity__Lookup__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Response         import Schema__Entity__Lookup__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Exists__Response         import Schema__Entity__Exists__Response
@@ -181,6 +182,88 @@ class test_Cache__Entity__Service(TestCase):
         result = self.entity_service.lookup(namespace=self.namespace, request=lookup_request)
 
         assert result.success is False
+
+
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # List By Path Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
+
+    def test_list_by_path(self):                                                    # Test list folders under path
+        base_path = f'test/list-by-path/{Random_Guid()[:8]}'                        # Create some entities under a common path
+
+        self.entity_service.create(namespace = self.namespace,
+                                   request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/page-a'))
+        self.entity_service.create(namespace = self.namespace,
+                                   request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/page-b'))
+        self.entity_service.create(namespace = self.namespace,
+                                   request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/page-c'))
+
+        response = self.entity_service.list_by_path(namespace   = self.namespace,
+                                             path_prefix = base_path     )
+
+        assert type(response)    is Schema__Entity__List__By__Path__Response
+        assert response.success  is True
+        assert response.namespace   == self.namespace
+        assert response.path_prefix == base_path
+        assert response.count       == 3
+        assert 'page-a' in response.entities
+        assert 'page-b' in response.entities
+        assert 'page-c' in response.entities
+
+    def test_list_by_path__nested(self):                                            # Test list with nested paths
+        base_path = f'test/list-nested/{Random_Guid()[:8]}'
+
+        self.entity_service.create( namespace = self.namespace,
+                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/level1/page-a'))
+        self.entity_service.create( namespace = self.namespace,
+                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/level2/page-b'))
+
+        # List at base level - should see level1 and level2
+        response = self.entity_service.list_by_path(namespace   = self.namespace,
+                                             path_prefix = base_path     )
+
+        assert response.count == 2
+        assert 'level1' in response.entities
+        assert 'level2' in response.entities
+
+    def test_list_by_path__empty(self):                                             # Test list empty path
+        empty_path = f'test/empty-path/{Random_Guid()}'
+
+        response = self.entity_service.list_by_path(namespace   = self.namespace,
+                                             path_prefix = empty_path    )
+
+        assert response.success is True
+        assert response.count   == 0
+        assert response.entities == []
+
+    def test_list_by_path__drill_down(self):                                        # Test drilling down into paths
+        base_path = f'test/drill-down/{Random_Guid()[:8]}'
+
+        self.entity_service.create( namespace = self.namespace,
+                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/sites/example.com/home'))
+        self.entity_service.create( namespace = self.namespace,
+                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/sites/example.com/about'))
+        self.entity_service.create( namespace = self.namespace,
+                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/sites/other.com/index'))
+
+        # List at base - should see 'sites'
+        response_1 = self.entity_service.list_by_path(namespace   = self.namespace,
+                                               path_prefix = base_path     )
+        assert response_1.entities == ['sites']
+
+        # Drill into sites - should see example.com and other.com
+        response_2 = self.entity_service.list_by_path(namespace   = self.namespace,
+                                               path_prefix = f'{base_path}/sites')
+        assert response_2.count == 2
+        assert 'example.com' in response_2.entities
+        assert 'other.com'   in response_2.entities
+
+        # Drill into example.com - should see home and about
+        response_3 = self.entity_service.list_by_path(namespace   = self.namespace,
+                                               path_prefix = f'{base_path}/sites/example.com')
+        assert response_3.count == 2
+        assert 'home'  in response_3.entities
+        assert 'about' in response_3.entities
 
     # ═══════════════════════════════════════════════════════════════════════════
     # get Tests

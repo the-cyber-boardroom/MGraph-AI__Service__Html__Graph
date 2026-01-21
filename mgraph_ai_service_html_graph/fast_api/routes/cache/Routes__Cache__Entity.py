@@ -13,6 +13,8 @@ from osbot_fast_api.api.decorators.route_path                                   
 from osbot_fast_api.api.routes.Fast_API__Routes                                                 import Fast_API__Routes
 from mgraph_ai_service_cache_client.schemas.consts.consts__Cache_Client                         import ENV_VAR__URL__TARGET_SERVER__CACHE_SERVICE
 from mgraph_ai_service_html_graph.schemas.cache.Schema__Route__Cache_Status__Response           import Schema__Route__Cache_Status__Response
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__By__Path__Response import Schema__Entity__List__By__Path__Response
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path               import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request          import Schema__Entity__Create__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response         import Schema__Entity__Create__Response
@@ -25,13 +27,14 @@ from osbot_utils.utils.Env import get_env
 
 TAG__ROUTES_CACHE_ENTITY = 'cache-entity'
 
-ROUTES_PATHS__CACHE_ENTITY = [f'/{TAG__ROUTES_CACHE_ENTITY}' + '/cache/status'                          ,
-                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/create'             ,
-                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/lookup'             ,
-                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}'         ,
-                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/metadata',
-                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/refs'    ,
-                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/exists'  ]
+ROUTES_PATHS__CACHE_ENTITY = [f'/{TAG__ROUTES_CACHE_ENTITY}' + '/cache/status'                                           ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entities/list/{path_prefix:path}'           ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/create'                              ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/lookup'                              ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}'                          ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/metadata'                 ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/refs'                     ,
+                              f'/{TAG__ROUTES_CACHE_ENTITY}' + '/{namespace}/entity/{cache_id}/exists'                   ]
 
 
 class Routes__Cache__Entity(Fast_API__Routes):                                      # Cache entity routes
@@ -80,6 +83,15 @@ class Routes__Cache__Entity(Fast_API__Routes):                                  
                                        request   = request   )
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+
+    @route_path('/{namespace}/entities/list/{path_prefix:path}')
+    def entity__list(self,
+                     namespace  : Safe_Str__Cache__Namespace,
+                     path_prefix: Safe_Str__File__Path
+                ) -> Schema__Entity__List__By__Path__Response:
+        return self.service.list_by_path(namespace   = namespace  ,
+                                         path_prefix = path_prefix)
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Get Operations
@@ -178,6 +190,7 @@ class Routes__Cache__Entity(Fast_API__Routes):                                  
         self.add_route_get   (self.entity__metadata)
         self.add_route_get   (self.entity__refs    )
         self.add_route_get   (self.entity__exists  )
+        self.add_route_get   (self.entity__list    )
         self.add_route_delete(self.entity__delete  )
 
         return self
