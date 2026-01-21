@@ -2,6 +2,7 @@
 # Cache__Entity__Service - Service layer for cache entity operations
 # Provides business logic for entity CRUD operations
 # ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata            import Schema__Cache__File__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace           import Safe_Str__Cache__Namespace
@@ -13,8 +14,7 @@ from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__By_
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Request          import Schema__Entity__Lookup__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Response         import Schema__Entity__Lookup__Response
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                      import Html_Cache__Client
-from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path               import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                  import type_safe
 
