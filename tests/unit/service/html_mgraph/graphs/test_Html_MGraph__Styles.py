@@ -2,7 +2,7 @@ from unittest                                                                   
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Styles    import Html_MGraph__Styles
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base      import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                                 import Node_Path
-from mgraph_db.utils.testing.mgraph_test_ids                                        import mgraph_test_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_deterministic_ids
 from osbot_utils.testing.__                                                         import __
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
@@ -321,7 +321,7 @@ class test_Html_MGraph__Styles(TestCase):                                       
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_stats(self):                                                       # Test statistics with mixed styles
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Styles().setup() as _:
                 _.register_style(Node_Id(Obj_Id()), content="/* 1 */")
                 _.register_style(Node_Id(Obj_Id()), content="/* 2 */")
@@ -371,7 +371,7 @@ class test_Html_MGraph__Styles(TestCase):                                       
             assert stats.external_styles == 2
 
     def test_stats__base_stats_included(self):                                  # Test base stats are included
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Styles().setup() as _:
                 _.register_style(Node_Id(Obj_Id()), content="test")
 

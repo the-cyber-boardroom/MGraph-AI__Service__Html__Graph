@@ -1,6 +1,6 @@
 # from unittest                                                                             import TestCase
 # from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                        import Schema__Html_MGraph__Stats__Document
-# from mgraph_db.utils.testing.mgraph_test_ids                                              import mgraph_test_ids
+# from osbot_utils.testing.Graph__Deterministic__Ids                                              import graph_deterministic_ids
 # from osbot_utils.testing.__                                                               import __
 # from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
 # from osbot_utils.utils.Objects                                                            import base_classes
@@ -40,7 +40,7 @@
 #         assert html_mgraph.document is not None
 #
 #     def test__html_to_mgraph__complex(self):                                                  # Test complex HTML conversion
-#         with mgraph_test_ids():
+#         with graph_deterministic_ids():
 #             html_mgraph = self.service.html_to_mgraph(self.complex_html)
 #             stats       = html_mgraph.stats()
 #

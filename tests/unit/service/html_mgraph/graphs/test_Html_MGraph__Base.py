@@ -6,8 +6,8 @@ from mgraph_db.mgraph.schemas.identifiers.Node_Path                      import 
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                      import Edge_Path
 from mgraph_db.mgraph.domain.Domain__MGraph__Node                        import Domain__MGraph__Node
 from mgraph_db.mgraph.domain.Domain__MGraph__Edge                        import Domain__MGraph__Edge
-from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
-from osbot_utils.testing.__ import __
+from osbot_utils.testing.Graph__Deterministic__Ids                       import graph_deterministic_ids
+from osbot_utils.testing.__                                              import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id        import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id         import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id
@@ -455,7 +455,7 @@ class test_Html_MGraph__Base(TestCase):                                         
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_stats(self):                                                       # Test statistics with populated graph
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Base().setup() as _:
                 node1 = _.new_element_node(node_path=Node_Path('node1'))
                 node2 = _.new_element_node(node_path=Node_Path('node2'))
@@ -481,7 +481,7 @@ class test_Html_MGraph__Base(TestCase):                                         
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_to_json(self):                                                     # Test JSON export
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Base().setup() as _:
                 node1 = _.new_element_node(node_path=Node_Path('node1'))
                 node2 = _.new_element_node(node_path=Node_Path('node2'))

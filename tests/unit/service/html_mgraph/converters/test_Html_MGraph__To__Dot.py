@@ -1,9 +1,9 @@
-from unittest                                                                       import TestCase
-from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                   import Html_MGraph
+from unittest                                                                         import TestCase
+from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                     import Html_MGraph
 from mgraph_ai_service_html_graph.service.html_mgraph.converters.Html_MGraph__To__Dot import Html_MGraph__To__Dot
-from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.utils.Objects                                                      import base_classes
+from osbot_utils.testing.Graph__Deterministic__Ids                                    import graph_deterministic_ids
+from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
+from osbot_utils.utils.Objects                                                        import base_classes
 
 
 class test_Html_MGraph__To__Dot(TestCase):                                          # Test Html_MGraph to DOT conversion
@@ -131,7 +131,7 @@ class test_Html_MGraph__To__Dot(TestCase):                                      
 
     def test_attrs_only(self):                                                      # Test attributes graph only
         html   = '<html lang="en"><head></head><body class="main"></body></html>'
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             mgraph = Html_MGraph.from_html(html)
 
         with Html_MGraph__To__Dot() as converter:

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trace Visualizers | MGraph</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html, body {
+      height: 100%;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0d0d0d;
+      color: #e0e0e0;
+    }
+    
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 12px 24px;
+      background: #111;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 18px;
+      color: #4ecdc4;
+      text-decoration: none;
+    }
+    
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #4ecdc4, #44a08d);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    
+    .nav {
+      display: flex;
+      gap: 4px;
+      background: #1a1a1a;
+      padding: 4px;
+      border-radius: 8px;
+    }
+    
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      color: #888;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .nav-btn:hover {
+      color: #ccc;
+      background: #252525;
+    }
+    
+    .nav-btn.active {
+      background: #4ecdc4;
+      color: #000;
+    }
+    
+    .nav-btn .icon {
+      font-size: 14px;
+    }
+    
+    .nav-btn .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+    
+    .nav-btn.active .badge {
+      background: rgba(0,0,0,0.15);
+    }
+    
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .open-new-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #888;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    
+    .open-new-tab:hover {
+      color: #4ecdc4;
+      border-color: #4ecdc4;
+    }
+    
+    .version {
+      font-size: 11px;
+      color: #555;
+    }
+    
+    .content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #0d0d0d;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    
+    .frame.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #555;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #222;
+      border-top-color: #4ecdc4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Divider between nav and sample loader */
+    .header-divider {
+      width: 1px;
+      height: 24px;
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <a href="#" class="logo">
+        <div class="logo-icon">◈</div>
+        Trace Visualizers
+      </a>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-target="call_tree">
+          <span class="icon">🌳</span>
+          Call Tree
+          <span class="badge">X-Ray</span>
+        </button>
+        <button class="nav-btn" data-target="network_graph">
+          <span class="icon">🕸️</span>
+          Network
+          <span class="badge">Graph</span>
+        </button>
+        <button class="nav-btn" data-target="three_d">
+          <span class="icon">🎲</span>
+          3D View
+          <span class="badge">WebGL</span>
+        </button>
+        <button class="nav-btn" data-target="speedscope">
+          <span class="icon">🔥</span>
+          Speedscope
+          <span class="badge">Flame</span>
+        </button>
+        <button class="nav-btn" data-target="summary_full">
+          <span class="icon">📊</span>
+          Summary
+          <span class="badge">Profile</span>
+        </button>
+      </nav>
+
+      <div class="header-divider"></div>
+
+      <!-- Sample Loader Container -->
+      <div id="sample-loader-container"></div>
+
+      <div class="header-right">
+        <a href="#" class="open-new-tab" id="openNewTab">
+          <span>↗</span>
+          Open in new tab
+        </a>
+        <span class="version">v0.3</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div>Loading visualizer...</div>
+      </div>
+
+      <iframe class="frame active" id="frame-call_tree" src="./call_tree/index.html"></iframe>
+      <iframe class="frame" id="frame-network_graph" data-src="./network-graph/index.html"></iframe>
+      <iframe class="frame" id="frame-three_d" data-src="./3d-viewer/index.html"></iframe>
+      <iframe class="frame" id="frame-speedscope" data-src="./speedscope/index.html"></iframe>
+      <iframe class="frame" id="frame-summary_full" data-src="./summary_full/index.html"></iframe>
+    </div>
+  </div>
+
+  <!-- Sample Loader Module -->
+  <script src="./sample-loader.js"></script>
+
+  <script>
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const frames = document.querySelectorAll('.frame');
+    const openNewTab = document.getElementById('openNewTab');
+    const loading = document.getElementById('loading');
+
+    let currentTarget = 'call_tree';
+
+    const paths = {
+      'call_tree': './call_tree/index.html',
+      'network_graph': './network-graph/index.html',
+      'three_d': './3d-viewer/index.html',
+      'speedscope': './speedscope/index.html',
+      'summary_full': './summary_full/index.html'
+    };
+
+    // Lazy load iframes
+    function loadFrame(target) {
+      const frame = document.getElementById(`frame-${target}`);
+      if (frame.dataset.src && !frame.src) {
+        loading.style.display = 'block';
+        frame.src = frame.dataset.src;
+        frame.onload = () => {
+          loading.style.display = 'none';
+        };
+      } else {
+        loading.style.display = 'none';
+      }
+    }
+
+    // Hide loading when first frame loads
+    document.getElementById('frame-call_tree').onload = () => {
+      loading.style.display = 'none';
+    };
+
+    // Switch tabs
+    navBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        currentTarget = target;
+
+        // Update nav
+        navBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update frames
+        frames.forEach(f => f.classList.remove('active'));
+        document.getElementById(`frame-${target}`).classList.add('active');
+
+        // Load frame if needed
+        loadFrame(target);
+
+        // Update open in new tab link
+        updateNewTabLink(target);
+      });
+    });
+
+    // Update new tab link
+    function updateNewTabLink(target) {
+      openNewTab.href = paths[target];
+      openNewTab.target = '_blank';
+    }
+
+    updateNewTabLink('call_tree');
+
+    // =========================================================================
+    // Initialize Sample Loader
+    // =========================================================================
+    SampleLoader.init('sample-loader-container', {
+      // Customize sample sizes if needed
+      sampleSizes: [1, 5, 10, 20, 30, 40, 50, 100],
+
+      // Customize named samples
+      namedSamples: [
+        'simple-html',
+        'html-with-some-tags',
+        'html-with-one-paragraph',
+        'html-bootstrap-example'
+      ],
+
+      // API endpoints
+      endpoints: {
+        htmlBySize: (size) => `/samples/html/with/size/${size}`,
+        htmlByName: (name) => `/samples/html/with/name/${name}`,
+        transform: (engine = 'dot', transformation = 'default', outputFormat = 'full') =>
+          `/timestamps/graph/from/html/to/${engine}/${transformation}/${outputFormat}`
+      },
+
+      // Transformation defaults
+      defaultEngine: 'dot',
+      defaultTransformation: 'default',
+
+      // Transform payload builder
+      transformPayload: (html) => ({
+        graph_request: {
+          html: html,
+          preset: "full_detail",
+          show_tag_nodes: true,
+          show_attr_nodes: true,
+          show_text_nodes: true,
+          color_scheme: "default"
+        },
+        trace_config: {
+          output: 'traces_only'
+        }
+      }),
+
+      // Target iframes
+      iframeSelectors: [
+        '#frame-call_tree',
+        '#frame-network_graph',
+        '#frame-three_d',
+        '#frame-speedscope',
+        '#frame-summary_full'
+      ],
+
+      // Callbacks (optional)
+      onDataLoaded: (data) => {
+        console.log('[Parent] Sample loaded:', data.name, 'format:', data.format);
+      },
+      onError: (err) => {
+        console.error('[Parent] Sample load error:', err);
+      }
+    });
+  </script>
+</body>
+</html>

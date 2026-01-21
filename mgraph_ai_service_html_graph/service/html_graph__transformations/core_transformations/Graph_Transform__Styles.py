@@ -9,7 +9,7 @@ class Graph_Transform__Styles(Graph_Transformation__Base):                      
     label       : str = 'Styles'
     description : str = 'Style elements and their content'
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def html_mgraph__to__mgraph(self, html_mgraph : Html_MGraph                         # Select styles graph
                                 ) -> MGraph:
         return html_mgraph.styles_graph.mgraph

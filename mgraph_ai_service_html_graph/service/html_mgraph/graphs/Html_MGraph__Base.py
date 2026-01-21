@@ -7,6 +7,8 @@ from mgraph_db.mgraph.schemas.identifiers.Node_Path                             
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                                 import Edge_Path
 from mgraph_db.mgraph.domain.Domain__MGraph__Edge                                   import Domain__MGraph__Edge
 from mgraph_db.mgraph.domain.Domain__MGraph__Node                                   import Domain__MGraph__Node
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp                     import timestamp
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp_args import timestamp_args
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
@@ -17,6 +19,7 @@ class Html_MGraph__Base(Type_Safe):                                             
     mgraph  : MGraph  = None                                                    # The underlying MGraph
     root_id : Node_Id = None                                                    # Root node ID for this graph
 
+    #@timestamp_args(name="html_mgraph.{self.__class__.__name__}.setup")
     def setup(self) -> 'Html_MGraph__Base':                                     # Initialize the graph with a fresh MGraph instance
         self.mgraph = MGraph()
         root_node   = self.new_element_node(node_path='')                       # Create root node for this graph
@@ -27,7 +30,7 @@ class Html_MGraph__Base(Type_Safe):                                             
     # Node Creation Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def new_element_node(self, node_path : Node_Path         ,                  # DOM path for element
                                node_id   : Node_Id    = None                    # Optional specific node_id
                         ) -> Domain__MGraph__Node:                              # Create element node with path
@@ -38,20 +41,22 @@ class Html_MGraph__Base(Type_Safe):                                             
         return self.mgraph.edit().new_node(node_type = Schema__MGraph__Node ,
                                            node_path = node_path            )
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def new_value_node(self, value     : str                ,                   # Value to store
                              node_path : Node_Path   = None ,                   # Optional path
-                             key       : str         = ''                       # Optional unique key
+                             key       : str         = ''   ,                   # Optional unique key
+                             node_id   : Node_Id     = None                     # Optional Node_Id
                       ) -> Domain__MGraph__Node:                                # Create value node
         return self.mgraph.edit().new_value(value     = value     ,
                                             node_path = node_path ,
-                                            key       = key       )
+                                            key       = key       ,
+                                            node_id   = node_id   )
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Edge Creation Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def new_edge(self, from_node_id : Node_Id             ,                     # Source node
                        to_node_id   : Node_Id             ,                     # Target node
                        predicate    : Safe_Id      = None ,                     # Semantic relationship type

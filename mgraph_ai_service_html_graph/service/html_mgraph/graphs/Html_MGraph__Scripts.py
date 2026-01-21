@@ -59,7 +59,7 @@ class Html_MGraph__Scripts(Html_MGraph__Base):                                  
     # Build Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def register_script(self, node_id : Node_Id ,                               # Script element node_id (same as Body/Head)
                               content : str     = None                          # JavaScript content (None for external)
                        ) -> Optional[Node_Id]:                                  # Register a script element, returns content node_id

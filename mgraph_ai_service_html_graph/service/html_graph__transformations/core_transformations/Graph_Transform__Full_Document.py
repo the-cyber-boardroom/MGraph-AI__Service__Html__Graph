@@ -57,13 +57,13 @@ class Graph_Transform__Full_Document(Graph_Transformation__Base):
     _extracted_nodes : List[Extracted__Node]         = None
     _extracted_edges : List[Extracted__Edge]         = None
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def html__to__html_mgraph(self, html: str) -> Html_MGraph:
         """Phase 1: Parse HTML and store for later use."""
         self._html_mgraph = Html_MGraph.from_html(html)
         return self._html_mgraph
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def html_mgraph__to__mgraph(self, html_mgraph: Html_MGraph) -> MGraph:
         """Phase 2: Extract all data using the extractor and store for Phase 5.
         
@@ -83,7 +83,7 @@ class Graph_Transform__Full_Document(Graph_Transformation__Base):
             return html_mgraph.document.mgraph
         return MGraph()
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def transform_export(self, output: Any) -> Any:
         """Phase 5: Generate clustered DOT output from extracted data.
         

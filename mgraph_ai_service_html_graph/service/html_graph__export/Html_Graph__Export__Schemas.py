@@ -3,7 +3,7 @@
 # Request and response schema classes for the export service.
 # Uses Type_Safe for type validation.
 
-from typing                              import Optional, Dict, Any, List, Literal
+from typing                              import Dict, Any, List
 from osbot_utils.type_safe.Type_Safe     import Type_Safe
 
 
@@ -11,8 +11,8 @@ from osbot_utils.type_safe.Type_Safe     import Type_Safe
 # Request Schemas
 # ═══════════════════════════════════════════════════════════════════════════════════════
 
-class Schema__Graph__From_Html__Request(Type_Safe):                              # Request to convert HTML to graph
-    html           : str  = ''                                                   # HTML content to parse
+class Schema__Graph__Export__From_Html__Request(Type_Safe):                      # Request to convert HTML to graph
+    html           : str  = ''                                                 # HTML content to parse
     transformation : str  = 'default'                                            # Transformation name to apply
 
 

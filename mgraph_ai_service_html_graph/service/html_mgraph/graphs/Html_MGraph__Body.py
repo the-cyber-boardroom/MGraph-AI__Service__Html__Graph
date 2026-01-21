@@ -40,7 +40,7 @@ class Html_MGraph__Body(Html_MGraph__Base):                                     
     # Build Methods
     # ═══════════════════════════════════════════════════════════════════════════
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def create_element(self, node_path : Node_Path         ,                    # DOM path for element (e.g., "body.div")
                              node_id   : Node_Id    = None                      # Optional specific node_id (for shared IDs)
                       ) -> Node_Id:                                             # Create an element node
@@ -48,22 +48,24 @@ class Html_MGraph__Body(Html_MGraph__Base):                                     
                                      node_id   = node_id   )
         return node.node_id
 
-    @type_safe
-    def create_text(self, text       : str            ,                         # Text content
-                          parent_id  : Node_Id        ,                         # Parent element node_id
-                          position   : int      = 0                             # Position among siblings
-                   ) -> Node_Id:                                                # Create a text value node and link to parent
-        unique_key = f"{parent_id}:{position}"                                  # Unique key based on parent and position
-        text_node  = self.new_value_node(value     = text                  ,
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
+    def create_text(self, text       : str             ,                         # Text content
+                          parent_id  : Node_Id         ,                         # Parent element node_id
+                          position   : int      = 0    ,                         # Position among siblings
+                          node_id    : Node_Id  = None                           # Optional Node_Id to create
+                   ) -> Node_Id:                                                 # Create a text value node and link to parent
+        unique_key = f"{parent_id}:{position}"                                   # Unique key based on parent and position
+        text_node  = self.new_value_node(value     = text                      ,
                                          node_path = Node_Path(self.PATH_TEXT) ,
-                                         key       = unique_key            )
+                                         key       = unique_key                ,
+                                         node_id   = node_id                   )
         self.new_edge(from_node_id = parent_id                 ,
                       to_node_id   = text_node.node_id         ,
                       predicate    = self.PREDICATE_TEXT       ,
                       edge_path    = Edge_Path(str(position))  )
         return text_node.node_id
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def add_child(self, parent_id : Node_Id ,                                   # Parent element node_id
                         child_id  : Node_Id ,                                   # Child element node_id
                         position  : int     = 0                                 # Position among siblings
@@ -73,7 +75,7 @@ class Html_MGraph__Body(Html_MGraph__Base):                                     
                       predicate    = self.PREDICATE_CHILD     ,
                       edge_path    = Edge_Path(str(position)) )
 
-    @type_safe
+    #@type_safe # todo: re-enable this once we have add support for @type safe to check Type_Safe__Config for method calling type safety
     def set_root(self, node_id: Node_Id) -> None:                               # Set the root node (should be <body> element)
         self.root_id = node_id
 

@@ -26,14 +26,14 @@ files = [
 
 [[package]]
 name = "anyio"
-version = "4.12.0"
+version = "4.12.1"
 description = "High-level concurrency and networking framework on top of asyncio or Trio"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "anyio-4.12.0-py3-none-any.whl", hash = "sha256:dad2376a628f98eeca4881fc56cd06affd18f659b17a747d3ff0307ced94b1bb"},
-    {file = "anyio-4.12.0.tar.gz", hash = "sha256:73c693b567b0c55130c104d0b43a9baf3aa6a31fc6110116509f27bf75e21ec0"},
+    {file = "anyio-4.12.1-py3-none-any.whl", hash = "sha256:d405828884fc140aa80a3c667b8beed277f1dfedec42ba031bd6ac3db606ab6c"},
+    {file = "anyio-4.12.1.tar.gz", hash = "sha256:41cfcc3a4c85d3f05c932da7c26d0201ac36f72abd4435ba90d0464a3ffed703"},
 ]
 
 [package.dependencies]
@@ -45,18 +45,18 @@ trio = ["trio (>=0.31.0)", "trio (>=0.32.0)"]
 
 [[package]]
 name = "boto3"
-version = "1.42.14"
+version = "1.42.30"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.42.14-py3-none-any.whl", hash = "sha256:bfcc665227bb4432a235cb4adb47719438d6472e5ccbf7f09512046c3f749670"},
-    {file = "boto3-1.42.14.tar.gz", hash = "sha256:a5d005667b480c844ed3f814a59f199ce249d0f5669532a17d06200c0a93119c"},
+    {file = "boto3-1.42.30-py3-none-any.whl", hash = "sha256:d7e548bea65e0ae2c465c77de937bc686b591aee6a352d5a19a16bc751e591c1"},
+    {file = "boto3-1.42.30.tar.gz", hash = "sha256:ba9cd2f7819637d15bfbeb63af4c567fcc8a7dcd7b93dd12734ec58601169538"},
 ]
 
 [package.dependencies]
-botocore = ">=1.42.14,<1.43.0"
+botocore = ">=1.42.30,<1.43.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.16.0,<0.17.0"
 
@@ -65,14 +65,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.42.14"
+version = "1.42.30"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.42.14-py3-none-any.whl", hash = "sha256:efe89adfafa00101390ec2c371d453b3359d5f9690261bc3bd70131e0d453e8e"},
-    {file = "botocore-1.42.14.tar.gz", hash = "sha256:cf5bebb580803c6cfd9886902ca24834b42ecaa808da14fb8cd35ad523c9f621"},
+    {file = "botocore-1.42.30-py3-none-any.whl", hash = "sha256:97070a438cac92430bb7b65f8ebd7075224f4a289719da4ee293d22d1e98db02"},
+    {file = "botocore-1.42.30.tar.gz", hash = "sha256:9bf1662b8273d5cc3828a49f71ca85abf4e021011c1f0a71f41a2ea5769a5116"},
 ]
 
 [package.dependencies]
@@ -85,14 +85,14 @@ crt = ["awscrt (==0.29.2)"]
 
 [[package]]
 name = "certifi"
-version = "2025.11.12"
+version = "2026.1.4"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "certifi-2025.11.12-py3-none-any.whl", hash = "sha256:97de8790030bbd5c2d96b7ec782fc2f7820ef8dba6db909ccf95449f2d062d4b"},
-    {file = "certifi-2025.11.12.tar.gz", hash = "sha256:d8ab5478f2ecd78af242878415affce761ca6bc54a22a27e026d7c25357c3316"},
+    {file = "certifi-2026.1.4-py3-none-any.whl", hash = "sha256:9943707519e4add1115f44c2bc244f782c0249876bf51b6599fee1ffbedd685c"},
+    {file = "certifi-2026.1.4.tar.gz", hash = "sha256:ac726dd470482006e014ad384921ed6438c457018f4b3d204aea4281258b2120"},
 ]
 
 [[package]]
@@ -248,14 +248,14 @@ files = [
 
 [[package]]
 name = "fastapi"
-version = "0.127.0"
+version = "0.128.0"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "fastapi-0.127.0-py3-none-any.whl", hash = "sha256:725aa2bb904e2eff8031557cf4b9b77459bfedd63cae8427634744fd199f6a49"},
-    {file = "fastapi-0.127.0.tar.gz", hash = "sha256:5a9246e03dcd1fdb19f1396db30894867c1d630f5107dc167dcbc5ed1ea7d259"},
+    {file = "fastapi-0.128.0-py3-none-any.whl", hash = "sha256:aebd93f9716ee3b4f4fcfe13ffb7cf308d99c9f3ab5622d8877441072561582d"},
+    {file = "fastapi-0.128.0.tar.gz", hash = "sha256:1cc179e1cef10a6be60ffe429f79b829dce99d8de32d7acb7e6c8dfdf7f2645a"},
 ]
 
 [package.dependencies]
@@ -310,29 +310,44 @@ files = [
 
 [[package]]
 name = "mangum"
-version = "0.19.0"
+version = "0.20.0"
 description = "AWS Lambda support for ASGI applications"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "mangum-0.19.0-py3-none-any.whl", hash = "sha256:e500b35f495d5e68ac98bc97334896d6101523f2ee2c57ba6a61893b65266e59"},
-    {file = "mangum-0.19.0.tar.gz", hash = "sha256:e388e7c491b7b67970f8234e46fd4a7b21ff87785848f418de08148f71cf0bd6"},
+    {file = "mangum-0.20.0-py3-none-any.whl", hash = "sha256:c945eadc41916f73b6086c0c69935ef4b1d23d27de8dc74ed47b20e204335407"},
+    {file = "mangum-0.20.0.tar.gz", hash = "sha256:0050447b60d832dcc45cc9d917c9e0f4e9174e2d9630f621d567510d51d286bd"},
 ]
 
 [package.dependencies]
 typing-extensions = "*"
 
 [[package]]
+name = "mgraph-ai-service-cache-client"
+version = "0.28.0"
+description = "MGraph-AI__Service__Cache__Client"
+optional = false
+python-versions = "<4.0,>=3.12"
+groups = ["main"]
+files = [
+    {file = "mgraph_ai_service_cache_client-0.28.0-py3-none-any.whl", hash = "sha256:805b5f0c913a3afa1cc4868f6b7c0cb410ca9d65f93c727ded85991932f6b374"},
+    {file = "mgraph_ai_service_cache_client-0.28.0.tar.gz", hash = "sha256:369794f29b467c261df2a4d1690cf44e0e04241dbad864a647772ad325bf7f59"},
+]
+
+[package.dependencies]
+osbot-fast-api-serverless = "*"
+
+[[package]]
 name = "mgraph-db"
-version = "1.11.0"
+version = "1.18.0"
 description = "MGraph-DB"
 optional = false
 python-versions = "<4.0,>=3.11"
 groups = ["main"]
 files = [
-    {file = "mgraph_db-1.11.0-py3-none-any.whl", hash = "sha256:ac207a1b92cea82e91847ff53855ce746fae0f1fbed00a44d484d90179260404"},
-    {file = "mgraph_db-1.11.0.tar.gz", hash = "sha256:e03e89968d524e79ed3555a7139aba8759da8ee99b732d83320cd6349e5ee38f"},
+    {file = "mgraph_db-1.18.0-py3-none-any.whl", hash = "sha256:fe0edf28335cbde9558f597fcab0acc35e873eb61dab8e0315a1725964326bad"},
+    {file = "mgraph_db-1.18.0.tar.gz", hash = "sha256:c72ca14e218092eccad5b0c3960b8582fda0856887cf895262365b38af991f08"},
 ]
 
 [package.dependencies]
@@ -374,14 +389,14 @@ uvicorn = "*"
 
 [[package]]
 name = "osbot-fast-api-serverless"
-version = "1.32.0"
+version = "1.33.0"
 description = "OSBot-Fast-API-Serverless"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "osbot_fast_api_serverless-1.32.0-py3-none-any.whl", hash = "sha256:b3f6bb64832e6384475c956837121a8be472d1d2fbbaa8b662b67d9719e3f100"},
-    {file = "osbot_fast_api_serverless-1.32.0.tar.gz", hash = "sha256:f05245a7a8a84de785d351f304cc2d878f937da1643897f06922b282a65619b4"},
+    {file = "osbot_fast_api_serverless-1.33.0-py3-none-any.whl", hash = "sha256:9fe05e9b0c43977f9d8ec630e46ac4fe0b3b7da60dbd6e8af28a306f3e762724"},
+    {file = "osbot_fast_api_serverless-1.33.0.tar.gz", hash = "sha256:a50145f49b368cc4d11a03c7c1cc990467c61142515cb4aa5f06cf9dd70062d9"},
 ]
 
 [package.dependencies]
@@ -391,14 +406,14 @@ osbot-fast-api = "*"
 
 [[package]]
 name = "osbot-utils"
-version = "3.58.0"
+version = "3.72.0"
 description = "OWASP Security Bot - Utils"
 optional = false
 python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "osbot_utils-3.58.0-py3-none-any.whl", hash = "sha256:62ab5449e360074542e7fb12bcd0a1d09559c390912b846e6fdac6367be20690"},
-    {file = "osbot_utils-3.58.0.tar.gz", hash = "sha256:83ddc8b2c39dbdd4bcbc8a04c778003b0db283e05d399480fe23551c939a516d"},
+    {file = "osbot_utils-3.72.0-py3-none-any.whl", hash = "sha256:0dda6cdd3e0359d74e33ff63c30b7d2386fe099c021691c16ac0b0af144dfe6a"},
+    {file = "osbot_utils-3.72.0.tar.gz", hash = "sha256:d8665738b228016d8d3e54b80298b278c3d75f66ef885fd3a7453fcd8cc84813"},
 ]
 
 [[package]]
@@ -672,14 +687,14 @@ typing-extensions = ">=4.12.0"
 
 [[package]]
 name = "urllib3"
-version = "2.6.2"
+version = "2.6.3"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "urllib3-2.6.2-py3-none-any.whl", hash = "sha256:ec21cddfe7724fc7cb4ba4bea7aa8e2ef36f607a4bab81aa6ce42a13dc3f03dd"},
-    {file = "urllib3-2.6.2.tar.gz", hash = "sha256:016f9c98bb7e98085cb2b4b17b87d2c702975664e4f060c6532e64d1c1a5e797"},
+    {file = "urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4"},
+    {file = "urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed"},
 ]
 
 [package.extras]
@@ -710,4 +725,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "b9982e3bd113d263f1468353beaa53406d7054067cbd9c49e5f63ab0ead6259c"
+content-hash = "cec9f9498194901c02fc95b6133c69d6514cf359152e1beea3dcb3f08dc55882"

@@ -3,7 +3,7 @@ from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph              
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Head  import Html_MGraph__Head
 from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Base  import Html_MGraph__Base
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                             import Node_Path
-from mgraph_db.utils.testing.mgraph_test_ids                                    import mgraph_test_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                              import graph_deterministic_ids
 from osbot_utils.testing.__                                                     import __
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id               import Node_Id
@@ -440,7 +440,7 @@ class test_Html_MGraph__Head(TestCase):                                         
             assert stats.text_nodes    == 0
 
     def test_stats__base_stats_included(self):                                  # Test base stats are included
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Head().setup() as _:
                 _.create_element(node_path=Node_Path('head.title'))
 
@@ -456,7 +456,7 @@ class test_Html_MGraph__Head(TestCase):                                         
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_full_head_structure(self):                                         # Test complete head structure
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             with Html_MGraph__Head().setup() as _:
                 # Create <head> and children
                 head_id   = _.create_element(node_path=Node_Path('head'))

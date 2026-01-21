@@ -23,6 +23,10 @@ on:
       ui_version:
         required: true
         type: string
+      should_publish_pypi:
+        required: false
+        type: boolean
+        default: false
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: false
@@ -128,3 +132,17 @@ jobs:
           FAST_API__AUTH__API_KEY__VALUE: ${{ secrets.FAST_API__AUTH__API_KEY__VALUE }}
         with:
           target: ${{ inputs.target_deploy }}
+
+  publish-to-pypi:
+    if: inputs.should_publish_pypi && needs.increment-tag.result == 'success'
+    name: "Publish to: PYPI"
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: [ increment-tag ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Git Update Current Branch
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/git__update_branch@dev
+      - name: publish-to-pypi
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pypi__publish@dev

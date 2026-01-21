@@ -1,0 +1,435 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Cache Store Page Styles
+   v0.2.11 - Page layout only (component styles in their own files)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   App Layout
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.cache-store-app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--color-bg-muted, #f3f4f6);
+}
+
+.cache-store-main {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: var(--spacing-md, 16px);
+    flex: 1;
+    padding: var(--spacing-md, 16px);
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Top Navigation
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.cache-store-app .top-nav {
+    flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Sidebar (Cache Browser)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.cache-store-sidebar {
+    background: white;
+    border-radius: var(--radius-md, 8px);
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+    background: var(--color-bg-muted, #f9fafb);
+}
+
+.sidebar-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 var(--spacing-sm, 8px) 0;
+    color: var(--color-text-primary, #111827);
+}
+
+.namespace-selector {
+    display: flex;
+    gap: var(--spacing-xs, 4px);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.namespace-selector label {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary, #6b7280);
+}
+
+.namespace-selector input {
+    flex: 1;
+    min-width: 100px;
+    padding: 4px 8px;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: var(--radius-sm, 4px);
+    font-size: 0.85rem;
+    font-family: var(--font-code, monospace);
+}
+
+.namespace-selector input:focus {
+    outline: none;
+    border-color: var(--color-primary, #6366f1);
+}
+
+cache-browser {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Content Panel (HTML Viewer + Mini Browser)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.cache-store-content {
+    background: white;
+    border-radius: var(--radius-md, 8px);
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* View Mode Tabs */
+.view-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+    background: var(--color-bg-muted, #f9fafb);
+    flex-shrink: 0;
+}
+
+.view-tab-btn {
+    flex: 1;
+    padding: var(--spacing-sm, 8px);
+    border: none;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-secondary, #6b7280);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-tab-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--color-text-primary, #111827);
+}
+
+.view-tab-btn.active {
+    background: white;
+    color: var(--color-primary, #6366f1);
+    border-bottom: 2px solid var(--color-primary, #6366f1);
+}
+
+.view-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.view-content.hidden {
+    display: none;
+}
+
+html-viewer,
+mini-browser {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Details Panel (Metadata & Flows)
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.cache-store-details {
+    background: white;
+    border-radius: var(--radius-md, 8px);
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.details-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+    background: var(--color-bg-muted, #f9fafb);
+    flex-shrink: 0;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: var(--spacing-sm, 8px);
+    border: none;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text-secondary, #6b7280);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--color-text-primary, #111827);
+}
+
+.tab-btn.active {
+    background: white;
+    color: var(--color-primary, #6366f1);
+    border-bottom: 2px solid var(--color-primary, #6366f1);
+}
+
+.tab-content {
+    flex: 1;
+    overflow: auto;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+cache-metadata,
+flow-timeline {
+    display: block;
+    height: 100%;
+    overflow: auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Status Bar
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.cache-store-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md, 16px);
+    padding: var(--spacing-xs, 4px) var(--spacing-md, 16px);
+    background: #1a1a2e;
+    color: #888;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.cache-store-status #status-message {
+    color: #aaa;
+}
+
+.cache-store-status #status-path {
+    flex: 1;
+    font-family: var(--font-code, monospace);
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cache-store-status .shortcuts-hint {
+    color: #666;
+}
+
+.cache-store-status kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #333;
+    border-radius: 3px;
+    font-family: var(--font-code, monospace);
+    font-size: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Maximize Mode
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.cache-store-app.maximized .top-nav,
+.cache-store-app.maximized .cache-store-sidebar,
+.cache-store-app.maximized .cache-store-details,
+.cache-store-app.maximized .cache-store-status {
+    display: none;
+}
+
+.cache-store-app.maximized .cache-store-main {
+    grid-template-columns: 1fr;
+    padding: 0;
+}
+
+.cache-store-app.maximized .cache-store-content {
+    border-radius: 0;
+}
+
+.cache-store-app.maximized .maximize-toolbar {
+    display: flex;
+}
+
+.maximize-toolbar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: #1a1a2e;
+    border-bottom: 1px solid #333;
+    padding: 0 16px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+}
+
+.cache-store-app.maximized .cache-store-content {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.maximize-toolbar-left,
+.maximize-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm, 8px);
+}
+
+.maximize-toolbar-center {
+    flex: 1;
+    text-align: center;
+}
+
+.max-toolbar-btn {
+    padding: 6px 12px;
+    background: #333;
+    border: none;
+    border-radius: 4px;
+    color: #e0e0e0;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.max-toolbar-btn:hover {
+    background: #444;
+}
+
+.max-toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: #444;
+}
+
+.max-toolbar-title {
+    color: #e0e0e0;
+    font-weight: 500;
+    font-family: var(--font-code, monospace);
+}
+
+.max-stats {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Toast Notifications
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.cache-store-toast {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 10001;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+}
+
+.cache-store-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.cache-store-toast.error {
+    background: var(--color-error, #dc2626);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Utility Buttons
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+.btn {
+    padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: var(--radius-sm, 4px);
+    background: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn:hover {
+    background: var(--color-bg-muted, #f3f4f6);
+}
+
+.btn-sm {
+    padding: 2px 8px;
+    font-size: 0.8rem;
+}
+
+.btn-primary {
+    background: var(--color-primary, #6366f1);
+    color: white;
+    border-color: var(--color-primary, #6366f1);
+}
+
+.btn-primary:hover {
+    background: #4f46e5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────────
+   Responsive
+   ───────────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1200px) {
+    .cache-store-main {
+        grid-template-columns: 240px 1fr 280px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .cache-store-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+    }
+    
+    .cache-store-sidebar {
+        max-height: 200px;
+    }
+    
+    .cache-store-details {
+        max-height: 250px;
+    }
+}

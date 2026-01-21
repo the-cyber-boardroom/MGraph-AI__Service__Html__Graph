@@ -9,6 +9,7 @@ from mgraph_ai_service_html_graph.service.html_mgraph.graphs.Html_MGraph__Styles
 from mgraph_db.mgraph.MGraph                                                            import MGraph
 from mgraph_db.mgraph.schemas.identifiers.Node_Path                                     import Node_Path
 from mgraph_db.mgraph.schemas.identifiers.Edge_Path                                     import Edge_Path
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp                         import timestamp
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                       import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
 
@@ -57,6 +58,7 @@ class Html_MGraph__Document(Html_MGraph__Base):                                 
     scripts_graph: Html_MGraph__Scripts    = None                               # JavaScript content
     styles_graph : Html_MGraph__Styles     = None                               # CSS content
 
+    #@timestamp(name="html_mgraph.document.setup")
     def setup(self) -> 'Html_MGraph__Document':                                 # Initialize all component graphs
         self.mgraph = MGraph()
         root_node    = self.new_element_node(node_path=Node_Path(self.PATH_HTML))  # Create <html> root node
@@ -67,6 +69,7 @@ class Html_MGraph__Document(Html_MGraph__Base):                                 
         self.attrs_graph   = Html_MGraph__Attributes().setup()
         self.scripts_graph = Html_MGraph__Scripts   ().setup()
         self.styles_graph  = Html_MGraph__Styles    ().setup()
+
 
         self._link_component_graph('head'   , self.head_graph   .root_id)       # Create graph reference edges
         self._link_component_graph('body'   , self.body_graph   .root_id)

@@ -1,0 +1,95 @@
+════════════════════════════════════════════════════════════════════════════════
+PHASE E_6: BACKEND COMPARISON
+════════════════════════════════════════════════════════════════════════════════
+
+┌───────────────────────────────────────────────────────────────────┐
+│ BENCHMARK METADATA                                                │
+├───────────────────────────────────────────────────────────────────┤
+│ Property         │ Value                                          │
+├───────────────────────────────────────────────────────────────────┤
+│ Date             │ 2026-01-13 23:01:21                            │
+│ Version          │ v1.4.41                                        │
+│ Test Input       │ Synthetic HTML with 50 paragraphs (~150 nodes) │
+│ Measurement Mode │ Enum__Measure_Mode.FAST                        │
+│ Total Benchmarks │ 17                                             │
+└───────────────────────────────────────────────────────────────────┘
+
+DESCRIPTION
+────────────────────────────────────────────────────────────
+Compares cache performance across backends: in-memory, local server, and live serverless. Measures full save and load pipelines at each backend, plus cost breakdown.
+
+LEGEND
+────────────────────────────────────────────────────────────
+  A_xx  In-memory pipelines  = Full save/load via TestClient
+  B_xx  In-memory breakdown  = Isolate setup, layers, pure ops
+  C_xx  Local server         = http://localhost:10017
+  D_xx  Live serverless      = https://cache.dev.mgraph.ai/
+
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│ DETAILED CONVERSION BREAKDOWN                                                    │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark                        │ Time       │ Category            │ % of Total │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│ A_01__inmem__save_pipeline       │ 1.75s      │ In-memory pipelines │ 20.6%      │
+│ A_02__inmem__load_pipeline       │ 984.30ms   │ In-memory pipelines │ 11.6%      │
+│ ──────────────────────────────── │ ────────── │ ──────────────────  │ ────────── │
+│ B_01__raw_json_serialize         │ 3.40ms     │ In-memory breakdown │ 0.0%       │
+│ B_02__request_overhead           │ 62.60ms    │ In-memory breakdown │ 0.7%       │
+│ B_03__create_storage_and_entry   │ 636.40ms   │ In-memory breakdown │ 7.5%       │
+│ B_04__create_layers_only         │ 8.00µs     │ In-memory breakdown │ 0.0%       │
+│ B_05__full_setup                 │ 616.80ms   │ In-memory breakdown │ 7.2%       │
+│ B_06__pure_L1_save               │ 383.30ms   │ In-memory breakdown │ 4.5%       │
+│ B_07__pure_L2_save               │ 144.10ms   │ In-memory breakdown │ 1.7%       │
+│ B_08__pure_L3_save               │ 456.50ms   │ In-memory breakdown │ 5.4%       │
+│ B_09__pure_L1_load               │ 171.30ms   │ In-memory breakdown │ 2.0%       │
+│ B_10__pure_L2_load               │ 257.70ms   │ In-memory breakdown │ 3.0%       │
+│ B_11__pure_L3_load               │ 408.00ms   │ In-memory breakdown │ 4.8%       │
+│ ──────────────────────────────── │ ────────── │ ──────────────────  │ ────────── │
+│ C_01__local__save_pipeline       │ 38.90ms    │ Local server        │ 0.5%       │
+│ C_02__local__load_pipeline       │ 31.60ms    │ Local server        │ 0.4%       │
+│ ──────────────────────────────── │ ────────── │ ──────────────────  │ ────────── │
+│ D_01__live__save_pipeline        │ 1.75s      │ Live serverless     │ 20.6%      │
+│ D_02__live__load_pipeline        │ 815.90ms   │ Live serverless     │ 9.6%       │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│ Total: 17 benchmarks                                                             │
+└──────────────────────────────────────────────────────────────────────────────────┘
+
+============================================================
+CATEGORY SUMMARY
+============================================================
+  In-memory pipelines:        2.73s  (A_xx benchmarks)
+  In-memory breakdown:        3.14s  (B_xx benchmarks)
+  Local server:             70.50ms  (C_xx benchmarks)
+  Live serverless:            2.57s  (D_xx benchmarks)
+  ─────────────────────────────────────────────
+  Overhead:            -477308000ns  (full - create - convert)
+
+============================================================
+PERCENTAGE ANALYSIS (relative to Full Operations)
+============================================================
+  Converter Creation: 114.88% of full operation time
+  Convert Only:          2.6% of full operation time
+  Overhead:           -17.46% of full operation time
+
+============================================================
+STAGE BREAKDOWN (Full Operations)
+============================================================
+  inmem__save_pipeline      1.75s ( 64.0%) ███████████████████████████████
+  inmem__load_pipeline   984.30ms ( 36.0%) ██████████████████
+
+============================================================
+BOTTLENECK ANALYSIS
+============================================================
+  Primary Bottleneck: D_01__live__save_pipeline
+  Time:               1.75s
+  Percentage:         64.0% of total
+
+============================================================
+KEY INSIGHT
+============================================================
+  Converter creation is 36.9% of total time.
+
+════════════════════════════════════════════════════════════════════════════════
+Report generated: 2026-01-13 23:01:21
+Version: v1.4.41
+════════════════════════════════════════════════════════════════════════════════

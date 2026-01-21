@@ -1,14 +1,15 @@
 # for main app
 osbot-fast-api-serverless
+mgraph-ai-service-cache-client
 mgraph-db
 
 # for pytest
 pytest
 pytest-cov
 
+# for cache client support
+mgraph-ai-service-cache
+
 # for fastapi testing
 httpx
 requests
-
-# for local-stack support (uncomment to enabled it)
-# osbot_local_stack

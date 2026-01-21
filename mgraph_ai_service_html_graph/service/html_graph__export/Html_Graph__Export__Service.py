@@ -10,25 +10,20 @@
 #   Phase 4: MGraph → Output (engine renders with configured config)
 #   Phase 5: Output → Output (transformation post-processes)
 
-from typing                                                                                     import Any, Dict, List, Literal, Union
-
-from osbot_utils.helpers.duration.decorators.capture_duration import capture_duration
-from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
+from typing                                                                                              import Any, Dict, List, Literal
+from osbot_utils.helpers.duration.decorators.capture_duration                                            import capture_duration
+from osbot_utils.type_safe.Type_Safe                                                                     import Type_Safe
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Base         import Graph_Transformation__Base
 from mgraph_ai_service_html_graph.service.html_graph__transformations.Graph_Transformation__Registry     import transformation_registry
-from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas        import (
-    Schema__Graph__From_Html__Request  ,
-    Schema__Graph__Dot__Response       ,
-    Schema__Graph__D3__Response        ,
-    Schema__Graph__Cytoscape__Response ,
-    Schema__Graph__VisJs__Response     ,
-    Schema__Graph__Mermaid__Response   ,
-    Schema__Graph__Tree__Response      ,
-    Schema__Transformations__List__Response,
-    Schema__Transformation__Info       ,
-    Schema__Engines__List__Response    ,
-    Schema__Engine__Info               ,
-)
+from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas                 import (Schema__Graph__Export__From_Html__Request  ,
+                                                                                                                 Schema__Graph__Dot__Response       ,
+                                                                                                                 Schema__Graph__D3__Response        ,
+                                                                                                                 Schema__Graph__Cytoscape__Response ,
+                                                                                                                 Schema__Graph__VisJs__Response     ,
+                                                                                                                 Schema__Graph__Mermaid__Response   ,
+                                                                                                                 Schema__Graph__Tree__Response      ,
+                                                                                                                 Schema__Engines__List__Response    ,
+                                                                                                                 Schema__Engine__Info               )
 from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__Dot                           import MGraph__Engine__Dot
 from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__D3                            import MGraph__Engine__D3
 from mgraph_ai_service_html_graph.service.mgraph__engines.MGraph__Engine__Cytoscape                     import MGraph__Engine__Cytoscape
@@ -166,7 +161,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
     # Engine Export Methods
     # ═══════════════════════════════════════════════════════════════════════════════════════════
 
-    def to_dot(self, request: Schema__Graph__From_Html__Request,                                # Export to DOT format
+    def to_dot(self, request: Schema__Graph__Export__From_Html__Request,                                # Export to DOT format
                      transformation: str = None
               ) -> Schema__Graph__Dot__Response:
         trans_name = transformation or request.transformation or 'default'
@@ -186,7 +181,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
             edge_count     = stats['edge_count']  ,
         )
 
-    def to_d3(self, request: Schema__Graph__From_Html__Request,                                 # Export to D3.js format
+    def to_d3(self, request: Schema__Graph__Export__From_Html__Request,                                 # Export to D3.js format
                     transformation: str = None
              ) -> Schema__Graph__D3__Response:
         trans_name = transformation or request.transformation or 'default'
@@ -207,7 +202,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
             edge_count     = stats['edge_count']       ,
         )
 
-    def to_cytoscape(self, request: Schema__Graph__From_Html__Request,                          # Export to Cytoscape.js format
+    def to_cytoscape(self, request: Schema__Graph__Export__From_Html__Request,                          # Export to Cytoscape.js format
                            transformation: str = None
                     ) -> Schema__Graph__Cytoscape__Response:
         trans_name = transformation or request.transformation or 'default'
@@ -228,7 +223,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
             edge_count     = stats['edge_count']         ,
         )
 
-    def to_visjs(self, request: Schema__Graph__From_Html__Request,                              # Export to vis.js format
+    def to_visjs(self, request: Schema__Graph__Export__From_Html__Request,                              # Export to vis.js format
                        transformation: str = None
                 ) -> Schema__Graph__VisJs__Response:
         trans_name = transformation or request.transformation or 'default'
@@ -249,7 +244,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
             edge_count     = stats['edge_count']        ,
         )
 
-    def to_mermaid(self, request: Schema__Graph__From_Html__Request,                            # Export to Mermaid format
+    def to_mermaid(self, request: Schema__Graph__Export__From_Html__Request,                            # Export to Mermaid format
                          transformation: str = None
                   ) -> Schema__Graph__Mermaid__Response:
         trans_name = transformation or request.transformation or 'default'
@@ -269,7 +264,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
             edge_count     = stats['edge_count']  ,
         )
 
-    def to_tree(self, request: Schema__Graph__From_Html__Request,                               # Export to Tree format
+    def to_tree(self, request: Schema__Graph__Export__From_Html__Request,                               # Export to Tree format
                       transformation: str = None,
                       output_format: str = 'text'
                ) -> Schema__Graph__Tree__Response:
@@ -304,7 +299,7 @@ class Html_Graph__Export__Service(Type_Safe):                                   
                      engine: EngineType = 'dot',
                      transformation: str = 'default'
               ) -> Any:
-        request = Schema__Graph__From_Html__Request(
+        request = Schema__Graph__Export__From_Html__Request(
             html           = html          ,
             transformation = transformation,
         )

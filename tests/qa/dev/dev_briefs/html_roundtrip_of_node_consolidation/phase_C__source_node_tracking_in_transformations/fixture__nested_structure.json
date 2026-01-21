@@ -1,0 +1,452 @@
+{
+  "name": "nested_structure",
+  "html": "<!DOCTYPE html>\n<html>\n    <body>\n        <div>\n            This is a <a href=\"\">link</a> with some <b>bold</b> in the mix\n        </div>\n        <div>\n            this is the <i>2nd div</i> in here\n        </div>\n    </body>\n</html>\n",
+  "html_dict": {
+    "tag": "html",
+    "attrs": {},
+    "nodes": [
+      {
+        "tag": "body",
+        "attrs": {},
+        "nodes": [
+          {
+            "tag": "div",
+            "attrs": {},
+            "nodes": [
+              {
+                "type": "TEXT",
+                "data": "\n            This is a ",
+                "node_id": "f0000004"
+              },
+              {
+                "tag": "a",
+                "attrs": {
+                  "href": ""
+                },
+                "nodes": [
+                  {
+                    "type": "TEXT",
+                    "data": "link",
+                    "node_id": "f0000006"
+                  }
+                ],
+                "node_id": "f0000005"
+              },
+              {
+                "type": "TEXT",
+                "data": " with some ",
+                "node_id": "f0000007"
+              },
+              {
+                "tag": "b",
+                "attrs": {},
+                "nodes": [
+                  {
+                    "type": "TEXT",
+                    "data": "bold",
+                    "node_id": "f0000009"
+                  }
+                ],
+                "node_id": "f0000008"
+              },
+              {
+                "type": "TEXT",
+                "data": " in the mix\n        ",
+                "node_id": "f0000010"
+              }
+            ],
+            "node_id": "f0000003"
+          },
+          {
+            "tag": "div",
+            "attrs": {},
+            "nodes": [
+              {
+                "type": "TEXT",
+                "data": "\n            this is the ",
+                "node_id": "f0000012"
+              },
+              {
+                "tag": "i",
+                "attrs": {},
+                "nodes": [
+                  {
+                    "type": "TEXT",
+                    "data": "2nd div",
+                    "node_id": "f0000014"
+                  }
+                ],
+                "node_id": "f0000013"
+              },
+              {
+                "type": "TEXT",
+                "data": " in here\n        ",
+                "node_id": "f0000015"
+              }
+            ],
+            "node_id": "f0000011"
+          }
+        ],
+        "node_id": "f0000002"
+      }
+    ],
+    "node_id": "f0000001"
+  },
+  "body_graph_json": {
+    "graph": {
+      "graph_type": null,
+      "domain_types": {
+        "node_domain_type": null,
+        "edge_domain_type": null
+      },
+      "model": {
+        "data": {
+          "graph_data": null,
+          "graph_path": null,
+          "graph_type": null,
+          "schema_types": null,
+          "index_config": null,
+          "edges": {
+            "e0000010": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "child"
+              },
+              "edge_path": "0",
+              "from_node_id": "f0000002",
+              "to_node_id": "f0000003",
+              "edge_id": "e0000010"
+            },
+            "e0000013": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "text"
+              },
+              "edge_path": "0",
+              "from_node_id": "f0000003",
+              "to_node_id": "f0000004",
+              "edge_id": "e0000013"
+            },
+            "e0000014": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "child"
+              },
+              "edge_path": "1",
+              "from_node_id": "f0000003",
+              "to_node_id": "f0000005",
+              "edge_id": "e0000014"
+            },
+            "e0000020": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "text"
+              },
+              "edge_path": "0",
+              "from_node_id": "f0000005",
+              "to_node_id": "f0000006",
+              "edge_id": "e0000020"
+            },
+            "e0000021": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "text"
+              },
+              "edge_path": "2",
+              "from_node_id": "f0000003",
+              "to_node_id": "f0000007",
+              "edge_id": "e0000021"
+            },
+            "e0000022": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "child"
+              },
+              "edge_path": "3",
+              "from_node_id": "f0000003",
+              "to_node_id": "f0000008",
+              "edge_id": "e0000022"
+            },
+            "e0000025": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "text"
+              },
+              "edge_path": "0",
+              "from_node_id": "f0000008",
+              "to_node_id": "f0000009",
+              "edge_id": "e0000025"
+            },
+            "e0000026": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "text"
+              },
+              "edge_path": "4",
+              "from_node_id": "f0000003",
+              "to_node_id": "f0000010",
+              "edge_id": "e0000026"
+            },
+            "e0000027": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "child"
+              },
+              "edge_path": "1",
+              "from_node_id": "f0000002",
+              "to_node_id": "f0000011",
+              "edge_id": "e0000027"
+            },
+            "e0000029": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "text"
+              },
+              "edge_path": "0",
+              "from_node_id": "f0000011",
+              "to_node_id": "f0000012",
+              "edge_id": "e0000029"
+            },
+            "e0000030": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "child"
+              },
+              "edge_path": "1",
+              "from_node_id": "f0000011",
+              "to_node_id": "f0000013",
+              "edge_id": "e0000030"
+            },
+            "e0000033": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "text"
+              },
+              "edge_path": "0",
+              "from_node_id": "f0000013",
+              "to_node_id": "f0000014",
+              "edge_id": "e0000033"
+            },
+            "e0000034": {
+              "edge_data": null,
+              "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+              "edge_label": {
+                "incoming": null,
+                "outgoing": null,
+                "predicate": "text"
+              },
+              "edge_path": "2",
+              "from_node_id": "f0000011",
+              "to_node_id": "f0000015",
+              "edge_id": "e0000034"
+            }
+          },
+          "graph_id": "a0000004",
+          "nodes": {
+            "c0000003": {
+              "node_data": null,
+              "node_path": null,
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+              "node_id": "c0000003"
+            },
+            "f0000002": {
+              "node_data": null,
+              "node_path": "body",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+              "node_id": "f0000002"
+            },
+            "f0000003": {
+              "node_data": null,
+              "node_path": "body.div[0]",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+              "node_id": "f0000003"
+            },
+            "f0000004": {
+              "node_data": {
+                "value_type": "builtins.str",
+                "value": "\n            This is a ",
+                "key": "f0000003:0"
+              },
+              "node_id": "f0000004",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value.Schema__MGraph__Node__Value",
+              "node_path": "text"
+            },
+            "f0000005": {
+              "node_data": null,
+              "node_path": "body.div[0].a",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+              "node_id": "f0000005"
+            },
+            "f0000006": {
+              "node_data": {
+                "value_type": "builtins.str",
+                "value": "link",
+                "key": "f0000005:0"
+              },
+              "node_id": "f0000006",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value.Schema__MGraph__Node__Value",
+              "node_path": "text"
+            },
+            "f0000007": {
+              "node_data": {
+                "value_type": "builtins.str",
+                "value": " with some ",
+                "key": "f0000003:2"
+              },
+              "node_id": "f0000007",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value.Schema__MGraph__Node__Value",
+              "node_path": "text"
+            },
+            "f0000008": {
+              "node_data": null,
+              "node_path": "body.div[0].b",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+              "node_id": "f0000008"
+            },
+            "f0000009": {
+              "node_data": {
+                "value_type": "builtins.str",
+                "value": "bold",
+                "key": "f0000008:0"
+              },
+              "node_id": "f0000009",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value.Schema__MGraph__Node__Value",
+              "node_path": "text"
+            },
+            "f0000010": {
+              "node_data": {
+                "value_type": "builtins.str",
+                "value": " in the mix\n        ",
+                "key": "f0000003:4"
+              },
+              "node_id": "f0000010",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value.Schema__MGraph__Node__Value",
+              "node_path": "text"
+            },
+            "f0000011": {
+              "node_data": null,
+              "node_path": "body.div[1]",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+              "node_id": "f0000011"
+            },
+            "f0000012": {
+              "node_data": {
+                "value_type": "builtins.str",
+                "value": "\n            this is the ",
+                "key": "f0000011:0"
+              },
+              "node_id": "f0000012",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value.Schema__MGraph__Node__Value",
+              "node_path": "text"
+            },
+            "f0000013": {
+              "node_data": null,
+              "node_path": "body.div[1].i",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+              "node_id": "f0000013"
+            },
+            "f0000014": {
+              "node_data": {
+                "value_type": "builtins.str",
+                "value": "2nd div",
+                "key": "f0000013:0"
+              },
+              "node_id": "f0000014",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value.Schema__MGraph__Node__Value",
+              "node_path": "text"
+            },
+            "f0000015": {
+              "node_data": {
+                "value_type": "builtins.str",
+                "value": " in here\n        ",
+                "key": "f0000011:2"
+              },
+              "node_id": "f0000015",
+              "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Value.Schema__MGraph__Node__Value",
+              "node_path": "text"
+            }
+          }
+        },
+        "model_types": {
+          "node_model_type": null,
+          "edge_model_type": null
+        },
+        "resolver": {
+          "_node_model_type": "mgraph_db.mgraph.models.Model__MGraph__Node.Model__MGraph__Node",
+          "_edge_model_type": "mgraph_db.mgraph.models.Model__MGraph__Edge.Model__MGraph__Edge",
+          "_node_domain_type": null,
+          "_edge_domain_type": null,
+          "mgraph_defaults": {
+            "node_domain_type": "mgraph_db.mgraph.domain.Domain__MGraph__Node.Domain__MGraph__Node",
+            "edge_domain_type": "mgraph_db.mgraph.domain.Domain__MGraph__Edge.Domain__MGraph__Edge",
+            "node_model_type": "mgraph_db.mgraph.models.Model__MGraph__Node.Model__MGraph__Node",
+            "edge_model_type": "mgraph_db.mgraph.models.Model__MGraph__Edge.Model__MGraph__Edge",
+            "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+            "node_data_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Data.Schema__MGraph__Node__Data",
+            "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+            "edge_data_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge__Data.Schema__MGraph__Edge__Data",
+            "graph_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Graph.Schema__MGraph__Graph",
+            "graph_data_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Graph__Data.Schema__MGraph__Graph__Data"
+          }
+        }
+      },
+      "resolver": {
+        "_node_model_type": null,
+        "_edge_model_type": null,
+        "_node_domain_type": "mgraph_db.mgraph.domain.Domain__MGraph__Node.Domain__MGraph__Node",
+        "_edge_domain_type": "mgraph_db.mgraph.domain.Domain__MGraph__Edge.Domain__MGraph__Edge",
+        "mgraph_defaults": {
+          "node_domain_type": "mgraph_db.mgraph.domain.Domain__MGraph__Node.Domain__MGraph__Node",
+          "edge_domain_type": "mgraph_db.mgraph.domain.Domain__MGraph__Edge.Domain__MGraph__Edge",
+          "node_model_type": "mgraph_db.mgraph.models.Model__MGraph__Node.Model__MGraph__Node",
+          "edge_model_type": "mgraph_db.mgraph.models.Model__MGraph__Edge.Model__MGraph__Edge",
+          "node_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node.Schema__MGraph__Node",
+          "node_data_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Node__Data.Schema__MGraph__Node__Data",
+          "edge_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge.Schema__MGraph__Edge",
+          "edge_data_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Edge__Data.Schema__MGraph__Edge__Data",
+          "graph_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Graph.Schema__MGraph__Graph",
+          "graph_data_type": "mgraph_db.mgraph.schemas.Schema__MGraph__Graph__Data.Schema__MGraph__Graph__Data"
+        }
+      }
+    },
+    "query_class": "mgraph_db.query.MGraph__Query.MGraph__Query",
+    "edit_class": "mgraph_db.mgraph.actions.MGraph__Edit.MGraph__Edit",
+    "screenshot_class": "mgraph_db.mgraph.actions.MGraph__Screenshot.MGraph__Screenshot"
+  }
+}

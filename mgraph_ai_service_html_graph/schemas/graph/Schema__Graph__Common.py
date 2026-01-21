@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # MGraph HTML Graph - Common Graph Schemas for Native Export Formats
 # Shared data structures for vis.js, D3, Cytoscape, and Mermaid exports
-# ═══════════════════════════════════════════════════════════════════════════════
+
 
 from typing                                                          import Optional, List, Dict, Any
 from osbot_utils.type_safe.Type_Safe                                 import Type_Safe

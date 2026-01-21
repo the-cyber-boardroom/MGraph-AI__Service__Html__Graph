@@ -209,3 +209,6 @@ html-mgraph.png
 tests/unit/service/html_render/pngs
 package-lock.json
 *.png
+tests/unit/fast_api/routes/_traces
+tests/qa/utils/testing/_traces
+tests/qa/dev/dev_briefs/html_roundtrip_of_node_consolidation/phase_E__vitual_merge_and_selective_delete/perf_results

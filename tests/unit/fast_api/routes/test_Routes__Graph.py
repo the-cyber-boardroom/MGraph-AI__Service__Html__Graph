@@ -5,12 +5,11 @@
 
 from unittest                                                                            import TestCase
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph                          import Routes__Graph, TAG__ROUTES_GRAPH, ROUTES_PATHS__GRAPH
-#from mgraph_ai_service_html_graph.schemas.graph.Schema__Graph__Dot__Response             import Schema__Graph__Dot__Response
 from mgraph_ai_service_html_graph.schemas.routes.Schema__Graph__From_Html__Request       import Schema__Graph__From_Html__Request
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Schemas import Schema__Graph__Tree__Response, Schema__Graph__Dot__Response
 from mgraph_ai_service_html_graph.service.html_graph__export.Html_Graph__Export__Service import Html_Graph__Export__Service
-from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
-from osbot_utils.testing.__ import __, __SKIP__
+from osbot_utils.testing.Graph__Deterministic__Ids                                       import graph_deterministic_ids
+from osbot_utils.testing.__                                                              import __, __SKIP__
 
 
 class test_Routes__Graph(TestCase):
@@ -96,7 +95,7 @@ class test_Routes__Graph(TestCase):
         assert type(result) is Schema__Graph__Tree__Response
 
     def test__from_html_to_tree__has_children(self):
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             request = Schema__Graph__From_Html__Request(html=self.simple_html)
             result  = self.to_tree(request)
             assert type(result) is Schema__Graph__Tree__Response
@@ -244,7 +243,7 @@ class test_Routes__Graph(TestCase):
         assert result.transformation == 'semantic'        
 
     def test__tree__transformation__attributes_view(self):
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             request = Schema__Graph__From_Html__Request(html=self.complex_html)
             result  = self.to_tree(request, transformation='attributes_view')
 

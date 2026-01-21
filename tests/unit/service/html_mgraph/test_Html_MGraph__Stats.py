@@ -1,6 +1,6 @@
 from unittest                                                                               import TestCase
 from mgraph_ai_service_html_graph.service.html_mgraph.Html_MGraph                           import Html_MGraph
-from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph           import (
+from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph                          import (
     Schema__Html_MGraph__Stats__Base      ,
     Schema__Html_MGraph__Stats__Head      ,
     Schema__Html_MGraph__Stats__Body      ,
@@ -9,8 +9,8 @@ from mgraph_ai_service_html_graph.schemas.html.Schema__Html_MGraph           imp
     Schema__Html_MGraph__Stats__Styles    ,
     Schema__Html_MGraph__Stats__Document  ,
 )
-from mgraph_db.utils.testing.mgraph_test_ids import mgraph_test_ids
-from osbot_utils.testing.__ import __
+from osbot_utils.testing.Graph__Deterministic__Ids                                           import graph_deterministic_ids
+from osbot_utils.testing.__                                                                  import __
 
 
 class test_Html_MGraph__Stats(TestCase):                                        # Test stats methods return Schema objects
@@ -41,7 +41,7 @@ class test_Html_MGraph__Stats(TestCase):                                        
                 <script src="app.js"></script>
             </body>
         </html>'''
-        with mgraph_test_ids():
+        with graph_deterministic_ids():
             cls.mgraph = Html_MGraph.from_html(cls.html)
 
     # ═══════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Cache Store - MGraph</title>
+    
+    <!-- Base styles from v0.2.0 -->
+    <link rel="stylesheet" href="../v0.2.0/css/common.css">
+    
+    <!-- v0.2.11 Cache Store page styles -->
+    <link rel="stylesheet" href="css/cache-store.css">
+</head>
+<body>
+    <div class="cache-store-app">
+        <!-- Top Navigation -->
+        <top-nav></top-nav>
+
+        <!-- Maximize Toolbar (hidden by default) -->
+        <div class="maximize-toolbar">
+            <div class="maximize-toolbar-left">
+                <button class="max-toolbar-btn" id="minimize-btn" title="Exit fullscreen (Esc)">
+                    ✕ Exit
+                </button>
+                <div class="max-toolbar-separator"></div>
+                <span class="max-toolbar-title" id="max-title">Cache Store</span>
+            </div>
+            <div class="maximize-toolbar-center">
+                <span class="max-stats" id="max-stats"></span>
+            </div>
+            <div class="maximize-toolbar-right">
+                <button class="max-toolbar-btn" id="max-refresh-btn" title="Refresh (R)">↻ Refresh</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="cache-store-main">
+            <!-- Left Panel: Browser -->
+            <aside class="cache-store-sidebar">
+                <div class="sidebar-header">
+                    <h2>📁 Cache Browser</h2>
+                    <div class="namespace-selector">
+                        <label for="namespace-input">Namespace:</label>
+                        <input type="text" id="namespace-input" value="html-cache" placeholder="namespace">
+                        <button id="browse-btn" class="btn btn-sm btn-primary">Browse</button>
+                    </div>
+                </div>
+                <cache-browser id="cache-browser"></cache-browser>
+            </aside>
+
+            <!-- Center Panel: Content Viewer/Editor + Mini Browser -->
+            <section class="cache-store-content">
+                <!-- View Mode Tabs -->
+                <div class="view-tabs">
+                    <button class="view-tab-btn active" data-view="raw">📄 Raw HTML</button>
+                    <button class="view-tab-btn" data-view="browser">🌐 Browser Preview</button>
+                </div>
+                
+                <!-- Raw HTML View -->
+                <div class="view-content" id="view-raw">
+                    <html-viewer id="html-viewer"></html-viewer>
+                </div>
+                
+                <!-- Browser Preview -->
+                <div class="view-content hidden" id="view-browser">
+                    <mini-browser id="mini-browser"></mini-browser>
+                </div>
+            </section>
+
+            <!-- Right Panel: Metadata & Flows -->
+            <aside class="cache-store-details">
+                <div class="details-tabs">
+                    <button class="tab-btn active" data-tab="metadata">📋 Metadata</button>
+                    <button class="tab-btn" data-tab="flows">⏱️ Flows</button>
+                </div>
+                <div class="tab-content" id="tab-metadata">
+                    <cache-metadata id="cache-metadata"></cache-metadata>
+                </div>
+                <div class="tab-content hidden" id="tab-flows">
+                    <flow-timeline id="flow-timeline"></flow-timeline>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Status Bar -->
+        <footer class="cache-store-status">
+            <span id="status-message">Ready</span>
+            <span id="status-path"></span>
+            <span class="shortcuts-hint">Press <kbd>H</kbd> for shortcuts</span>
+        </footer>
+    </div>
+
+    <!-- Scripts: Load in dependency order -->
+    
+    <!-- Helpers (if not in common.js) -->
+    <script src="../v0.2.1/js/utils/helpers.js"></script>
+
+    <!-- Top Nav component -->
+    <script src="../v0.2.0/components/top-nav/top-nav.js"></script>
+    <script src="./components/top-nav/top-nav.js"></script>
+
+    <!-- Base API client from v0.2.0 -->
+    <script src="../v0.2.0/js/services/api-client.js"></script>
+    
+    <!-- v0.2.11 API client extensions (surgical patch) -->
+    <script src="js/services/api-client.js"></script>
+    
+    <!-- Component infrastructure -->
+    <script src="components/_base/component-paths.js"></script>
+    <script src="../v0.2.1/components/_base/base-component.js"></script>
+    
+    <!-- Components -->
+    <script src="components/cache-browser/cache-browser.js"></script>
+    <script src="components/html-viewer/html-viewer.js"></script>
+    <script src="components/mini-browser/mini-browser.js"></script>
+    <script src="components/cache-metadata/cache-metadata.js"></script>
+    <script src="components/flow-timeline/flow-timeline.js"></script>
+    
+    <!-- Page orchestrator -->
+    <script src="js/cache-store.js"></script>
+</body>
+</html>
