@@ -1,0 +1,37 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - HTML Viewer Template
+   v0.2.11 - Shadow DOM template
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="html-viewer-container">
+    <div class="html-viewer-toolbar" id="viewer-toolbar">
+        <div class="toolbar-left">
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-mode="view" title="View HTML (V)">📄 View</button>
+                <button class="mode-btn" data-mode="edit" title="Edit HTML (E)">✏️ Edit</button>
+                <button class="mode-btn" data-mode="preview" title="Preview rendered (P)">👁️ Preview</button>
+            </div>
+        </div>
+        <div class="toolbar-center">
+            <span class="viewer-info" id="viewer-info"></span>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn btn-secondary" id="copy-btn" title="Copy to clipboard">
+                📋 Copy
+            </button>
+            <button class="btn btn-success" id="save-btn" title="Save changes (Ctrl+S)" disabled>
+                💾 Save
+            </button>
+            <button class="btn btn-icon" id="maximize-btn" title="Maximize (M)">
+                ⛶
+            </button>
+        </div>
+    </div>
+    <div class="html-viewer-content" id="viewer-content">
+        <div class="html-viewer-empty">
+            <div class="html-viewer-empty-icon">📄</div>
+            <p>Select a cached page to view its HTML</p>
+            <p class="empty-hint">Double-click an entity in the browser to load its content.</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Cache Browser Template
+   v0.2.11 - Shadow DOM template
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="cache-browser-container">
+    <div class="cache-browser-toolbar">
+        <button class="btn btn-icon" id="browser-back-btn" title="Go up (Backspace)">
+            ⬆️
+        </button>
+        <button class="btn btn-icon" id="browser-refresh-btn" title="Refresh (R)">
+            🔄
+        </button>
+        <button class="btn btn-icon" id="browser-home-btn" title="Home">
+            🏠
+        </button>
+    </div>
+    <div class="cache-browser-path" id="browser-path">
+        <span class="path-segment" data-path="">root</span>
+    </div>
+    <div class="cache-browser-list" id="browser-list">
+        <div class="cache-browser-empty">
+            <div class="cache-browser-empty-icon">📂</div>
+            <p>Click "Browse" to load entities</p>
+        </div>
+    </div>
+</div>

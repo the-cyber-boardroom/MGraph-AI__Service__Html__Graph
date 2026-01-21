@@ -1,0 +1,123 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Cache Metadata Styles
+   v0.2.11 - Component-specific styles
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cache-metadata-container {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.metadata-content {
+    padding: var(--spacing-sm, 8px);
+}
+
+/* Sections */
+.metadata-section {
+    margin-bottom: var(--spacing-md, 16px);
+}
+
+.metadata-section:last-child {
+    margin-bottom: 0;
+}
+
+.metadata-section-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted, #9ca3af);
+    margin-bottom: var(--spacing-xs, 4px);
+    padding-bottom: var(--spacing-xs, 4px);
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+/* Rows */
+.metadata-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: var(--spacing-xs, 4px) 0;
+    font-size: 0.85rem;
+    gap: var(--spacing-sm, 8px);
+}
+
+.metadata-label {
+    color: var(--color-text-secondary, #6b7280);
+    flex-shrink: 0;
+}
+
+.metadata-value {
+    color: var(--color-text-primary, #111827);
+    text-align: right;
+    word-break: break-all;
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.metadata-value.mono {
+    font-family: var(--font-code, monospace);
+    font-size: 0.75rem;
+}
+
+.metadata-value.success {
+    color: var(--color-success, #10b981);
+}
+
+.metadata-value.error {
+    color: var(--color-error, #dc2626);
+}
+
+/* Empty State */
+.metadata-empty {
+    color: var(--color-text-muted, #9ca3af);
+    font-style: italic;
+    text-align: center;
+    padding: var(--spacing-lg, 24px);
+}
+
+/* Data Files List */
+.data-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.data-file-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs, 4px);
+    padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
+    background: var(--color-bg-muted, #f9fafb);
+    border-radius: var(--radius-sm, 4px);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s ease;
+}
+
+.data-file-item:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--color-primary, #6366f1);
+}
+
+.data-file-icon {
+    flex-shrink: 0;
+    font-size: 0.9rem;
+}
+
+.data-file-name {
+    flex: 1;
+    font-family: var(--font-code, monospace);
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.data-file-size {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    color: var(--color-text-muted, #9ca3af);
+    font-family: var(--font-code, monospace);
+}

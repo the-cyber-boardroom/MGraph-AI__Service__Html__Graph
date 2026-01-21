@@ -1,0 +1,33 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+   MGraph HTML Graph - Mini Browser Template
+   v0.2.11 - Shadow DOM template
+   ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="mini-browser-container">
+    <div class="browser-toolbar">
+        <div class="browser-controls">
+            <button class="browser-btn" id="browser-refresh-btn" title="Refresh">
+                🔄
+            </button>
+        </div>
+        <div class="browser-url-bar">
+            <span class="url-icon">🔒</span>
+            <input type="text" id="browser-url" class="url-input" readonly placeholder="No page loaded">
+        </div>
+        <div class="browser-options">
+            <select id="browser-scale" class="scale-select" title="Zoom level">
+                <option value="1">100%</option>
+                <option value="0.75">75%</option>
+                <option value="0.5">50%</option>
+                <option value="0.25">25%</option>
+            </select>
+        </div>
+    </div>
+    <div class="browser-viewport">
+        <iframe id="browser-frame" sandbox="allow-same-origin" style="display: none;"></iframe>
+        <div class="browser-placeholder" id="browser-placeholder">
+            <div class="placeholder-icon">🌐</div>
+            <p>Load an entity to preview its HTML</p>
+        </div>
+    </div>
+</div>
