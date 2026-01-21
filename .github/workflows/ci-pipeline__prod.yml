@@ -9,4 +9,5 @@ jobs:
       git_branch          : 'main'
       target_deploy       : 'prod'
       should_increment_tag: false
+      should_publish_pypi : false
     secrets: inherit
