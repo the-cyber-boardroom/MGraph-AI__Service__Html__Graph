@@ -16,7 +16,7 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 
 
 class FLeT__Flows__Service(Type_Safe):                                              # Service for flow observability
-    cache_client : Html_Cache__Client                                               # Cache client for data access
+    html_cache_client : Html_Cache__Client                                               # Cache client for data access
 
     @type_safe
     def list_flets(self                                       ,                     # List all FLeTs executed for entity
@@ -24,10 +24,10 @@ class FLeT__Flows__Service(Type_Safe):                                          
                    cache_id  : Cache_Id                                             # Entity cache ID
               ) -> Schema__Flow__List__Response:
         try:
-            result = self.cache_client.data__list(namespace = namespace ,
-                                                  cache_id  = cache_id  ,
-                                                  data_key  = 'flows'   ,
-                                                  recursive = True      )
+            result = self.html_cache_client.data__list(namespace = namespace,
+                                                       cache_id  = cache_id,
+                                                       data_key  = 'flows',
+                                                       recursive = True)
             if result is None or not result.files:
                 return Schema__Flow__List__Response(success = True ,
                                                     flets   = []   ,
@@ -55,10 +55,10 @@ class FLeT__Flows__Service(Type_Safe):                                          
                  flet_name : Safe_Str__FLeT__Name                                   # FLeT name to retrieve
             ) -> Schema__Flow__Data__Response:
         try:
-            flow_data = self.cache_client.data__retrieve_json(namespace    = namespace          ,
-                                                              cache_id     = cache_id           ,
-                                                              data_key     = f'flows/{flet_name}',          # todo: find a better way to resolve this name so that it is not hardcoded here
-                                                              data_file_id = 'flow-data'        )           #       same here
+            flow_data = self.html_cache_client.data__retrieve_json(namespace    = namespace,
+                                                                   cache_id     = cache_id,
+                                                                   data_key     = f'flows/{flet_name}',  # todo: find a better way to resolve this name so that it is not hardcoded here
+                                                                   data_file_id = 'flow-data')           #       same here
             if flow_data is None:
                 return Schema__Flow__Data__Response(success   = False    ,
                                                     flet_name = flet_name)

@@ -31,7 +31,7 @@ class test_Routes__Cache__Data(TestCase):
     def setUpClass(cls):                                                            # Shared test objects
         cls.cache_client, cls.cache_service = create_html_cache_client()
         cls.data_service   = Cache__Data__Service  (cache_client = cls.cache_client)
-        cls.entity_service = Cache__Entity__Service(cache_client = cls.cache_client)
+        cls.entity_service = Cache__Entity__Service(html_cache_client = cls.cache_client)
         cls.routes         = Routes__Cache__Data   (service      = cls.data_service)
         cls.namespace      = 'test-routes-cache-data'
         cls.cache_id       = cls.create_test_entity()

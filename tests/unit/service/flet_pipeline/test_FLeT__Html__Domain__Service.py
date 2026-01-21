@@ -26,14 +26,14 @@ class test_FLeT__Html__Domain__Service(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                          # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.domain_service = FLeT__Html__Domain__Service(cache_client=cls.cache_client)
+        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.domain_service = FLeT__Html__Domain__Service(html_cache_client=cls.html_cache_client)
         cls.namespace      = 'test-flet-domain-service'
         cls.test_html      = '<html><body><h1>Test Domain Content</h1></body></html>'
 
     def setUp(self):                                                              # Per-test setup
         self.cache_key  = f'test/domain/{Random_Guid()}'
-        self.cache_hash = self.cache_client.hash_generator.from_string(self.cache_key)
+        self.cache_hash = self.html_cache_client.hash_generator.from_string(self.cache_key)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # store_raw Tests
@@ -278,7 +278,7 @@ class test_FLeT__Html__Domain__Service(TestCase):
                                                    char_count = 54        ,
                                                    final_url  = file_url )
 
-        with Html_Cache__Namespace(html_cache_client = self.cache_client,
+        with Html_Cache__Namespace(html_cache_client = self.html_cache_client,
                                    namespace         = self.namespace) as cache_namespace:
             with cache_namespace.entity(cache_id=cache_id) as cache_entity:
                 assert cache_entity.entry__json()        == {'cache_key': cache_key }
@@ -343,9 +343,9 @@ class test_FLeT__Html__Domain__Service(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test__init__creates_services_from_cache_client(self):
-        service = FLeT__Html__Domain__Service(cache_client=self.cache_client)
+        service = FLeT__Html__Domain__Service(html_cache_client=self.html_cache_client)
 
-        assert service.cache_client    is self.cache_client
+        assert service.html_cache_client is self.html_cache_client
         assert service.entity_service  is not None
         assert service.execute_service is not None
         assert service.url_fetcher     is not None

@@ -26,7 +26,7 @@ class test_Routes__FLeT__Html__Domain(TestCase):
     @classmethod
     def setUpClass(cls):                                                            # Shared test objects
         cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.domain_service = FLeT__Html__Domain__Service(cache_client = cls.cache_client)
+        cls.domain_service = FLeT__Html__Domain__Service(html_cache_client = cls.cache_client)
         cls.routes         = Routes__FLeT__Html__Domain (service      = cls.domain_service)
         cls.namespace      = 'test-routes-flet-html-domain'
 

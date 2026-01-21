@@ -27,7 +27,7 @@ class test_Cache__Data__Service(TestCase):
     @classmethod
     def setUpClass(cls):                                                          # Shared test objects
         cls.html_cache_client, cls.cache_service = create_html_cache_client()
-        cls.entity_service = Cache__Entity__Service(cache_client=cls.html_cache_client)
+        cls.entity_service = Cache__Entity__Service(html_cache_client=cls.html_cache_client)
         cls.data_service   = Cache__Data__Service  (cache_client=cls.html_cache_client)
         cls.namespace      = 'test-cache-data-service'
         cls.create_test_data()
@@ -54,7 +54,7 @@ class test_Cache__Data__Service(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test__setUpClass(self):
-        assert self.entity_service.cache_client == self.html_cache_client
+        assert self.entity_service.html_cache_client == self.html_cache_client
         assert self.data_service  .cache_client == self.html_cache_client
 
     def test__create_test_data(self):

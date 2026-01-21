@@ -26,10 +26,10 @@ class test_Routes__FLeT__Flows(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.flows_service  = FLeT__Flows__Service  (cache_client = cls.cache_client)
-        cls.entity_service = Cache__Entity__Service(cache_client = cls.cache_client)
-        cls.data_service   = Cache__Data__Service  (cache_client = cls.cache_client)
+        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.flows_service  = FLeT__Flows__Service  (html_cache_client = cls.html_cache_client)
+        cls.entity_service = Cache__Entity__Service(html_cache_client = cls.html_cache_client)
+        cls.data_service   = Cache__Data__Service  (cache_client = cls.html_cache_client)
         cls.routes         = Routes__FLeT__Flows   (service      = cls.flows_service)
         cls.namespace      = 'test-routes-flet-flows'
         cls.cache_id       = cls.create_test_entity_with_flows()

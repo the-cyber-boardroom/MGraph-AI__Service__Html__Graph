@@ -5,6 +5,7 @@
 
 from unittest                                                                                   import TestCase
 from fastapi                                                                                    import HTTPException
+from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity                        import Cache__Entity
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata            import Schema__Cache__File__Metadata
 from mgraph_ai_service_html_graph.fast_api.routes.cache.Routes__Cache__Entity                   import Routes__Cache__Entity
 from mgraph_ai_service_html_graph.fast_api.routes.cache.Routes__Cache__Entity                   import TAG__ROUTES_CACHE_ENTITY
@@ -12,6 +13,7 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service                          import Cache__Entity__Service
 from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                           import Random_Guid
 from osbot_utils.utils.Objects                                                                  import base_types
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request          import Schema__Entity__Create__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response         import Schema__Entity__Create__Response
@@ -19,6 +21,7 @@ from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Delete__R
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Exists__Response         import Schema__Entity__Exists__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Request          import Schema__Entity__Lookup__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Response         import Schema__Entity__Lookup__Response
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__Response           import Schema__Entity__List__Response
 from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                        import create_html_cache_client
 
 
@@ -26,8 +29,8 @@ class test_Routes__Cache__Entity(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.service   = Cache__Entity__Service(cache_client = cls.cache_client)
+        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.service   = Cache__Entity__Service(html_cache_client = cls.html_cache_client)
         cls.routes    = Routes__Cache__Entity (service      = cls.service     )
         cls.namespace = 'test-routes-cache-entity'
 
@@ -107,6 +110,54 @@ class test_Routes__Cache__Entity(TestCase):
         assert lookup_response.success  is True
         assert lookup_response.found    is False
         assert lookup_response.cache_id == ''
+
+
+    # ══════════════════════════════════════════════════════════════════════════════
+    # List Entities Tests
+    # ═══════════════════════════════════════════════════════════════════════════════
+
+    def test_entity__list(self):                                                        # Test list all entities
+        test_namespace = f'test-routes-list-{Random_Guid()[:8]}'
+
+        self.routes.entity__create(namespace = test_namespace,
+                                   request   = Schema__Entity__Create__Request(cache_key='page/home'))
+        self.routes.entity__create(namespace = test_namespace,
+                                   request   = Schema__Entity__Create__Request(cache_key='page/about'))
+
+        response = self.routes.entities(namespace=test_namespace)
+
+        assert type(response)   is Schema__Entity__List__Response
+        assert response.success is True
+        assert response.count   == 2
+
+    def test_entity__list__with_data_files(self):                                       # Test list with include_data_files
+        test_namespace = f'test-routes-list-files-{Random_Guid()[:8]}'
+
+        create_response = self.routes.entity__create(namespace = test_namespace,
+                                                     request   = Schema__Entity__Create__Request(cache_key='page/data'))
+        cache_id = create_response.cache_id
+
+        # Add data via Cache__Entity
+        entity = Cache__Entity(cache_client = self.html_cache_client.cache_client,
+                               cache_id     = cache_id,
+                               namespace    = test_namespace)
+        entity.data__store_string(data_key='content', data_file_id='main', content='Hello')
+
+        response = self.routes.entities(namespace          = test_namespace,
+                                            include_data_files = True          )
+
+        assert response.success is True
+        assert response.entities[0].data_files is not None
+        assert len(response.entities[0].data_files) > 0
+
+    def test_entity__list__empty(self):                                                 # Test list empty namespace
+        empty_namespace = f'test-routes-empty-{Random_Guid()}'
+
+        response = self.routes.entities(namespace=empty_namespace)
+
+        assert response.success  is True
+        assert response.count    == 0
+        assert response.entities == []
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Get Tests

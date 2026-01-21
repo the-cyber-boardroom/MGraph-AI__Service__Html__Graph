@@ -15,8 +15,7 @@ from mgraph_ai_service_html_graph.service.flet_pipeline.flet.FLeT__Flows__Servic
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.FLeT__Html__Execute__Service   import FLeT__Html__Execute__Service
 from osbot_utils.testing.__                                                                 import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                       import Type_Safe__List
 from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import create_html_cache_client
 
 
@@ -24,10 +23,10 @@ class test_FLeT__Flows__Service(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                          # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.entity_service  = Cache__Entity__Service     (cache_client=cls.cache_client)
-        cls.execute_service = FLeT__Html__Execute__Service(cache_client=cls.cache_client)
-        cls.flows_service   = FLeT__Flows__Service       (cache_client=cls.cache_client)
+        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.entity_service  = Cache__Entity__Service      (html_cache_client=cls.html_cache_client)
+        cls.execute_service = FLeT__Html__Execute__Service(html_cache_client=cls.html_cache_client)
+        cls.flows_service   = FLeT__Flows__Service        (html_cache_client=cls.html_cache_client)
         cls.namespace       = 'test-flet-flows-service'
         cls.test_html       = '<html><body><h1>Test Content</h1></body></html>'
 

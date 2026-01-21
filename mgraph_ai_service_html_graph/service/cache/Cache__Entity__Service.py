@@ -6,21 +6,22 @@ from osbot_utils.type_safe.Type_Safe                                            
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata            import Schema__Cache__File__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__Namespace           import Safe_Str__Cache__Namespace
+from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity                        import Cache__Entity
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request          import Schema__Entity__Create__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response         import Schema__Entity__Create__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Delete__Response         import Schema__Entity__Delete__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Exists__Response         import Schema__Entity__Exists__Response
-from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__By__Path__Response import Schema__Entity__List__By__Path__Response
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Info                     import Schema__Entity__Info
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__Response           import Schema__Entity__List__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Request          import Schema__Entity__Lookup__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Response         import Schema__Entity__Lookup__Response
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                      import Html_Cache__Client
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path               import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                              import Cache_Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                  import type_safe
 
 
 class Cache__Entity__Service(Type_Safe):                                            # Service for entity operations
-    cache_client : Html_Cache__Client                                               # Cache client for storage
+    html_cache_client : Html_Cache__Client                                               # Cache client for storage
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Create / Lookup Operations
@@ -31,9 +32,9 @@ class Cache__Entity__Service(Type_Safe):                                        
                namespace : Safe_Str__Cache__Namespace          ,                    # Cache namespace
                request   : Schema__Entity__Create__Request                          # Create request with cache_key
           ) -> Schema__Entity__Create__Response:
-        result = self.cache_client.entry__store(namespace = namespace         ,
-                                                cache_key = request.cache_key ,
-                                                file_id   = request.file_id   )
+        result = self.html_cache_client.entry__store(namespace = namespace,
+                                                     cache_key = request.cache_key,
+                                                     file_id   = request.file_id)
         #result.print_obj()
         if result:
             return Schema__Entity__Create__Response(success    = True             ,
@@ -50,11 +51,11 @@ class Cache__Entity__Service(Type_Safe):                                        
         cache_id = None
 
         if request.cache_key:
-            cache_id = self.cache_client.cache_id__from_key(namespace = namespace         ,
-                                                            cache_key = request.cache_key )
+            cache_id = self.html_cache_client.cache_id__from_key(namespace = namespace,
+                                                                 cache_key = request.cache_key)
         elif request.cache_hash:
-            cache_id = self.cache_client.cache_id__from_hash(namespace  = namespace          ,
-                                                            cache_hash = request.cache_hash )
+            cache_id = self.html_cache_client.cache_id__from_hash(namespace  = namespace,
+                                                                  cache_hash = request.cache_hash)
         else:
             return Schema__Entity__Lookup__Response(success=False)
 
@@ -69,24 +70,45 @@ class Cache__Entity__Service(Type_Safe):                                        
 
 
 
+    @type_safe
+    def list_entities(self,
+                      namespace         : Safe_Str__Cache__Namespace ,
+                      include_data_files: bool                       = False
+                 ) -> Schema__Entity__List__Response:
 
+        cache_ids = self.html_cache_client.cache_client.namespace().cache_ids(namespace=namespace)
 
+        entities = []
+        for cache_id in cache_ids:
+            entity = Cache__Entity(cache_client = self.html_cache_client.cache_client,
+                                   cache_id     = cache_id,
+                                   namespace    = namespace)
 
-    def list_by_path(self, namespace  : Safe_Str__Cache__Namespace,
-                           path_prefix: Safe_Str__File__Path
-                      ) -> Schema__Entity__List__By__Path__Response:
-        admin_storage = self.cache_client.cache_client.admin_storage()
-        search_path   = f'{namespace}/data/key-based/{path_prefix}' if path_prefix else f'{namespace}/data/key-based'
+            entry = entity.entry__with_metadata()
 
-        folders = admin_storage.folders(path             = search_path,
-                                        recursive        = False      ,
-                                        return_full_path = False      )
+            if entry and entry.metadata:
+                meta = entry.metadata
+                entity_info = Schema__Entity__Info(cache_id         = meta.cache_id        ,
+                                                   cache_key        = meta.cache_key       ,
+                                                   cache_hash       = meta.cache_hash      ,
+                                                   file_id          = meta.file_id         ,
+                                                   namespace        = meta.namespace       ,
+                                                   strategy         = meta.strategy        ,
+                                                   stored_at        = meta.stored_at       ,
+                                                   file_type        = meta.file_type       ,
+                                                   content_encoding = meta.content_encoding,
+                                                   content_size     = meta.content_size    )
 
-        return Schema__Entity__List__By__Path__Response(success     = True       ,                      # todo: review the use of success here
-                                                        namespace   = namespace  ,
-                                                        path_prefix = path_prefix,
-                                                        count       = len(folders),
-                                                        entities    = folders    )
+                if include_data_files:
+                    data_list = entity.data__files(recursive=True)
+                    if data_list and data_list.files:
+                        entity_info.data_files = [file.json() for file in data_list.files]
+
+                entities.append(entity_info)
+
+        return Schema__Entity__List__Response(namespace = namespace     ,
+                                              count     = len(entities) ,
+                                              entities  = entities      )
     # ═══════════════════════════════════════════════════════════════════════════════
     # Get Operations
     # ═══════════════════════════════════════════════════════════════════════════════
@@ -96,24 +118,24 @@ class Cache__Entity__Service(Type_Safe):                                        
             namespace : Safe_Str__Cache__Namespace    ,                             # Cache namespace
             cache_id  : Cache_Id                                                    # Entity cache ID
        ) -> dict:
-        return self.cache_client.entry__retrieve(namespace = namespace ,
-                                                 cache_id  = cache_id  )
+        return self.html_cache_client.entry__retrieve(namespace = namespace,
+                                                      cache_id  = cache_id)
 
     @type_safe
     def get_metadata(self                                      ,                    # Get entry metadata
                      namespace : Safe_Str__Cache__Namespace    ,                    # Cache namespace
                      cache_id  : Cache_Id                                           # Entity cache ID
                 ) -> Schema__Cache__File__Metadata:
-        return self.cache_client.cache__entry__metadata(namespace = namespace ,
-                                                        cache_id  = cache_id  )
+        return self.html_cache_client.cache__entry__metadata(namespace = namespace,
+                                                             cache_id  = cache_id)
 
     @type_safe
     def get_refs(self                                      ,                        # Get entry refs
                  namespace : Safe_Str__Cache__Namespace    ,                        # Cache namespace
                  cache_id  : Cache_Id                                               # Entity cache ID
             ) -> Schema__Cache__File__Refs:
-        return self.cache_client.cache__entry__refs(namespace = namespace ,
-                                                    cache_id  = cache_id  )
+        return self.html_cache_client.cache__entry__refs(namespace = namespace,
+                                                         cache_id  = cache_id)
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Exists / Delete Operations
@@ -124,8 +146,8 @@ class Cache__Entity__Service(Type_Safe):                                        
                namespace : Safe_Str__Cache__Namespace    ,                          # Cache namespace
                cache_id  : Cache_Id                                                 # Entity cache ID
           ) -> Schema__Entity__Exists__Response:
-        result = self.cache_client.entry__exists(namespace = namespace ,
-                                                 cache_id  = cache_id  )
+        result = self.html_cache_client.entry__exists(namespace = namespace,
+                                                      cache_id  = cache_id)
 
         return Schema__Entity__Exists__Response(exists=result)
 
@@ -134,8 +156,8 @@ class Cache__Entity__Service(Type_Safe):                                        
                namespace : Safe_Str__Cache__Namespace    ,                          # Cache namespace
                cache_id  : Cache_Id                                                 # Entity cache ID
           ) -> Schema__Entity__Delete__Response:
-        result = self.cache_client.entry__delete(namespace = namespace ,
-                                                 cache_id  = cache_id  )
+        result = self.html_cache_client.entry__delete(namespace = namespace,
+                                                      cache_id  = cache_id)
 
         return Schema__Entity__Delete__Response(success = True   ,
                                                 deleted = result )

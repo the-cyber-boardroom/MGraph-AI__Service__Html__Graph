@@ -24,9 +24,9 @@ class test_Routes__FLeT__Html__Execute(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.execute_service = FLeT__Html__Execute__Service(cache_client = cls.cache_client)
-        cls.entity_service  = Cache__Entity__Service      (cache_client = cls.cache_client)
+        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.execute_service = FLeT__Html__Execute__Service(html_cache_client = cls.html_cache_client)
+        cls.entity_service  = Cache__Entity__Service      (html_cache_client = cls.html_cache_client)
         cls.routes          = Routes__FLeT__Html__Execute (service      = cls.execute_service)
         cls.namespace       = 'test-routes-flet-html-execute'
         cls.cache_id        = cls.create_test_entity()

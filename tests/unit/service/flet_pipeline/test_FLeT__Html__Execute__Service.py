@@ -21,9 +21,9 @@ class test_FLeT__Html__Execute__Service(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                          # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.entity_service  = Cache__Entity__Service      (cache_client=cls.cache_client)
-        cls.execute_service = FLeT__Html__Execute__Service(cache_client=cls.cache_client)
+        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.entity_service  = Cache__Entity__Service      (html_cache_client=cls.html_cache_client)
+        cls.execute_service = FLeT__Html__Execute__Service(html_cache_client=cls.html_cache_client)
         cls.namespace       = 'test-flet-execute-service'
         cls.test_html       = '<html><body><h1>Test Content</h1></body></html>'
 
@@ -158,14 +158,14 @@ class test_FLeT__Html__Execute__Service(TestCase):
         assert result__from_cache.found   is True                      # BUG
         assert result__from_cache.html    == self.test_html            # BUG
 
-        exists = self.cache_client.data__exists(namespace    = self.namespace               ,
-                                                cache_id     = self.cache_id                ,
-                                                data_key     = data_key                     ,
-                                                data_file_id = data_file_id                 ,
-                                                data_type    = Enum__Cache__Data_Type.STRING)
+        exists = self.html_cache_client.data__exists(namespace    = self.namespace,
+                                                     cache_id     = self.cache_id,
+                                                     data_key     = data_key,
+                                                     data_file_id = data_file_id,
+                                                     data_type    = Enum__Cache__Data_Type.STRING)
         assert exists is True
 
-        with Html_Cache__Namespace(html_cache_client= self.cache_client, namespace = self.namespace) as cache_namespace:
+        with Html_Cache__Namespace(html_cache_client= self.html_cache_client, namespace = self.namespace) as cache_namespace:
             with cache_namespace.entity(cache_id = self.cache_id ) as entity:
                 assert entity.exists()              is True
                 assert entity.data__files__paths() == [f'test-flet-execute-service/data/key-based/{self.cache_key}/root/data/{data_key}/{data_file_id}.txt'                        ,

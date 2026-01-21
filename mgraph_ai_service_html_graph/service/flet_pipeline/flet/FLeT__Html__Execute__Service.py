@@ -18,7 +18,7 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 
 
 class FLeT__Html__Execute__Service(Type_Safe):                                      # Service for FLeT HTML execution
-    cache_client : Html_Cache__Client                                               # Cache client for storage
+    html_cache_client : Html_Cache__Client                                          # Cache client for storage
 
     @type_safe
     def execute_to_cache(self                                                    ,  # Execute FLeT to store HTML
@@ -31,12 +31,12 @@ class FLeT__Html__Execute__Service(Type_Safe):                                  
                 return Schema__FLeT__Html__To__Cache__Response(success  = False   ,
                                                                cache_id = cache_id)
 
-            if self.cache_client.entry__exists(namespace=namespace, cache_id=cache_id) is False:
+            if self.html_cache_client.entry__exists(namespace=namespace, cache_id=cache_id) is False:
                 raise ValueError(f"Entity not found: {cache_id}")
 
-            flet = FLeT__Html__To__Cache(cache_client = self.cache_client ,
-                                         cache_id     = cache_id          ,
-                                         namespace    = namespace         ).setup()
+            flet = FLeT__Html__To__Cache(cache_client = self.html_cache_client,
+                                         cache_id     = cache_id,
+                                         namespace    = namespace).setup()
 
             if request.data_key != 'html' or request.data_file_id != 'raw':
                 flet.data_key     = request.data_key
@@ -69,12 +69,12 @@ class FLeT__Html__Execute__Service(Type_Safe):                                  
                            request   : Schema__FLeT__Html__From__Cache__Request     # Request options
                       ) -> Schema__FLeT__Html__From__Cache__Response:
         try:
-            if self.cache_client.entry__exists(namespace=namespace, cache_id=cache_id) is False:
+            if self.html_cache_client.entry__exists(namespace=namespace, cache_id=cache_id) is False:
                 raise ValueError(f"Entity not found: {cache_id}")
 
-            flet = FLeT__Html__From__Cache(cache_client = self.cache_client ,
-                                           cache_id     = cache_id          ,
-                                           namespace    = namespace         ).setup()
+            flet = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                           cache_id     = cache_id,
+                                           namespace    = namespace).setup()
 
             #if request.data_key != 'html' or request.data_file_id != 'raw':
             flet.data_key     = request.data_key

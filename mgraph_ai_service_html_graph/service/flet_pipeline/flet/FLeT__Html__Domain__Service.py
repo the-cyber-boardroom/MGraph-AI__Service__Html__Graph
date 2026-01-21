@@ -29,20 +29,20 @@ from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html       
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                      import type_safe
 
 
-class FLeT__Html__Domain__Service(Type_Safe):                                       # Domain service for HTML operations
-    cache_client    : Html_Cache__Client                                            # Cache client for storage
-    entity_service  : Cache__Entity__Service       = None                           # Entity management service
-    execute_service : FLeT__Html__Execute__Service = None                           # FLeT execution service
-    hash_generator  : Cache__Hash__Generator                                        # Hash generator for cache keys
-    url_fetcher     : Html__Url__Fetcher                                            # URL fetcher for remote HTML
-    url_to_cache_key: Url__To__Cache_Key                                            # Util to convert URLs into cache_keys
+class FLeT__Html__Domain__Service(Type_Safe):                                         # Domain service for HTML operations
+    html_cache_client : Html_Cache__Client                                            # Cache client for storage
+    entity_service    : Cache__Entity__Service       = None                           # Entity management service
+    execute_service   : FLeT__Html__Execute__Service = None                           # FLeT execution service
+    hash_generator    : Cache__Hash__Generator                                        # Hash generator for cache keys
+    url_fetcher       : Html__Url__Fetcher                                            # URL fetcher for remote HTML
+    url_to_cache_key  : Url__To__Cache_Key                                            # Util to convert URLs into cache_keys
 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.entity_service = Cache__Entity__Service       (cache_client=self.cache_client)
-        self.execute_service = FLeT__Html__Execute__Service(cache_client=self.cache_client)
+        self.entity_service = Cache__Entity__Service       (html_cache_client=self.html_cache_client)
+        self.execute_service = FLeT__Html__Execute__Service(html_cache_client=self.html_cache_client)
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Store Operations

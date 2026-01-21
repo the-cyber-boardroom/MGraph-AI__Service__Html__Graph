@@ -7,14 +7,15 @@ from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Meta
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity                        import Cache__Entity
 from mgraph_ai_service_cache_client.utils.Version                                               import version__mgraph_ai_service_cache_client
+from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service                          import Cache__Entity__Service
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request          import Schema__Entity__Create__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response         import Schema__Entity__Create__Response
-from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__By__Path__Response import Schema__Entity__List__By__Path__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Request          import Schema__Entity__Lookup__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Lookup__Response         import Schema__Entity__Lookup__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Exists__Response         import Schema__Entity__Exists__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Delete__Response         import Schema__Entity__Delete__Response
-from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service                          import Cache__Entity__Service
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Info                     import Schema__Entity__Info
+from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__Response           import Schema__Entity__List__Response
 from osbot_utils.testing.__                                                                     import __, __SKIP__
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                                  import Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                           import Random_Guid
@@ -26,7 +27,7 @@ class test_Cache__Entity__Service(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.html_cache_client, cls.cache_service = create_html_cache_client()
-        cls.entity_service = Cache__Entity__Service(cache_client=cls.html_cache_client)
+        cls.entity_service = Cache__Entity__Service(html_cache_client=cls.html_cache_client)
         cls.namespace      = 'test-cache-entity-service'
         cls.create_test_data()
 
@@ -48,7 +49,7 @@ class test_Cache__Entity__Service(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test__setUpClass(self):
-        assert self.entity_service.cache_client == self.html_cache_client
+        assert self.entity_service.html_cache_client == self.html_cache_client
 
     def test__create_test_data(self):
         cache_id  = self.cache_id
@@ -185,85 +186,108 @@ class test_Cache__Entity__Service(TestCase):
 
 
     # ═══════════════════════════════════════════════════════════════════════════════
-    # List By Path Tests
+    # List Entities Tests
     # ═══════════════════════════════════════════════════════════════════════════════
-
-    def test_list_by_path(self):                                                    # Test list folders under path
-        base_path = f'test/list-by-path/{Random_Guid()[:8]}'                        # Create some entities under a common path
-
-        self.entity_service.create(namespace = self.namespace,
-                                   request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/page-a'))
-        self.entity_service.create(namespace = self.namespace,
-                                   request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/page-b'))
-        self.entity_service.create(namespace = self.namespace,
-                                   request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/page-c'))
-
-        response = self.entity_service.list_by_path(namespace   = self.namespace,
-                                             path_prefix = base_path     )
-
-        assert type(response)    is Schema__Entity__List__By__Path__Response
-        assert response.success  is True
-        assert response.namespace   == self.namespace
-        assert response.path_prefix == base_path
-        assert response.count       == 3
-        assert 'page-a' in response.entities
-        assert 'page-b' in response.entities
-        assert 'page-c' in response.entities
-
-    def test_list_by_path__nested(self):                                            # Test list with nested paths
-        base_path = f'test/list-nested/{Random_Guid()[:8]}'
-
-        self.entity_service.create( namespace = self.namespace,
-                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/level1/page-a'))
-        self.entity_service.create( namespace = self.namespace,
-                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/level2/page-b'))
-
-        # List at base level - should see level1 and level2
-        response = self.entity_service.list_by_path(namespace   = self.namespace,
-                                             path_prefix = base_path     )
-
-        assert response.count == 2
-        assert 'level1' in response.entities
-        assert 'level2' in response.entities
-
-    def test_list_by_path__empty(self):                                             # Test list empty path
-        empty_path = f'test/empty-path/{Random_Guid()}'
-
-        response = self.entity_service.list_by_path(namespace   = self.namespace,
-                                             path_prefix = empty_path    )
-
+    
+    def test_list_entities(self):                                                       # Test list all entities in namespace
+        # Create a unique namespace for this test
+        test_namespace = f'test-list-entities-{Random_Guid()[:8]}'
+        
+        # Create some entities
+        self.entity_service.create( namespace = test_namespace,
+                                    request   = Schema__Entity__Create__Request(cache_key='site/example.com'))
+        self.entity_service.create( namespace = test_namespace,
+                                    request   = Schema__Entity__Create__Request(cache_key='site/other.com'))
+        self.entity_service.create( namespace = test_namespace,
+                                    request   = Schema__Entity__Create__Request(cache_key='api/v1/users'))
+        
+        response = self.entity_service.list_entities(namespace=test_namespace)
+        
+        assert type(response)   is Schema__Entity__List__Response
         assert response.success is True
-        assert response.count   == 0
+        assert response.count   == 3
+        assert len(response.entities) == 3
+        
+        # Check entity info structure
+        entity = response.entities[0]
+        assert type(entity)    is Schema__Entity__Info
+        assert entity.cache_id is not None
+        assert entity.cache_key is not None
+        assert entity.strategy is not None
+    
+    def test_list_entities__with_data_files(self):                                      # Test list entities with data files
+        test_namespace = f'test-list-with-files-{Random_Guid()[:8]}'
+        
+        # Create entity
+        create_response = self.entity_service.create(namespace = test_namespace,
+                                              request   = Schema__Entity__Create__Request(cache_key='site/with-data'))
+        cache_id = create_response.cache_id
+        
+        # Add some data files using Cache__Entity
+        entity = Cache__Entity(cache_client = self.html_cache_client.cache_client,
+                               cache_id     = cache_id         ,
+                               namespace    = test_namespace   )
+        entity.data__store_string(data_key='html', data_file_id='raw', content='<html>test</html>')
+        entity.data__store_json(data_key='meta', data_file_id='info', data={'title': 'Test'})
+        
+        # List with data files
+        response = self.entity_service.list_entities(namespace          = test_namespace,
+                                              include_data_files = True          )
+        
+        assert response.success is True
+        assert response.count   == 1
+        
+        entity_info = response.entities[0]
+        assert entity_info.data_files is not None
+        assert len(entity_info.data_files) == 2
+        
+        # Check data file structure
+        data_keys = [f['data_key'] for f in entity_info.data_files]
+        assert 'html' in data_keys
+        assert 'meta' in data_keys
+    
+    def test_list_entities__without_data_files(self):                                   # Test list entities without data files (default)
+        test_namespace = f'test-list-no-files-{Random_Guid()[:8]}'
+        
+        # Create entity with data
+        create_response = self.entity_service.create(namespace = test_namespace,
+                                              request   = Schema__Entity__Create__Request(cache_key='site/no-files'))
+        cache_id = create_response.cache_id
+        
+        entity = Cache__Entity(cache_client = self.html_cache_client.cache_client,
+                               cache_id     = cache_id         ,
+                               namespace    = test_namespace   )
+        entity.data__store_string(data_key='html', data_file_id='raw', content='<html>test</html>')
+        
+        # List without data files (default)
+        response = self.entity_service.list_entities(namespace=test_namespace)
+        
+        assert response.success is True
+        assert response.count   == 1
+        assert response.entities[0].data_files is None
+    
+    def test_list_entities__empty_namespace(self):                                      # Test list entities in empty namespace
+        empty_namespace = f'test-empty-ns-{Random_Guid()}'
+        
+        response = self.entity_service.list_entities(namespace=empty_namespace)
+        
+        assert response.success  is True
+        assert response.count    == 0
         assert response.entities == []
-
-    def test_list_by_path__drill_down(self):                                        # Test drilling down into paths
-        base_path = f'test/drill-down/{Random_Guid()[:8]}'
-
-        self.entity_service.create( namespace = self.namespace,
-                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/sites/example.com/home'))
-        self.entity_service.create( namespace = self.namespace,
-                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/sites/example.com/about'))
-        self.entity_service.create( namespace = self.namespace,
-                                    request   = Schema__Entity__Create__Request(cache_key=f'{base_path}/sites/other.com/index'))
-
-        # List at base - should see 'sites'
-        response_1 = self.entity_service.list_by_path(namespace   = self.namespace,
-                                               path_prefix = base_path     )
-        assert response_1.entities == ['sites']
-
-        # Drill into sites - should see example.com and other.com
-        response_2 = self.entity_service.list_by_path(namespace   = self.namespace,
-                                               path_prefix = f'{base_path}/sites')
-        assert response_2.count == 2
-        assert 'example.com' in response_2.entities
-        assert 'other.com'   in response_2.entities
-
-        # Drill into example.com - should see home and about
-        response_3 = self.entity_service.list_by_path(namespace   = self.namespace,
-                                               path_prefix = f'{base_path}/sites/example.com')
-        assert response_3.count == 2
-        assert 'home'  in response_3.entities
-        assert 'about' in response_3.entities
+    
+    def test_list_entities__verifies_cache_keys(self):                                  # Test that cache_keys are correct
+        test_namespace = f'test-verify-keys-{Random_Guid()[:8]}'
+        
+        cache_keys = ['alpha/one', 'beta/two', 'gamma/three']
+        for cache_key in cache_keys:
+            self.entity_service.create(namespace = test_namespace,
+                                request   = Schema__Entity__Create__Request(cache_key=cache_key))
+        
+        response = self.entity_service.list_entities(namespace=test_namespace)
+        
+        returned_keys = [str(e.cache_key) for e in response.entities]
+        for cache_key in cache_keys:
+            assert cache_key in returned_keys
 
     # ═══════════════════════════════════════════════════════════════════════════
     # get Tests
