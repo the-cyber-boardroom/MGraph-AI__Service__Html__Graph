@@ -14,17 +14,7 @@
 <body>
     <div class="cache-store-app">
         <!-- Top Navigation -->
-        <nav class="top-nav">
-            <a href="../v0.2.10/playground.html" class="top-nav-brand">
-                <span class="top-nav-brand-icon">🔗</span>
-                <span>HTML Graph</span>
-            </a>
-            <div class="top-nav-links">
-                <a href="../v0.2.10/playground.html" class="top-nav-link">Playground</a>
-                <a href="./cache-store.html" class="top-nav-link active">Cache Store</a>
-                <a href="/docs" class="top-nav-link" target="_blank">API Docs</a>
-            </div>
-        </nav>
+        <top-nav></top-nav>
 
         <!-- Maximize Toolbar (hidden by default) -->
         <div class="maximize-toolbar">
@@ -104,7 +94,11 @@
     
     <!-- Helpers (if not in common.js) -->
     <script src="../v0.2.1/js/utils/helpers.js"></script>
-    
+
+    <!-- Top Nav component -->
+    <script src="../v0.2.0/components/top-nav/top-nav.js"></script>
+    <script src="./components/top-nav/top-nav.js"></script>
+
     <!-- Base API client from v0.2.0 -->
     <script src="../v0.2.0/js/services/api-client.js"></script>
     
