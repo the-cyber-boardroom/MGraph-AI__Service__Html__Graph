@@ -334,8 +334,27 @@ class CacheStore {
 
     handleDataFileSelected(detail) {
         console.log('[CacheStore] Data file selected:', detail);
-        // Could open a modal or side panel to view the data file
-        this.showToast(`Selected: ${detail.dataKey}/${detail.fileId}`);
+
+        // Load the data file into the viewer
+        this.htmlViewer?.loadDataFile(
+            detail.namespace,
+            detail.cacheId,
+            detail.dataKey,
+            detail.fileId,
+            detail.dataType
+        );
+
+        // Update status
+        this.updateStatus(`Loading ${detail.dataKey}/${detail.fileId}...`);
+        this.updateStatusPath(`${detail.dataKey}/${detail.fileId}`);
+
+        // Switch to Raw view (data files don't preview well in browser)
+        this.switchViewMode('raw');
+
+        if (detail.dataType !== 'string' || !detail.dataKey.includes('html')) {
+            this.miniBrowser?.clear();
+            // Or show a message that preview isn't available for this file type
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

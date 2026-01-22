@@ -193,3 +193,26 @@ ApiClient.prototype.listFolders = async function(namespace, pathPrefix = '') {
     // Return empty to avoid breaking existing code
     return { success: true, entities: [] };
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PUT methods for saving data files
+// ═══════════════════════════════════════════════════════════════════════════════
+
+
+/**
+ * Update string data file (PUT)
+ */
+ApiClient.prototype.putStringData = async function(namespace, cacheId, dataKey, fileId, content) {
+    return this.put(`/cache-data/${namespace}/data/${cacheId}/string/${dataKey}/${fileId}`, {
+        content: content
+    });
+};
+
+/**
+ * Update JSON data file (PUT)
+ */
+ApiClient.prototype.putJsonData = async function(namespace, cacheId, dataKey, fileId, content) {
+    return this.put(`/cache-data/${namespace}/data/${cacheId}/json/${dataKey}/${fileId}`, {
+        content: content
+    });
+};

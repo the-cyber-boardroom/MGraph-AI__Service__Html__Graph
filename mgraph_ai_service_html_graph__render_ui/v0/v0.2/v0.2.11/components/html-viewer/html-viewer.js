@@ -22,6 +22,9 @@ class HtmlViewer extends BaseComponent {
         this.mode = 'view'; // 'view', 'edit', 'preview'
         this.isModified = false;
         this.isLoading = false;
+        this.contentType = 'html';  // 'html' | 'string' | 'json'
+        this.dataKey = '';
+        this.fileId = '';
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -242,11 +245,6 @@ class HtmlViewer extends BaseComponent {
             this.showToast('No changes to save');
             return;
         }
-        
-        if (!this.cacheKey && !this.cacheId) {
-            this.showToast('Cannot save: no cache key or ID', 'error');
-            return;
-        }
 
         if (this.mode === 'edit') {
             this.captureEditContent();
@@ -256,40 +254,44 @@ class HtmlViewer extends BaseComponent {
 
         try {
             let response;
-            
-            if (this.cacheKey) {
-                // Save by key (preferred - maintains the key)
+
+            // Check if we're saving a data file or HTML
+            if (this.contentType === 'string' && this.dataKey && this.fileId) {
+                response = await window.apiClient.putStringData(
+                    this.namespace, this.cacheId, this.dataKey, this.fileId, this.html
+                );
+            } else if (this.contentType === 'json' && this.dataKey && this.fileId) {
+                // Parse to validate JSON before saving
+                const parsed = JSON.parse(this.html);
+                response = await window.apiClient.putJsonData(
+                    this.namespace, this.cacheId, this.dataKey, this.fileId, parsed
+                );
+            } else if (this.cacheKey) {
+                // Original HTML save by key
                 response = await window.apiClient.storeHtmlByKey(
-                    this.namespace,
-                    this.cacheKey,
-                    this.html
+                    this.namespace, this.cacheKey, this.html
                 );
             } else {
-                // Fallback: save as raw with cache_id reference
-                response = await window.apiClient.storeHtmlRaw(
-                    this.namespace,
-                    this.html
-                );
+                this.showToast('Cannot save: unknown content type', 'error');
+                return;
             }
 
-            if (response.success) {
+            if (response.success !== false) {
                 this.originalHtml = this.html;
-                this.cacheId = response.cache_id || this.cacheId;
-                this.cacheKey = response.cache_key || this.cacheKey;
                 this.isModified = false;
                 this.updateSaveButton();
                 this.updateInfo();
                 this.showToast('Saved successfully!');
 
-                this.emit('html-saved', {
+                this.emit('content-saved', {
                     namespace: this.namespace,
-                    cacheKey: this.cacheKey,
                     cacheId: this.cacheId,
-                    charCount: this.html.length,
-                    response
+                    contentType: this.contentType,
+                    dataKey: this.dataKey,
+                    fileId: this.fileId
                 });
             } else {
-                this.showToast('Save failed: ' + (response.error || 'Unknown error'), 'error');
+                this.showToast('Save failed', 'error');
             }
         } catch (error) {
             console.error('[HtmlViewer] Save error:', error);
@@ -301,7 +303,9 @@ class HtmlViewer extends BaseComponent {
         const charCount = this.html.length;
         const lineCount = this.html.split('\n').length;
         const modified = this.isModified ? ' (modified)' : '';
-        this.infoEl.textContent = `${this.formatNumber(charCount)} chars · ${this.formatNumber(lineCount)} lines${modified}`;
+        const typeLabel = this.contentType !== 'html' ? ` [${this.contentType.toUpperCase()}]` : '';
+
+        this.infoEl.textContent = `${this.formatNumber(charCount)} chars · ${this.formatNumber(lineCount)} lines${typeLabel}${modified}`;
     }
 
     updateSaveButton() {
@@ -416,6 +420,50 @@ class HtmlViewer extends BaseComponent {
     showToast(message, type = 'info') {
         // Emit toast event for page-level handling
         this.emit('toast', { message, type });
+    }
+
+    /**
+     * Load a data file (string or json)
+     */
+    async loadDataFile(namespace, cacheId, dataKey, fileId, dataType) {
+        if (this.isLoading) return;
+
+        this.isLoading = true;
+        this.namespace = namespace;
+        this.cacheId = cacheId;
+        this.dataKey = dataKey;
+        this.fileId = fileId;
+        this.contentType = dataType;  // 'string' or 'json'
+        this.cacheKey = `${dataKey}/${fileId}`;  // For display purposes
+        this.showLoading();
+
+        try {
+            let content;
+            if (dataType === 'json') {
+                const response = await window.apiClient.getJsonData(namespace, cacheId, dataKey, fileId);
+                content = JSON.stringify(response, null, 2);  // Pretty print
+            } else {
+                content = await window.apiClient.getStringData(namespace, cacheId, dataKey, fileId);
+            }
+
+            this.html = content;
+            this.originalHtml = content;
+            this.isModified = false;
+
+            this.updateInfo();
+            this.renderContent();
+
+            this.emit('datafile-loaded', {
+                namespace, cacheId, dataKey, fileId, dataType,
+                charCount: content.length
+            });
+
+        } catch (error) {
+            console.error('[HtmlViewer] Load data file error:', error);
+            this.showError(error.message || 'Failed to load data file');
+        } finally {
+            this.isLoading = false;
+        }
     }
 }
 
