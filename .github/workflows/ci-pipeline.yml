@@ -124,12 +124,16 @@ jobs:
       - name: Deploy Service Lambda function
         uses: ./.github/actions/aws__deploy__lambda
         env:
-          AWS_SECRET_ACCESS_KEY         : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION            : ${{ secrets.AWS_DEFAULT_REGION }}
-          AWS_ACCOUNT_ID                : ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_ACCESS_KEY_ID             : ${{ secrets.AWS_ACCESS_KEY_ID }}
-          FAST_API__AUTH__API_KEY__NAME : ${{ secrets.FAST_API__AUTH__API_KEY__NAME }}
-          FAST_API__AUTH__API_KEY__VALUE: ${{ secrets.FAST_API__AUTH__API_KEY__VALUE }}
+          AWS_SECRET_ACCESS_KEY                        : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION                           : ${{ secrets.AWS_DEFAULT_REGION }}
+          AWS_ACCOUNT_ID                               : ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_ACCESS_KEY_ID                            : ${{ secrets.AWS_ACCESS_KEY_ID }}
+          FAST_API__AUTH__API_KEY__NAME                : ${{ secrets.FAST_API__AUTH__API_KEY__NAME }}
+          FAST_API__AUTH__API_KEY__VALUE               : ${{ secrets.FAST_API__AUTH__API_KEY__VALUE }}
+          AUTH__TARGET_SERVER__CACHE_SERVICE__BASE_URL : ${{ secrets.AUTH__TARGET_SERVER__CACHE_SERVICE__BASE_URL          }}
+          AUTH__TARGET_SERVER__CACHE_SERVICE__KEY_NAME : ${{ secrets.AUTH__TARGET_SERVER__CACHE_SERVICE__KEY_NAME          }}
+          AUTH__TARGET_SERVER__CACHE_SERVICE__KEY_VALUE: ${{ secrets.AUTH__TARGET_SERVER__CACHE_SERVICE__KEY_VALUE         }}
+
         with:
           target: ${{ inputs.target_deploy }}
 
