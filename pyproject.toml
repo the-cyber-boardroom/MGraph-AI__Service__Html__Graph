@@ -1,6 +1,6 @@
 [tool.poetry]
 name        = "mgraph_ai_service_html_graph"
-version     = "v1.6.0"
+version     = "v1.6.5"
 description = "MGraph-AI__Service__Html__Graph"
 authors     = ["Dinis Cruz <dinis.cruz@owasp.org>"]
 license     = "Apache 2.0"
@@ -19,6 +19,8 @@ python                         = "^3.12"
 osbot-fast-api-serverless      = "*"
 mgraph-ai-service-cache-client = "*"
 mgraph_db                      = "*"
+#required to run the services in memory
+mgraph_ai_service_cache        = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
