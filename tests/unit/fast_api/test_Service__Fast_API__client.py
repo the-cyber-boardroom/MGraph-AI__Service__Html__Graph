@@ -2,7 +2,7 @@ from unittest                                                                   
 from fastapi                                                                        import FastAPI
 from osbot_fast_api.api.Fast_API                                                    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.api.schemas.consts.consts__Fast_API                             import EXPECTED_ROUTES__SET_COOKIE
-from osbot_fast_api.core_routes.registry.Routes__Service__Registry import ROUTES_PATHS__REGISTRY
+from osbot_fast_api.core_routes.registry.Routes__Service__Registry                  import ROUTES_PATHS__REGISTRY
 from osbot_fast_api_serverless.fast_api.routes.Routes__Info                         import ROUTES_INFO__HEALTH__RETURN_VALUE, ROUTES_PATHS__INFO
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Cache__Document           import ROUTES_PATHS__CACHE
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Graph                     import ROUTES_PATHS__GRAPH
