@@ -3,6 +3,8 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                                       import TestCase
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service                                     import register_cache_service__in_memory
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client import Html_Cache__Client
 from mgraph_ai_service_html_graph.service.lets_pipeline.lets.actions.save.lets__action__save__to__cache_service     import lets__action__save__to__cache_service
 from mgraph_ai_service_html_graph.service.lets_pipeline.lets.base.Html_LETS__Flow                                   import Html_LETS__Flow
 from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Config                           import Schema__LETS__Config
@@ -11,14 +13,14 @@ from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.lets_transf
 from mgraph_ai_service_html_graph.utils.testing.Html_Generator__For_Tests                                           import Html_Generator__For_Tests
 from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                                           import Safe_Str__Html
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Document                                        import Html_Cache__Document
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                                            import create_html_cache_client
 
 
 class test_lets__action__save__to__cache_service(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
         cls.html_gen  = Html_Generator__For_Tests()
         cls.namespace = 'test-save-action'
 

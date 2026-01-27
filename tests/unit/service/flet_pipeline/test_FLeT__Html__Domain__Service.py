@@ -3,6 +3,9 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                       import TestCase
+from mgraph_ai_service_cache_client.client.cache_client.Cache__Service__Client                      import Cache__Service__Client
+from osbot_fast_api.services.registry.Fast_API__Service__Registry                                   import fast_api__service__registry
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service                     import register_cache_service__in_memory
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Load__Hash__Request             import Schema__Html__Load__Hash__Request
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Load__Id__Request               import Schema__Html__Load__Id__Request
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Load__Response                  import Schema__Html__Load__Response
@@ -11,6 +14,7 @@ from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Store__Key__
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Store__Raw__Request             import Schema__Html__Store__Raw__Request
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Store__Response                 import Schema__Html__Store__Response
 from mgraph_ai_service_html_graph.schemas.flet.domain.Schema__Html__Store__Url__Request             import Schema__Html__Store__Url__Request
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                          import Html_Cache__Client
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Namespace                       import Html_Cache__Namespace
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.FLeT__Html__Domain__Service            import FLeT__Html__Domain__Service
 from osbot_utils.testing.Stderr                                                                     import Stderr
@@ -19,17 +23,19 @@ from osbot_utils.testing.Temp_Web_Server                                        
 from osbot_utils.testing.__                                                                         import __, __SKIP__
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                               import Random_Guid
 from osbot_utils.utils.Http                                                                         import GET
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                            import create_html_cache_client
 
 
 class test_FLeT__Html__Domain__Service(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                          # Shared test objects
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
-        cls.domain_service = FLeT__Html__Domain__Service(html_cache_client=cls.html_cache_client)
-        cls.namespace      = 'test-flet-domain-service'
-        cls.test_html      = '<html><body><h1>Test Domain Content</h1></body></html>'
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.service_config       = fast_api__service__registry.config(Cache__Service__Client)
+        cls.cache_service        = cls.service_config.fast_api.cache_service
+        cls.html_cache_client    = Html_Cache__Client()
+        cls.domain_service       = FLeT__Html__Domain__Service(html_cache_client=cls.html_cache_client)
+        cls.namespace            = 'test-flet-domain-service'
+        cls.test_html            = '<html><body><h1>Test Domain Content</h1></body></html>'
 
     def setUp(self):                                                              # Per-test setup
         self.cache_key  = f'test/domain/{Random_Guid()}'

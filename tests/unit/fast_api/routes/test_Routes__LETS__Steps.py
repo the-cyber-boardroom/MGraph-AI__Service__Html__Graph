@@ -4,20 +4,22 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                               import TestCase
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service             import register_cache_service__in_memory
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__LETS__Steps                       import Routes__LETS__Steps
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__LETS__Steps                       import TAG__ROUTES_LETS
 from mgraph_ai_service_html_graph.schemas.routes.lets.Schema__LETS__Step__Info              import Schema__LETS__Step__Info
 from mgraph_ai_service_html_graph.schemas.routes.lets.Schema__LETS__Step__List__Response    import Schema__LETS__Step__List__Response
 from mgraph_ai_service_html_graph.schemas.routes.lets.Schema__LETS__Step__Execute__Request  import Schema__LETS__Step__Execute__Request
 from mgraph_ai_service_html_graph.schemas.routes.lets.Schema__LETS__Step__Execute__Response import Schema__LETS__Step__Execute__Response
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import create_html_cache_client
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                  import Html_Cache__Client
 
 
 class test_Routes__LETS__Steps(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
         cls.routes = Routes__LETS__Steps(cache_client=cls.html_cache_client)
         cls.namespace = 'test-namespace'
 

@@ -4,8 +4,6 @@ from starlette.testclient                                                       
 from osbot_utils.utils.Env                                                                  import set_env, load_dotenv, get_env, unload_dotenv
 from mgraph_ai_service_cache.fast_api.Cache_Service__Fast_API                               import Cache_Service__Fast_API
 from mgraph_ai_service_cache.service.cache.Cache__Service                                   import Cache__Service
-from mgraph_ai_service_cache_client.client.Client__Cache__Service                           import Client__Cache__Service
-from mgraph_ai_service_cache_client.client.client_contract.Cache__Service__Fast_API__Client import Cache__Service__Fast_API__Client
 from osbot_fast_api.api.Fast_API                                                            import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API__Config                        import Serverless__Fast_API__Config
 from mgraph_ai_service_cache_client.schemas.consts.consts__Cache_Client                     import ENV_VAR__URL__TARGET_SERVER__CACHE_SERVICE
@@ -49,17 +47,17 @@ def cache__service__fast_api_app() -> Tuple[FastAPI, Cache__Service]:           
 
 
 
-def client_cache_service() -> Tuple[Cache__Service__Fast_API__Client, Cache__Service]:
-    fast_api_app, cache_service = cache__service__fast_api_app()                 # Create in-memory cache service
-    client__cache_service       = Client__Cache__Service().set__fast_api_app(fast_api_app).client()
-    return client__cache_service, cache_service
+# def client_cache_service() -> Tuple[Cache__Service__Fast_API__Client, Cache__Service]:
+#     fast_api_app, cache_service = cache__service__fast_api_app()                 # Create in-memory cache service
+#     client__cache_service       = Client__Cache__Service().set__fast_api_app(fast_api_app).client()
+#     return client__cache_service, cache_service
 
 
-def create_html_cache_client() -> Tuple[Html_Cache__Client, Cache__Service]:     # Create Html_Cache__Client for tests
-    cache_client, cache_service = client_cache_service()
-    html_cache_client           = Html_Cache__Client(cache_client   = cache_client        ,
-                                                     hash_generator = Cache__Hash__Generator())
-    return html_cache_client, cache_service
+# def create_html_cache_client() -> Tuple[Html_Cache__Client, Cache__Service]:     # Create Html_Cache__Client for tests
+#     cache_client, cache_service = client_cache_service()
+#     html_cache_client           = Html_Cache__Client(cache_client   = cache_client        ,
+#                                                      hash_generator = Cache__Hash__Generator())
+#     return html_cache_client, cache_service
 
 def load_local_dotenv(dot_env_file):
     load_dotenv(dotenv_path=dot_env_file, override=True)

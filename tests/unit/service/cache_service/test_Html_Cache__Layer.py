@@ -4,20 +4,22 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                            import TestCase
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service          import register_cache_service__in_memory
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client               import Html_Cache__Client
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 from osbot_utils.utils.Objects                                                           import base_types
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type           import Enum__Cache__Data_Type
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Layer                import Html_Cache__Layer
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Document             import Html_Cache__Document
 from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Layer_Name    import Safe_Str__Layer_Name
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                 import create_html_cache_client
 
 
 class test_Html_Cache__Layer(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                         # Shared setup - in-memory cache
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
         cls.namespace  = 'test-namespace'
         cls.cache_key  = 'layer/test/doc'
 

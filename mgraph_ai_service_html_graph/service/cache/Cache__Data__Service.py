@@ -18,7 +18,7 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 
 
 class Cache__Data__Service(Type_Safe):                                              # Service for data file ops
-    cache_client : Html_Cache__Client                                               # Cache client for storage
+    html_cache_client : Html_Cache__Client                                               # Cache client for storage
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # List Operations
@@ -32,10 +32,10 @@ class Cache__Data__Service(Type_Safe):                                          
                    recursive : bool                            = True               # Include subdirectories
               ) -> Schema__Cache__Data__List__Response:
 
-        result = self.cache_client.data__list(namespace = namespace ,
-                                              cache_id  = cache_id  ,
-                                              data_key  = data_key  ,
-                                              recursive = recursive )
+        result = self.html_cache_client.data__list(namespace = namespace ,
+                                                   cache_id  = cache_id  ,
+                                                   data_key  = data_key  ,
+                                                   recursive = recursive )
         return result
 
 
@@ -68,10 +68,10 @@ class Cache__Data__Service(Type_Safe):                                          
                    data_key     : Safe_Str__Cache__File__Data_Key        ,          # Data key path
                    data_file_id : Safe_Str__Cache__File__File_Id                    # File identifier
               ) -> str:
-        return self.cache_client.data__retrieve_string(namespace    = namespace    ,
-                                                       cache_id     = cache_id     ,
-                                                       data_key     = data_key     ,
-                                                       data_file_id = data_file_id )
+        return self.html_cache_client.data__retrieve_string(namespace    = namespace    ,
+                                                            cache_id     = cache_id     ,
+                                                            data_key     = data_key     ,
+                                                            data_file_id = data_file_id )
 
     @type_safe
     def get_json(self                                                  ,            # Get JSON content from data file
@@ -80,10 +80,10 @@ class Cache__Data__Service(Type_Safe):                                          
                  data_key     : Safe_Str__Cache__File__Data_Key        ,            # Data key path
                  data_file_id : Safe_Str__Cache__File__File_Id                      # File identifier
             ) -> dict:
-        return self.cache_client.data__retrieve_json(namespace    = namespace    ,
-                                                     cache_id     = cache_id     ,
-                                                     data_key     = data_key     ,
-                                                     data_file_id = data_file_id )
+        return self.html_cache_client.data__retrieve_json(namespace    = namespace    ,
+                                                          cache_id     = cache_id     ,
+                                                          data_key     = data_key     ,
+                                                          data_file_id = data_file_id )
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Store Operations
@@ -97,11 +97,11 @@ class Cache__Data__Service(Type_Safe):                                          
                      data_file_id : Safe_Str__Cache__File__File_Id         ,        # File identifier
                      content      : str                                             # String content to store
                 ) -> Schema__Cache__Data__Store__Response:
-        result = self.cache_client.data__store_string(namespace    = namespace    ,
-                                                      cache_id     = cache_id     ,
-                                                      data_key     = data_key     ,
-                                                      data_file_id = data_file_id ,
-                                                      content      = content      )
+        result = self.html_cache_client.data__store_string(namespace    = namespace    ,
+                                                           cache_id     = cache_id     ,
+                                                           data_key     = data_key     ,
+                                                           data_file_id = data_file_id ,
+                                                           content      = content      )
         return result
 
 
@@ -113,11 +113,11 @@ class Cache__Data__Service(Type_Safe):                                          
                    data_file_id : Safe_Str__Cache__File__File_Id         ,          # File identifier
                    content      : dict                                              # JSON content to store
               ) -> Schema__Cache__Data__Store__Response:
-        result = self.cache_client.data__store_json(namespace    = namespace    ,
-                                                    cache_id     = cache_id     ,
-                                                    data_key     = data_key     ,
-                                                    data_file_id = data_file_id ,
-                                                    data         = content      )
+        result = self.html_cache_client.data__store_json(namespace    = namespace    ,
+                                                         cache_id     = cache_id     ,
+                                                         data_key     = data_key     ,
+                                                         data_file_id = data_file_id ,
+                                                         data         = content      )
         return result
 
     # ═══════════════════════════════════════════════════════════════════════════════
@@ -132,11 +132,11 @@ class Cache__Data__Service(Type_Safe):                                          
                       data_file_id : Safe_Str__Cache__File__File_Id         ,       # File identifier
                       content      : str                                            # New string content
                  ) -> Schema__Data__Update__Response:
-        result = self.cache_client.data__update_string(namespace    = namespace    ,
-                                                       cache_id     = cache_id     ,
-                                                       data_key     = data_key     ,
-                                                       data_file_id = data_file_id ,
-                                                       content      = content      )
+        result = self.html_cache_client.data__update_string(namespace    = namespace    ,
+                                                            cache_id     = cache_id     ,
+                                                            data_key     = data_key     ,
+                                                            data_file_id = data_file_id ,
+                                                            content      = content      )
 
         return Schema__Data__Update__Response(success=result)
 
@@ -148,11 +148,11 @@ class Cache__Data__Service(Type_Safe):                                          
                     data_file_id : Safe_Str__Cache__File__File_Id         ,         # File identifier
                     content      : dict                                             # New JSON content
                ) -> Schema__Data__Update__Response:
-        result = self.cache_client.data__update_json(namespace    = namespace    ,
-                                                     cache_id     = cache_id     ,
-                                                     data_key     = data_key     ,
-                                                     data_file_id = data_file_id ,
-                                                     data         = content      )
+        result = self.html_cache_client.data__update_json(namespace    = namespace    ,
+                                                          cache_id     = cache_id     ,
+                                                          data_key     = data_key     ,
+                                                          data_file_id = data_file_id ,
+                                                          data         = content      )
 
         return Schema__Data__Update__Response(success=result)
 
@@ -168,11 +168,11 @@ class Cache__Data__Service(Type_Safe):                                          
                data_file_id : Safe_Str__Cache__File__File_Id         ,              # File identifier
                data_type    : Enum__Cache__Data_Type                                # Data type (string/json)
           ) -> Schema__Data__Exists__Response:
-        result = self.cache_client.data__exists(namespace    = namespace    ,
-                                                cache_id     = cache_id     ,
-                                                data_key     = data_key     ,
-                                                data_file_id = data_file_id ,
-                                                data_type    = data_type    )
+        result = self.html_cache_client.data__exists(namespace    = namespace    ,
+                                                     cache_id     = cache_id     ,
+                                                     data_key     = data_key     ,
+                                                     data_file_id = data_file_id ,
+                                                     data_type    = data_type    )
 
         return Schema__Data__Exists__Response(exists=result)
 
@@ -184,11 +184,11 @@ class Cache__Data__Service(Type_Safe):                                          
                data_file_id : Safe_Str__Cache__File__File_Id         ,              # File identifier
                data_type    : Enum__Cache__Data_Type                                # Data type (string/json)
           ) -> Schema__Data__Delete__Response:
-        result = self.cache_client.data__delete(namespace    = namespace    ,
-                                                cache_id     = cache_id     ,
-                                                data_key     = data_key     ,
-                                                data_file_id = data_file_id ,
-                                                data_type    = data_type    )
+        result = self.html_cache_client.data__delete(namespace    = namespace    ,
+                                                     cache_id     = cache_id     ,
+                                                     data_key     = data_key     ,
+                                                     data_file_id = data_file_id ,
+                                                     data_type    = data_type    )
 
         return Schema__Data__Delete__Response(success = True   ,
                                               deleted = result )
@@ -198,8 +198,8 @@ class Cache__Data__Service(Type_Safe):                                          
                    namespace : Safe_Str__Cache__Namespace    ,                      # Cache namespace
                    cache_id  : Cache_Id                                             # Entity cache ID
               ) -> Schema__Data__Delete__Response:
-        result = self.cache_client.data__delete_all(namespace = namespace ,
-                                                    cache_id  = cache_id  )
+        result = self.html_cache_client.data__delete_all(namespace = namespace ,
+                                                         cache_id  = cache_id  )
 
         return Schema__Data__Delete__Response(success = True   ,
                                               deleted = result )
@@ -210,9 +210,9 @@ class Cache__Data__Service(Type_Safe):                                          
                             cache_id  : Cache_Id                            ,       # Entity cache ID
                             data_key  : Safe_Str__Cache__File__Data_Key             # Data key prefix to delete
                        ) -> Schema__Data__Delete__Response:
-        result = self.cache_client.data__delete_all_with_key(namespace = namespace ,
-                                                             cache_id  = cache_id  ,
-                                                             data_key  = data_key  )
+        result = self.html_cache_client.data__delete_all_with_key(namespace = namespace ,
+                                                                  cache_id  = cache_id  ,
+                                                                  data_key  = data_key  )
 
         return Schema__Data__Delete__Response(success = True   ,
                                               deleted = result )

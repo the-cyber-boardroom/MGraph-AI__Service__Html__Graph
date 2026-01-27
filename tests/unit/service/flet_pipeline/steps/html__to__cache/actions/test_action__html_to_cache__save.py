@@ -3,23 +3,25 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                                            import TestCase
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service                                          import register_cache_service__in_memory
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                               import Html_Cache__Client
 from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cache__Entry                                import Schema__Html_Cache__Entry
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.actions.action__html_to_cache__save   import action__html_to_cache__save
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Input  import Schema__Html_To_Cache__Input
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.steps.html__to__cache.schemas.Schema__Html_To_Cache__Output import Schema__Html_To_Cache__Output
 from osbot_utils.testing.__                                                                                              import __, __SKIP__
 from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                                                import Safe_Str__Html
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                                                 import create_html_cache_client
 
 
 class test_action__html_to_cache__save(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                                  # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.sample_html = '<html><body><p>Test content</p></body></html>'
-        cls.namespace   = 'test-action-save'
-        cls.cache_id    = cls.create_test_entity()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.cache_client         = Html_Cache__Client()
+        cls.sample_html          = '<html><body><p>Test content</p></body></html>'
+        cls.namespace            = 'test-action-save'
+        cls.cache_id             = cls.create_test_entity()
 
     @classmethod
     def create_test_entity(cls):                                                          # Create entity for tests

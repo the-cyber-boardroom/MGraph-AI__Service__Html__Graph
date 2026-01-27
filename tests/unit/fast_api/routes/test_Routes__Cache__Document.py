@@ -4,6 +4,8 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                           import TestCase
+
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service import register_cache_service__in_memory
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Cache__Document                               import Routes__Cache__Document
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Cache__Document                               import TAG__ROUTES_CACHE
 from mgraph_ai_service_html_graph.schemas.routes.cache.Schema__Cache__Document__Find_Or_Create__Request import Schema__Cache__Document__Find_Or_Create__Request
@@ -11,16 +13,17 @@ from mgraph_ai_service_html_graph.schemas.routes.cache.Schema__Cache__Document__
 from mgraph_ai_service_html_graph.schemas.routes.cache.Schema__Cache__Document__Status__Response        import Schema__Cache__Document__Status__Response
 from mgraph_ai_service_html_graph.schemas.routes.cache.Schema__Cache__Document__Layers__Response        import Schema__Cache__Document__Layers__Response
 from mgraph_ai_service_html_graph.schemas.routes.cache.Schema__Cache__Document__Layer__Files__Response  import Schema__Cache__Document__Layer__Files__Response
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                              import Html_Cache__Client
 from mgraph_ai_service_html_graph.utils.testing.Html_Generator__For_Tests                               import Html_Generator__For_Tests
 from osbot_utils.utils.Misc                                                                             import is_guid
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                                import create_html_cache_client
 
 
 class test_Routes__Cache__Document(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
         cls.routes    = Routes__Cache__Document(cache_client=cls.html_cache_client)
         cls.html_gen  = Html_Generator__For_Tests()
         cls.namespace = 'test-namespace'
