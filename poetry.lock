@@ -324,18 +324,51 @@ files = [
 typing-extensions = "*"
 
 [[package]]
+name = "memory-fs"
+version = "0.40.0"
+description = "Memory-FS"
+optional = false
+python-versions = "<4.0,>=3.12"
+groups = ["main"]
+files = [
+    {file = "memory_fs-0.40.0-py3-none-any.whl", hash = "sha256:ff128ba57fc6a77888a56e7a1926b948e27fd22c7567b072be7b61492c3a8fc9"},
+    {file = "memory_fs-0.40.0.tar.gz", hash = "sha256:f73a55d8acfe45db50c6606842fc0991098375b5de8df52ac0390380507fe4a0"},
+]
+
+[package.dependencies]
+osbot-utils = "*"
+
+[[package]]
+name = "mgraph-ai-service-cache"
+version = "0.13.0"
+description = "MGraph-AI__Service__Cache"
+optional = false
+python-versions = "<4.0,>=3.12"
+groups = ["main"]
+files = [
+    {file = "mgraph_ai_service_cache-0.13.0-py3-none-any.whl", hash = "sha256:cbc59daee68c0c57e53f389912beb709e49a6b9bfe513e164a38c2e1b72fb9ef"},
+    {file = "mgraph_ai_service_cache-0.13.0.tar.gz", hash = "sha256:f09e0ec10083e48f37af44818f3f0e4a00f8b6e417818a1446e9c43e63594fc0"},
+]
+
+[package.dependencies]
+memory_fs = "*"
+mgraph-ai-service-cache-client = "*"
+osbot-fast-api-serverless = "*"
+
+[[package]]
 name = "mgraph-ai-service-cache-client"
-version = "0.31.0"
+version = "0.32.0"
 description = "MGraph-AI__Service__Cache__Client"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "mgraph_ai_service_cache_client-0.31.0-py3-none-any.whl", hash = "sha256:9ef18704288cd08ff70b348025a293e001a6b6d6a5fefc867b60c65631680234"},
-    {file = "mgraph_ai_service_cache_client-0.31.0.tar.gz", hash = "sha256:02d583a5e1c31fa2685b51662dbde8c6dd001cd16de115b0fdea2939e4266d5e"},
+    {file = "mgraph_ai_service_cache_client-0.32.0-py3-none-any.whl", hash = "sha256:909cc8a930476e917d5f1510b45a83f589d489ef5a14b53a157ed4ac0bff5532"},
+    {file = "mgraph_ai_service_cache_client-0.32.0.tar.gz", hash = "sha256:60121b57026891fa0def61b06e4ceb0d5378bdc1f60dd7775a1bb44f5488a5a1"},
 ]
 
 [package.dependencies]
+osbot-fast-api = "*"
 osbot-fast-api-serverless = "*"
 
 [[package]]
@@ -725,4 +758,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "cec9f9498194901c02fc95b6133c69d6514cf359152e1beea3dcb3f08dc55882"
+content-hash = "868fda8ec2d125165b43a6db07cff82517e2e7b52f23bba33142773657fb7dc5"
