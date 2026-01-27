@@ -6,7 +6,7 @@ FAST_API__DESCRIPTION                    = "Base template for MGraph-AI microser
 LAMBDA_DEPENDENCIES__HTML_GRAPH__SERVICE = ['httpx==0.28.1'                          ,
                                             'memory-fs==v0.40.0'                     ,
                                             'mgraph-ai-service-cache-client==v0.32.0',
-                                            'mgraph-ai-service-cache==0.14.0'        ,
+                                            'mgraph-ai-service-cache==v0.14.0'       ,
                                             'mgraph-db==v1.18.0'                     ,
                                             'osbot-fast-api-serverless==v1.33.0'     ]
 
