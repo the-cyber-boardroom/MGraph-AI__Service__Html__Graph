@@ -187,7 +187,6 @@ class Routes__Cache__Entity(Fast_API__Routes):                                  
 
         self.add_route_get   (self.entities        )
         self.add_route_get   (self.entity__get     )
-        self.add_route_get   (self.entity__get     )
         self.add_route_get   (self.entity__metadata)
         self.add_route_get   (self.entity__refs    )
         self.add_route_get   (self.entity__exists  )

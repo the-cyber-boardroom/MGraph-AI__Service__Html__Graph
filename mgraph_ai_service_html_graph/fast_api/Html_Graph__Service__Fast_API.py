@@ -1,6 +1,8 @@
 import mgraph_ai_service_html_graph__render_ui
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service     import register_cache_service__in_memory
 from osbot_fast_api.api.decorators.route_path                                       import route_path
 from osbot_fast_api.api.routes.Routes__Set_Cookie                                   import Routes__Set_Cookie
+from osbot_fast_api.core_routes.registry.Routes__Service__Registry                  import Routes__Service__Registry
 from osbot_fast_api_serverless.fast_api.Serverless__Fast_API                        import Serverless__Fast_API
 from osbot_fast_api_serverless.fast_api.routes.Routes__Info                         import Routes__Info
 from starlette.responses                                                            import RedirectResponse
@@ -26,13 +28,20 @@ ROUTES_PATHS__CONSOLE        = [f'/{UI__CONSOLE__ROUTE__CONSOLE}',
                                 '/events/server']
 
 class Html_Graph__Service__Fast_API(Serverless__Fast_API):
+    run_in_memory : bool = True                                 # todo: find a better place to put this option
 
     def setup(self):
         with self.config as _:
             _.name           = FAST_API__TITLE
             _.version        = version__mgraph_ai_service_html_graph
             _.description    = FAST_API__DESCRIPTION
+        self.setup__in_memory__support()
         return super().setup()
+
+    def setup__in_memory__support(self):
+        if self.run_in_memory:
+            register_cache_service__in_memory()
+
 
     def setup_routes(self):
         self.add_routes(Routes__Graph              )
@@ -45,15 +54,17 @@ class Html_Graph__Service__Fast_API(Serverless__Fast_API):
         self.add_routes(Routes__Cache__Entity      )
 
 
-        self.add_routes(Routes__Cache__Document)
-        self.add_routes(Routes__Samples_Files  )
-        self.add_routes(Routes__LETS__Steps    )            # todo: remove these routes
-        self.add_routes(Routes__Profiles       )            #       and these
-        self.add_routes(Routes__Html           )
-        self.add_routes(Routes__Timestamps     )
-        self.add_routes(Routes__Info           )
-        self.add_routes(Routes__IFD__Snapshot )
-        self.add_routes(Routes__Set_Cookie     )
+        self.add_routes(Routes__Cache__Document  )
+        self.add_routes(Routes__Samples_Files    )
+        self.add_routes(Routes__LETS__Steps      )            # todo: remove these routes
+        self.add_routes(Routes__Profiles         )            #       and these
+        self.add_routes(Routes__Html             )
+        self.add_routes(Routes__Timestamps       )
+        self.add_routes(Routes__Info             )
+        self.add_routes(Routes__IFD__Snapshot    )
+        self.add_routes(Routes__Set_Cookie       )
+
+        self.add_routes(Routes__Service__Registry)      # Service registry
 
         self.add_event_stream()
 
