@@ -16,8 +16,10 @@ class Routes__IFD__Snapshot(Fast_API__Routes):                                 #
 
 
     def create(self):
-        fixtures_path  = mgraph_ai_service_html_graph__render_ui.path + '/v0/v0.2'
-        target_version = 'v0.2.10'
+        base_path      = '/v0/v0.2'
+        #target_version = 'v0.2.10'
+        target_version = 'v0.2.11'
+        fixtures_path  = mgraph_ai_service_html_graph__render_ui.path + base_path
         config = Schema__IFD_Snapshot_Config(version_root   = fixtures_path,
                                              target_version = target_version)
 

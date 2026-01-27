@@ -3,10 +3,12 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                   import TestCase
+from mgraph_ai_service_cache_client.client.cache_client.Cache__Service__Client                  import Cache__Service__Client
+from osbot_fast_api.services.registry.Fast_API__Service__Registry                               import fast_api__service__registry
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service                 import register_cache_service__in_memory
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata            import Schema__Cache__File__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity                        import Cache__Entity
-from mgraph_ai_service_cache_client.utils.Version                                               import version__mgraph_ai_service_cache_client
 from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service                          import Cache__Entity__Service
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request          import Schema__Entity__Create__Request
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Response         import Schema__Entity__Create__Response
@@ -16,19 +18,23 @@ from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Exists__R
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Delete__Response         import Schema__Entity__Delete__Response
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Info                     import Schema__Entity__Info
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__List__Response           import Schema__Entity__List__Response
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                      import Html_Cache__Client
 from osbot_utils.testing.__                                                                     import __, __SKIP__
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                                  import Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                           import Random_Guid
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                        import create_html_cache_client
 
 
 class test_Cache__Entity__Service(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
-        cls.entity_service = Cache__Entity__Service(html_cache_client=cls.html_cache_client)
-        cls.namespace      = 'test-cache-entity-service'
+        cls.cache_service_client  = register_cache_service__in_memory(return_client=True)
+        cls.service_config        = fast_api__service__registry.config(Cache__Service__Client)
+        cls.cache_service         = cls.service_config.fast_api.cache_service
+
+        cls.html_cache_client     = Html_Cache__Client()
+        cls.entity_service        = Cache__Entity__Service()
+        cls.namespace             = 'test-cache-entity-service'
         cls.create_test_data()
 
     @classmethod
@@ -49,7 +55,8 @@ class test_Cache__Entity__Service(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test__setUpClass(self):
-        assert self.entity_service.html_cache_client == self.html_cache_client
+        assert type(self.entity_service.html_cache_client) is Html_Cache__Client
+        assert self.entity_service.html_cache_client       != self.html_cache_client
 
     def test__create_test_data(self):
         cache_id  = self.cache_id
@@ -57,14 +64,7 @@ class test_Cache__Entity__Service(TestCase):
         cache_key = self.cache_key
         with self.test_entity as _:
             assert type(_) is Cache__Entity
-            assert _.obj() == __(cache_client = __(config = __(base_url         = None                                   ,
-                                                               api_key          = None                                   ,
-                                                               api_key_header   = None                                   ,
-                                                               mode             = 'in_memory'                            ,
-                                                               fast_api_app     = 'FastAPI'                              ,
-                                                               timeout          = 30                                     ,
-                                                               service_name     = 'Cache__Service__Fast_API'             ,
-                                                               service_version  = version__mgraph_ai_service_cache_client)),
+            assert _.obj() == __(cache_client = __(),
                                  cache_id     = cache_id                                                                  ,
                                  namespace    = namespace                                                                 )
 

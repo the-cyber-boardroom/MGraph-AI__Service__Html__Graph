@@ -4,8 +4,8 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                   import TestCase
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service                 import register_cache_service__in_memory
 from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Hash    import Safe_Str__Cache__File__Cache_Hash
-from mgraph_ai_service_cache_client.utils.Version                                               import version__mgraph_ai_service_cache_client
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Store__Response     import Schema__Cache__Data__Store__Response
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__List__Response      import Schema__Cache__Data__List__Response
@@ -16,15 +16,15 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.utils.Objects                                                                  import base_types
 from osbot_utils.utils.Misc                                                                     import is_guid
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                  import Enum__Cache__Data_Type
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                        import create_html_cache_client
 
 
 class test_Html_Cache__Client(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                         # Shared setup - in-memory cache
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
-        cls.namespace = 'test-namespace'
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
+        cls.namespace            = 'test-namespace'
 
     def _create_parent_entry(self, cache_key: str) -> str:                       # Helper to create parent entry, returns cache_id
         entry    = Schema__Html_Cache__Entry(cache_key=cache_key)
@@ -44,16 +44,9 @@ class test_Html_Cache__Client(TestCase):
             assert base_types(_)        == [Type_Safe, object]
             assert _.cache_client       is not None
             assert _.hash_generator     is not None
-            assert _.obj()              == __(cache_client=__(config=__( base_url=None,
-                                                                         api_key=None,
-                                                                         api_key_header=None,
-                                                                         mode='in_memory',
-                                                                         fast_api_app='FastAPI',
-                                                                         timeout=30,
-                                                                         service_name='Cache__Service__Fast_API',
-                                                                         service_version=version__mgraph_ai_service_cache_client)),
-                                               hash_generator=__(config=__(algorithm = 'sha256' ,
-                                                                           length    = 16       )))
+            assert _.obj()              == __(cache_client    = __(),
+                                               hash_generator = __(config=__(algorithm = 'sha256' ,
+                                                                             length    = 16       )))
 
     # ═══════════════════════════════════════════════════════════════════════════
     # health_check Tests

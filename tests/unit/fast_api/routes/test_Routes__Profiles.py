@@ -5,6 +5,8 @@
 
 from unittest                                                                                import TestCase
 from fastapi                                                                                 import HTTPException
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service              import register_cache_service__in_memory
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                   import Html_Cache__Client
 from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id                           import Cache_Id
 from mgraph_ai_service_html_graph.schemas.routes.profiles.Schema__Profile__Execute__Request  import Schema__Profile__Execute__Cached__Request
 from mgraph_ai_service_html_graph.fast_api.routes.Routes__Profiles                           import Routes__Profiles
@@ -14,14 +16,14 @@ from mgraph_ai_service_html_graph.schemas.routes.profiles.Schema__Profile__List_
 from mgraph_ai_service_html_graph.schemas.routes.profiles.Schema__Profile__Execute__Request  import Schema__Profile__Execute__Request
 from mgraph_ai_service_html_graph.schemas.routes.profiles.Schema__Profile__Execute__Response import Schema__Profile__Execute__Response
 from mgraph_ai_service_html_graph.utils.testing.Html_Generator__For_Tests                    import Html_Generator__For_Tests
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                     import create_html_cache_client
 
 
 class test_Routes__Profiles(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
         cls.routes        = Routes__Profiles(cache_client=cls.html_cache_client)
         cls.html_gen      = Html_Generator__For_Tests()
         cls.namespace     = 'test-namespace'

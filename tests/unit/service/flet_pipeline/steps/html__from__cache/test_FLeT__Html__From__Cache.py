@@ -4,8 +4,10 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                                                   import TestCase
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service                                                 import register_cache_service__in_memory
 from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity                                                        import Cache__Entity
 from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity__Json_File                                             import Cache__Entity__Json_File
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                                      import Html_Cache__Client
 from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cache__Entry                                       import Schema__Html_Cache__Entry
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.base.Html_FLeT__Base                                               import Html_FLeT__Base
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.base.Html_FLeT__Flow                                               import Html_FLeT__Flow
@@ -20,7 +22,6 @@ from osbot_utils.testing.__helpers                                              
 from osbot_utils.type_safe.Type_Safe                                                                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                                                       import Safe_Str__Html
 from osbot_utils.utils.Objects                                                                                                  import base_types
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                                                        import create_html_cache_client
 
 DEFAULT__HTML_FROM_CACHE__DATA_KEY     = 'html'
 DEFAULT__HTML_FROM_CACHE__DATA_FILE_ID = 'raw'
@@ -30,26 +31,27 @@ class test_FLeT__Html__From__Cache(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                                  # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.namespace    = 'test-html-from-cache'
-        cls.cache_key    = 'test/entity'
-        cls.file_id      = 'root'
-        cls.sample_html  = '<html><body><p>Cached content for retrieval</p></body></html>'
-        cls.cache_id     = cls.create_and_populate_entity()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
+        cls.namespace            = 'test-html-from-cache'
+        cls.cache_key            = 'test/entity'
+        cls.file_id              = 'root'
+        cls.sample_html          = '<html><body><p>Cached content for retrieval</p></body></html>'
+        cls.cache_id             = cls.create_and_populate_entity()
 
     @classmethod
     def create_and_populate_entity(cls):                                                  # Create entity and store HTML
         entry    = Schema__Html_Cache__Entry()
-        response = cls.cache_client.entry__store(namespace = cls.namespace ,
+        response = cls.html_cache_client.entry__store(namespace = cls.namespace ,
                                                  cache_key = cls.cache_key ,
                                                  file_id   = cls.file_id   ,
                                                  entry     = entry         )
         cache_id = response.cache_id if response else None
 
         # Store HTML using FLeT__Html__To__Cache
-        flet = FLeT__Html__To__Cache(cache_client = cls.cache_client,
-                                     cache_id     = cache_id        ,
-                                     namespace    = cls.namespace   ).setup()
+        flet = FLeT__Html__To__Cache(cache_client = cls.html_cache_client,
+                                     cache_id     = cache_id             ,
+                                     namespace    = cls.namespace        ).setup()
         flet.execute(Schema__Html_To_Cache__Input(html = Safe_Str__Html(cls.sample_html)))
 
         return cache_id
@@ -68,10 +70,10 @@ class test_FLeT__Html__From__Cache(TestCase):
             assert _.namespace    is None
 
     def test__init____with_cache_client(self):                                            # Test with cache_client
-        with FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                     cache_id     = self.cache_id    ,
-                                     namespace    = self.namespace   ) as _:
-            assert _.cache_client is self.cache_client
+        with FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                     cache_id     = self.cache_id         ,
+                                     namespace    = self.namespace        ) as _:
+            assert _.cache_client is self.html_cache_client
             assert _.cache_id     == self.cache_id
             assert _.namespace    == self.namespace
 
@@ -104,8 +106,8 @@ class test_FLeT__Html__From__Cache(TestCase):
         assert result.flow_output.found    is False
 
     def test_execute__without_cache_id(self):                                             # Test without cache_id
-        flet       = FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                             namespace    = self.namespace   ).setup()
+        flet       = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                             namespace    = self.namespace        ).setup()
         input_data = Schema__Html_From_Cache__Input()
 
         result = flet.execute(input_data)
@@ -125,9 +127,9 @@ class test_FLeT__Html__From__Cache(TestCase):
         cache_key    = self.cache_key
         data_key     = DEFAULT__HTML_FROM_CACHE__DATA_KEY
         data_file_id = DEFAULT__HTML_FROM_CACHE__DATA_FILE_ID
-        flet         = FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                               cache_id     = cache_id         ,
-                                               namespace    = namespace        ).setup()
+        flet         = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                               cache_id     = cache_id              ,
+                                               namespace    = namespace             ).setup()
         input_data   = Schema__Html_From_Cache__Input()
         result       = flet.execute(input_data)
         flow_output  = result.flow_output
@@ -160,10 +162,10 @@ class test_FLeT__Html__From__Cache(TestCase):
             assert f'{namespace}/data/key-based/{cache_key}/{file_id}/data/{data_key}/{data_file_id}.txt' in files
 
     def test_execute__data_not_found(self):                                               # Test with nonexistent data_key
-        flet       = FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                             cache_id     = self.cache_id    ,
-                                             namespace    = self.namespace   ).setup()
-        input_data = Schema__Html_From_Cache__Input(data_key = 'nonexistent')
+        flet       = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                             cache_id     = self.cache_id         ,
+                                             namespace    = self.namespace        ).setup()
+        input_data = Schema__Html_From_Cache__Input(data_key = 'nonexistent'      )
 
         result = flet.execute(input_data)
 
@@ -174,17 +176,17 @@ class test_FLeT__Html__From__Cache(TestCase):
 
     def test_execute__with_custom_data_key(self):                                         # Test with custom data_key
         # First store at custom location
-        store_flet = FLeT__Html__To__Cache(cache_client = self.cache_client,
-                                           cache_id     = self.cache_id    ,
-                                           namespace    = self.namespace   ).setup()
+        store_flet = FLeT__Html__To__Cache(cache_client = self.html_cache_client,
+                                           cache_id     = self.cache_id         ,
+                                           namespace    = self.namespace        ).setup()
         store_flet.execute(Schema__Html_To_Cache__Input(html         = Safe_Str__Html('<p>custom path</p>'),
                                                         data_key     = 'custom/path'                      ,
                                                         data_file_id = 'custom-file'                      ))
 
         # Then load from custom location
-        load_flet  = FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                             cache_id     = self.cache_id    ,
-                                             namespace    = self.namespace   ).setup()
+        load_flet  = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                             cache_id     = self.cache_id         ,
+                                             namespace    = self.namespace        ).setup()
         input_data = Schema__Html_From_Cache__Input(data_key     = 'custom/path' ,
                                                     data_file_id = 'custom-file' )
 
@@ -199,9 +201,9 @@ class test_FLeT__Html__From__Cache(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test_observability__flow_data_stored(self):                                       # Test flow data is stored
-        flet       = FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                             cache_id     = self.cache_id    ,
-                                             namespace    = self.namespace   ).setup()
+        flet       = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                             cache_id     = self.cache_id         ,
+                                             namespace    = self.namespace        ).setup()
         input_data = Schema__Html_From_Cache__Input()
 
         flet.execute(input_data)
@@ -226,9 +228,9 @@ class test_FLeT__Html__From__Cache(TestCase):
                                         flow_events = []                              )
 
     def test_observability__durations(self):                                              # Test duration tracking
-        flet       = FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                             cache_id     = self.cache_id    ,
-                                             namespace    = self.namespace   ).setup()
+        flet       = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                             cache_id     = self.cache_id         ,
+                                             namespace    = self.namespace        ).setup()
         input_data = Schema__Html_From_Cache__Input()
 
         flet.execute(input_data)
@@ -246,24 +248,24 @@ class test_FLeT__Html__From__Cache(TestCase):
 
         # Create new entity
         entry    = Schema__Html_Cache__Entry()
-        response = self.cache_client.entry__store(namespace = self.namespace      ,
-                                                  cache_key = 'test/round-trip'   ,
-                                                  file_id   = 'root'              ,
-                                                  entry     = entry               )
+        response = self.html_cache_client.entry__store(namespace = self.namespace      ,
+                                                       cache_key = 'test/round-trip'   ,
+                                                       file_id   = 'root'              ,
+                                                       entry     = entry               )
         cache_id = response.cache_id
 
         # Store using FLeT__Html__To__Cache
-        store_flet = FLeT__Html__To__Cache(cache_client = self.cache_client,
-                                           cache_id     = cache_id         ,
-                                           namespace    = self.namespace   ).setup()
+        store_flet = FLeT__Html__To__Cache(cache_client = self.html_cache_client,
+                                           cache_id     = cache_id              ,
+                                           namespace    = self.namespace        ).setup()
         store_result = store_flet.execute(Schema__Html_To_Cache__Input(html = Safe_Str__Html(unique_html)))
 
         assert store_result.success is True
 
         # Retrieve using FLeT__Html__From__Cache
-        load_flet = FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                            cache_id     = cache_id         ,
-                                            namespace    = self.namespace   ).setup()
+        load_flet = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                            cache_id     = cache_id              ,
+                                            namespace    = self.namespace        ).setup()
         load_result = load_flet.execute(Schema__Html_From_Cache__Input())
 
         assert load_result.success              is True
@@ -273,16 +275,16 @@ class test_FLeT__Html__From__Cache(TestCase):
     def test_round_trip__multiple_data_keys(self):                                        # Test multiple data keys in same entity
         # Create entity
         entry    = Schema__Html_Cache__Entry()
-        response = self.cache_client.entry__store(namespace = self.namespace           ,
-                                                  cache_key = 'test/multiple-keys'     ,
-                                                  file_id   = 'root'                   ,
-                                                  entry     = entry                    )
+        response = self.html_cache_client.entry__store(namespace = self.namespace           ,
+                                                       cache_key = 'test/multiple-keys'     ,
+                                                       file_id   = 'root'                   ,
+                                                       entry     = entry                    )
         cache_id = response.cache_id
 
         # Store at different data keys
-        store_flet = FLeT__Html__To__Cache(cache_client = self.cache_client,
-                                           cache_id     = cache_id         ,
-                                           namespace    = self.namespace   ).setup()
+        store_flet = FLeT__Html__To__Cache(cache_client = self.html_cache_client,
+                                           cache_id     = cache_id              ,
+                                           namespace    = self.namespace        ).setup()
 
         store_flet.execute(Schema__Html_To_Cache__Input(html         = Safe_Str__Html('<p>original</p>'),
                                                         data_key     = 'html'                          ,
@@ -295,9 +297,9 @@ class test_FLeT__Html__From__Cache(TestCase):
                                                         data_file_id = 'output'                        ))
 
         # Load from each
-        load_flet = FLeT__Html__From__Cache(cache_client = self.cache_client,
-                                            cache_id     = cache_id         ,
-                                            namespace    = self.namespace   ).setup()
+        load_flet = FLeT__Html__From__Cache(cache_client = self.html_cache_client,
+                                            cache_id     = cache_id              ,
+                                            namespace    = self.namespace        ).setup()
 
         result_raw      = load_flet.execute(Schema__Html_From_Cache__Input(data_key='html', data_file_id='raw'))
         result_clean    = load_flet.execute(Schema__Html_From_Cache__Input(data_key='html', data_file_id='clean'))

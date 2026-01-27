@@ -3,6 +3,9 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                       import TestCase
+
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service import register_cache_service__in_memory
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client import Html_Cache__Client
 from osbot_utils.testing.__                                                                         import __
 from mgraph_ai_service_cache_client.schemas.cache.enums.Enum__Cache__Data_Type                      import Enum__Cache__Data_Type
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Namespace                       import Html_Cache__Namespace
@@ -14,18 +17,18 @@ from mgraph_ai_service_html_graph.schemas.flet.html.Schema__FLeT__Html__To__Cach
 from mgraph_ai_service_html_graph.schemas.flet.html.Schema__FLeT__Html__To__Cache__Response         import Schema__FLeT__Html__To__Cache__Response
 from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service                              import Cache__Entity__Service
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.FLeT__Html__Execute__Service           import FLeT__Html__Execute__Service
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                            import create_html_cache_client
 
 
 class test_FLeT__Html__Execute__Service(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                          # Shared test objects
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
-        cls.entity_service  = Cache__Entity__Service      (html_cache_client=cls.html_cache_client)
-        cls.execute_service = FLeT__Html__Execute__Service(html_cache_client=cls.html_cache_client)
-        cls.namespace       = 'test-flet-execute-service'
-        cls.test_html       = '<html><body><h1>Test Content</h1></body></html>'
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
+        cls.entity_service       = Cache__Entity__Service      (html_cache_client=cls.html_cache_client)
+        cls.execute_service      = FLeT__Html__Execute__Service(html_cache_client=cls.html_cache_client)
+        cls.namespace            = 'test-flet-execute-service'
+        cls.test_html            = '<html><body><h1>Test Content</h1></body></html>'
 
     def setUp(self):                                                              # Per-test setup
         self.cache_key = f'test/execute/{Random_Guid()}'

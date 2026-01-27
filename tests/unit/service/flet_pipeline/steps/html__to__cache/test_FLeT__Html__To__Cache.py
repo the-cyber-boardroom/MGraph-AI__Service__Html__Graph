@@ -3,13 +3,14 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                                                import TestCase
+from mgraph_ai_service_cache_client.client.cache_client.Cache__Service__Client                                               import Cache__Service__Client
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service                                              import register_cache_service__in_memory
 from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity                                                     import Cache__Entity
 from mgraph_ai_service_cache_client.client.client_entities.Cache__Entity__Json_File                                          import Cache__Entity__Json_File
 from mgraph_ai_service_cache_client.schemas.cache.store.Schema__Cache__Store__Metadata                                       import Schema__Cache__Store__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success                                           import Schema__Cache__Retrieve__Success
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata                                         import Schema__Cache__File__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                                             import Schema__Cache__File__Refs
-from mgraph_ai_service_cache_client.client.client_contract.Cache__Service__Fast_API__Client                                  import Cache__Service__Fast_API__Client
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                                                   import Html_Cache__Client
 from mgraph_ai_service_cache_client.schemas.cache.safe_str.Safe_Str__Cache__File__Cache_Key                                  import Safe_Str__Cache__File__Cache_Key
 from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cache__Entry                                    import Schema__Html_Cache__Entry
@@ -27,20 +28,20 @@ from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html       
 from osbot_utils.utils.Json                                                                                                  import json_dumps
 from osbot_utils.utils.Misc                                                                                                  import is_guid
 from osbot_utils.utils.Objects                                                                                               import base_types
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                                                     import create_html_cache_client
 
 
 class test_FLeT__Html__To__Cache(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                                  # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.cache_key       = 'test/entity'
-        cls.file_id         = 'root'
-        cls.json_field_path = 'cache_hash'
-        cls.namespace       = 'test-html-to-cache'
-        cls.sample_html     = '<html><body><p>Test content</p></body></html>'
-        cls.cache_id        = cls.create_test_entity()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.cache_client         = Html_Cache__Client()
+        cls.cache_key            = 'test/entity'
+        cls.file_id              = 'root'
+        cls.json_field_path      = 'cache_hash'
+        cls.namespace            = 'test-html-to-cache'
+        cls.sample_html          = '<html><body><p>Test content</p></body></html>'
+        cls.cache_id             = cls.create_test_entity()
 
     @classmethod
     def create_test_entity(cls):                                                          # Create entity for tests
@@ -80,7 +81,7 @@ class test_FLeT__Html__To__Cache(TestCase):
 
             assert cache_key == 'test/entity' == Safe_Str__Cache__File__Cache_Key('test/entity')
             assert type(_)                is Html_Cache__Client
-            assert type(_.cache_client)   is Cache__Service__Fast_API__Client
+            assert type(_.cache_client)   is Cache__Service__Client
             assert is_guid(self.cache_id) is True
             assert entry_data             == {'cache_key': 'test/entity'}
             assert namespace              == 'test-html-to-cache'

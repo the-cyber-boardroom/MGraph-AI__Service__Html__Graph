@@ -118,6 +118,50 @@ class ApiClient {
         }
     }
 
+    /**
+     * Make a PUT request to the API
+     */
+    async put(endpoint, data, options = {}) {
+        const url = `${this.baseUrl}${endpoint}`;
+        const timeout = options.timeout || this.defaultTimeout;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+        try {
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                body: JSON.stringify(data),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new ApiError(
+                    errorData.detail || `HTTP ${response.status}: ${response.statusText}`,
+                    response.status,
+                    errorData
+                );
+            }
+
+            return await response.json();
+        } catch (error) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                throw new ApiError('Request timed out', 408);
+            }
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(error.message || 'Network error', 0);
+        }
+    }
     // ═══════════════════════════════════════════════════════════════════════════════
     // Graph API Methods
     // ═══════════════════════════════════════════════════════════════════════════════

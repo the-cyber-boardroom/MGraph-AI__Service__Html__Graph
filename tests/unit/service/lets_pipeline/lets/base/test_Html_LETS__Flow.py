@@ -3,20 +3,24 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 from types import NoneType
 from unittest                                                                               import TestCase
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service             import register_cache_service__in_memory
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client                  import Html_Cache__Client
 from osbot_utils.helpers.flows.Flow                                                         import Flow
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.utils.Objects                                                              import base_types
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Document                import Html_Cache__Document
 from mgraph_ai_service_html_graph.service.lets_pipeline.lets.base.Html_LETS__Flow           import Html_LETS__Flow
 from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Config   import Schema__LETS__Config
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                    import create_html_cache_client
 
 
 class test_Html_LETS__Flow(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        # cls.service_config       = fast_api__service__registry.config(Cache__Service__Client)
+        # cls.cache_service        = cls.service_config.fast_api.cache_service
+        cls.html_cache_client    = Html_Cache__Client()
         cls.namespace = 'test-flow'
 
     # ═══════════════════════════════════════════════════════════════════════════

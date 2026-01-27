@@ -3,10 +3,10 @@
 # Provides type-safe interface for HTML cache operations
 # ═══════════════════════════════════════════════════════════════════════════════
 from typing                                                                                     import List
+from mgraph_ai_service_cache_client.client.cache_client.Cache__Service__Client                  import Cache__Service__Client
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Metadata            import Schema__Cache__File__Metadata
 from mgraph_ai_service_cache_client.schemas.cache.file.Schema__Cache__File__Refs                import Schema__Cache__File__Refs
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Retrieve__Success              import Schema__Cache__Retrieve__Success
-from mgraph_ai_service_cache_client.client.client_contract.Cache__Service__Fast_API__Client     import Cache__Service__Fast_API__Client
 from mgraph_ai_service_cache_client.schemas.cache.Schema__Cache__Store__Response                import Schema__Cache__Store__Response
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Store__Response     import Schema__Cache__Data__Store__Response
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__List__Response      import Schema__Cache__Data__List__Response
@@ -27,7 +27,7 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 
 
 class Html_Cache__Client(Type_Safe):                                             # Cache service client wrapper
-    cache_client   : Cache__Service__Fast_API__Client                            # Official cache client
+    cache_client   : Cache__Service__Client                                      # Official cache client
     hash_generator : Cache__Hash__Generator                                      # Hash generator for cache keys
 
     # ═══════════════════════════════════════════════════════════════════════════

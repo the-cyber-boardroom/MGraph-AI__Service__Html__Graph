@@ -4,6 +4,9 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                       import TestCase
+
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service import register_cache_service__in_memory
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client import Html_Cache__Client
 from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.Schema__LETS__Status           import Schema__LETS__Status
 from mgraph_ai_service_html_graph.service.lets_pipeline.lets.schemas.safe_str.Safe_Str__LETS__Name  import Safe_Str__LETS__Name
 from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
@@ -14,14 +17,14 @@ from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Document    
 from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Layer                           import Html_Cache__Layer
 from mgraph_ai_service_html_graph.service.cache_storage.safe_str.Safe_Str__Layer_Name               import Safe_Str__Layer_Name
 from mgraph_ai_service_html_graph.service.cache_storage.schemas.Schema__Html_Cache__Root            import Schema__Html_Cache__Root
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                            import create_html_cache_client
 
 
 class test_Html_Cache__Document(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                         # Shared setup - in-memory cache
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
         cls.namespace = 'test-namespace'
 
     # ═══════════════════════════════════════════════════════════════════════════

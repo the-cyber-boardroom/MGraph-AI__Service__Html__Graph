@@ -5,6 +5,12 @@
 
 from unittest                                                                                    import TestCase
 from fastapi                                                                                     import HTTPException
+
+from mgraph_ai_service_cache_client.client.cache_client.Cache__Service__Client import Cache__Service__Client
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client import Html_Cache__Client
+from osbot_fast_api.services.registry.Fast_API__Service__Registry import fast_api__service__registry
+
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service import register_cache_service__in_memory
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__List__Response       import Schema__Cache__Data__List__Response
 from mgraph_ai_service_cache_client.schemas.cache.data.Schema__Cache__Data__Store__Response      import Schema__Cache__Data__Store__Response
 from mgraph_ai_service_html_graph.fast_api.routes.cache.Routes__Cache__Data                      import Routes__Cache__Data
@@ -22,19 +28,21 @@ from osbot_fast_api.api.routes.Fast_API__Routes                                 
 from osbot_utils.type_safe.Type_Safe                                                             import Type_Safe
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                            import Type_Safe__List
 from osbot_utils.utils.Objects                                                                   import base_types
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                         import create_html_cache_client
 
 
 class test_Routes__Cache__Data(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Shared test objects
-        cls.cache_client, cls.cache_service = create_html_cache_client()
-        cls.data_service   = Cache__Data__Service  (cache_client = cls.cache_client)
-        cls.entity_service = Cache__Entity__Service(html_cache_client = cls.cache_client)
-        cls.routes         = Routes__Cache__Data   (service      = cls.data_service)
-        cls.namespace      = 'test-routes-cache-data'
-        cls.cache_id       = cls.create_test_entity()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.service_config       = fast_api__service__registry.config(Cache__Service__Client)
+        cls.cache_service        = cls.service_config.fast_api.cache_service
+        cls.html_cache_client    = Html_Cache__Client()
+        cls.data_service         = Cache__Data__Service  (html_cache_client = cls.html_cache_client)
+        cls.entity_service       = Cache__Entity__Service(html_cache_client = cls.html_cache_client)
+        cls.routes               = Routes__Cache__Data   (service           = cls.data_service    )
+        cls.namespace            = 'test-routes-cache-data'
+        cls.cache_id             = cls.create_test_entity()
 
     @classmethod
     def create_test_entity(cls):                                                    # Create entity for tests

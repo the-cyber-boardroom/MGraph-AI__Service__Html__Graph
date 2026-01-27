@@ -5,8 +5,11 @@
 
 from unittest                                                                           import TestCase
 from fastapi                                                                            import HTTPException
+
+from mgraph_ai_service_cache_client.client.cache_service.register_cache_service import register_cache_service__in_memory
 from mgraph_ai_service_html_graph.fast_api.routes.flet.Routes__FLeT__Flows              import Routes__FLeT__Flows
 from mgraph_ai_service_html_graph.fast_api.routes.flet.Routes__FLeT__Flows              import TAG__ROUTES_FLET_FLOWS
+from mgraph_ai_service_html_graph.service.cache_storage.Html_Cache__Client import Html_Cache__Client
 from osbot_fast_api.api.routes.Fast_API__Routes                                         import Fast_API__Routes
 from mgraph_ai_service_html_graph.schemas.cache.entity.Schema__Entity__Create__Request  import Schema__Entity__Create__Request
 from mgraph_ai_service_html_graph.schemas.flet.flows.Schema__Flow__Data__Response       import Schema__Flow__Data__Response
@@ -19,20 +22,20 @@ from mgraph_ai_service_html_graph.service.cache.Cache__Entity__Service          
 from mgraph_ai_service_html_graph.service.flet_pipeline.flet.FLeT__Flows__Service       import FLeT__Flows__Service
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.utils.Objects                                                          import base_types
-from tests.unit.Html_Graph__Service__Fast_API__Test_Objs                                import create_html_cache_client
 
 
 class test_Routes__FLeT__Flows(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Shared test objects
-        cls.html_cache_client, cls.cache_service = create_html_cache_client()
-        cls.flows_service  = FLeT__Flows__Service  (html_cache_client = cls.html_cache_client)
-        cls.entity_service = Cache__Entity__Service(html_cache_client = cls.html_cache_client)
-        cls.data_service   = Cache__Data__Service  (cache_client = cls.html_cache_client)
-        cls.routes         = Routes__FLeT__Flows   (service      = cls.flows_service)
-        cls.namespace      = 'test-routes-flet-flows'
-        cls.cache_id       = cls.create_test_entity_with_flows()
+        cls.cache_service_client = register_cache_service__in_memory(return_client=True)
+        cls.html_cache_client    = Html_Cache__Client()
+        cls.flows_service        = FLeT__Flows__Service  (html_cache_client = cls.html_cache_client)
+        cls.entity_service       = Cache__Entity__Service(html_cache_client = cls.html_cache_client)
+        cls.data_service         = Cache__Data__Service  (html_cache_client = cls.html_cache_client)
+        cls.routes               = Routes__FLeT__Flows   (service           = cls.flows_service    )
+        cls.namespace            = 'test-routes-flet-flows'
+        cls.cache_id             = cls.create_test_entity_with_flows()
 
     @classmethod
     def create_test_entity_with_flows(cls):                                         # Create entity with flow data
